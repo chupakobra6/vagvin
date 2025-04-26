@@ -1,10 +1,80 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Главная - Vagvin{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold">Добро пожаловать в Vagvin</h1>
+                <p class="lead">Ваша платформа для управления и анализа данных. Мы предоставляем лучшие решения для ваших бизнес-задач.</p>
+                <a href="{% url 'pages:about' %}" class="btn btn-light btn-lg">Узнать больше</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://via.placeholder.com/600x400" alt="Hero Image" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Наши возможности</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-rocket fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">Быстро и эффективно</h3>
+                        <p class="card-text">Наша платформа разработана для максимальной скорости и эффективности, обеспечивая лучшую производительность.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-shield-alt fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">Безопасно и надежно</h3>
+                        <p class="card-text">Ваши данные защищены с помощью современных стандартов безопасности.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">Поддержка 24/7</h3>
+                        <p class="card-text">Наша команда поддержки всегда готова помочь вам с любыми вопросами.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="bg-light py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Готовы начать?</h2>
+        <p class="lead mb-4">Присоединяйтесь к тысячам довольных пользователей, которые доверяют нашей платформе.</p>
+        <a href="#" class="btn btn-primary btn-lg">Зарегистрироваться</a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    }
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

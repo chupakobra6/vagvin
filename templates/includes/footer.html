@@ -1,0 +1,119 @@
+<footer class="footer pt-5 pb-4 mt-5" style="background-color: #f7f9fb; font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;">
+    <div class="container">
+        <div class="row mb-5">
+            <!-- Первая колонка -->
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Контакты</h5>
+                <ul class="list-unstyled mb-3">
+                    <li class="mb-3"><a href="https://t.me/VinVaG" class="footer-link" target="_blank">@VinVaG</a></li>
+                    <li class="mb-3"><a href="tel:+79851221741" class="footer-link">+7 985 122-17-41</a></li>
+                    <li class="mb-3"><a href="mailto:adm@vagvin.ru" class="footer-link">adm@vagvin.ru</a></li>
+                </ul>
+                <div class="mb-3 fw-bold" style="color: #1e293b; font-size: 0.875rem;">Мы в соцсетях:</div>
+                <div class="d-flex gap-3">
+                    <a href="https://www.drive2.ru/users/vinvag/" target="_blank" class="social-link car-icon" style="background-color: #f1f5f9;">
+                        <i class="fas fa-car" style="font-size: 1rem;"></i>
+                    </a>
+                    <a href="https://vk.com/vinvag" target="_blank" class="social-link" style="background-color: #f1f5f9;">
+                        <i class="fab fa-vk" style="font-size: 1rem;"></i>
+                    </a>
+                    <a href="https://t.me/VinVaG" target="_blank" class="social-link" style="background-color: #f1f5f9;">
+                        <i class="fab fa-telegram-plane" style="font-size: 1rem;"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Вторая колонка -->
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Навигация</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><a href="{% url 'pages:home' %}" class="footer-link">Главная</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:about' %}" class="footer-link">Описание</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:faq' %}" class="footer-link">Вопросы</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:requisites' %}" class="footer-link">Реквизиты</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:examples' %}" class="footer-link">Примеры</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:reviews' %}" class="footer-link">Отзывы</a></li>
+                </ul>
+            </div>
+
+            <!-- Третья колонка -->
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Юридическая информация</h5>
+                <div style="color: #64748b; font-size: 0.875rem;">
+                    <div class="mb-3"><span style="font-weight: 500;">ГРН:</span> 323508100651940</div>
+                    <div class="mb-3"><span style="font-weight: 500;">ИНН:</span> 344108952246</div>
+                    <div class="mb-3"><span style="font-weight: 500;">ИП:</span> Кошенский М.Ю.</div>
+                </div>
+            </div>
+
+            <!-- Четвертая колонка -->
+            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Документы</h5>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><a href="#" class="footer-link">Правила оплаты и безопасность платежей</a></li>
+                    <li class="mb-3"><a href="#" class="footer-link">Политика конфиденциальности</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Нижняя часть футера -->
+        <div class="pt-4 border-top" style="border-color: #e2e8f0 !important;">
+            <div class="row align-items-center">
+                <div class="col-12 text-center">
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0;">© 2025 Vagvin. Все права защищены.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .footer {
+            font-size: 0.875rem;
+        }
+        .footer-link {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-weight: 400;
+        }
+        .footer-link:hover {
+            color: #0072ff;
+        }
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            color: #64748b;
+            transition: all 0.2s ease;
+            box-shadow: none;
+            text-decoration: none;
+            border: none;
+            overflow: hidden;
+        }
+        .social-link i {
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .social-link:hover {
+            background-color: #0072ff !important;
+            color: white;
+        }
+        .social-link.car-icon:hover {
+            background-color: #dc2626 !important;
+        }
+    </style>
+</footer>
+
+{% block extra_js %}
+<!-- Font Awesome CDN -->
+<script src="https://kit.fontawesome.com/your_kit_id.js" crossorigin="anonymous"></script>
+<!-- Google Fonts - Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+{% endblock %}

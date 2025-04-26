@@ -1,0 +1,48 @@
+<!-- Header -->
+<header style="font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;">
+    <nav class="navbar navbar-expand-lg navbar-light border-bottom" style="background-color: #f7f9fb; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);">
+        <div class="container py-2">
+            <a class="navbar-brand fw-bold" href="{% url 'pages:home' %}" style="color: #1e293b; font-size: 1.25rem; letter-spacing: -0.5px;">
+                VAGVIN
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none; padding: 0.25rem;">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:home' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:about' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Описание</a></li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:faq' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Вопросы</a></li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:requisites' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Реквизиты</a></li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:examples' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Примеры</a></li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:reviews' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Отзывы</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3">
+                    <a href="https://t.me/Data_ViN_PR_bot" target="_blank" class="btn px-4 py-2" style="background-color: #0072ff; color: white; border-radius: 6px; font-weight: 500; font-size: 0.875rem; border: none;">
+                        Канал
+                    </a>
+                    <a href="{% url 'pages:login' %}" class="btn px-4 py-2" style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
+                        Войти в ЛК
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <style>
+        .navbar .nav-link {
+            transition: color 0.2s ease;
+        }
+        .navbar .nav-link:hover {
+            color: #0072ff !important;
+        }
+        .navbar .btn {
+            transition: all 0.2s ease;
+        }
+        .navbar .btn:first-child:hover {
+            background-color: #0065e6 !important;
+        }
+        .navbar .btn:last-child:hover {
+            border-color: #0072ff !important;
+        }
+    </style>
+</header> 

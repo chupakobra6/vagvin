@@ -1,10 +1,123 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}О нас - Vagvin{% endblock %}
+
+{% block content %}
+<!-- About Hero Section -->
+<section class="hero bg-primary text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold">О нас</h1>
+                <p class="lead">Узнайте больше о нашей компании и нашей миссии</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Company Info Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2 class="mb-4">Наша история</h2>
+                <p class="lead">Основанная в 2024 году, компания Vagvin находится на переднем крае инноваций в нашей отрасли.</p>
+                <p>Мы начали с простой миссии: предоставлять лучшие решения для наших клиентов. За эти годы мы стали надежным именем в отрасли, обслуживая тысячи довольных клиентов по всему миру.</p>
+                <p>Наша приверженность качеству и удовлетворенности клиентов стала движущей силой нашего успеха.</p>
+            </div>
+            <div class="col-lg-6">
+                <img src="https://via.placeholder.com/600x400" alt="Наш офис" class="img-fluid rounded">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Values Section -->
+<section class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Наша миссия и ценности</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-bullseye fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">Наша миссия</h3>
+                        <p class="card-text">Предоставлять инновационные решения, которые меняют жизнь людей и бизнеса к лучшему.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">Наши ценности</h3>
+                        <p class="card-text">Честность, инновации и удовлетворенность клиентов лежат в основе всего, что мы делаем.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">Наше видение</h3>
+                        <p class="card-text">Стать мировым лидером в предоставлении инновационных решений для нашей отрасли.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Наша команда</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Член команды">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Иван Петров</h5>
+                        <p class="text-muted">Генеральный директор и основатель</p>
+                        <p class="card-text">С более чем 15-летним опытом работы в отрасли, Иван ведет нашу компанию с видением и профессионализмом.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Член команды">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Анна Смирнова</h5>
+                        <p class="text-muted">Технический директор</p>
+                        <p class="card-text">Анна привносит техническую экспертизу и инновации в нашу команду разработчиков.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Член команды">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Михаил Иванов</h5>
+                        <p class="text-muted">Руководитель операционного отдела</p>
+                        <p class="card-text">Михаил обеспечивает бесперебойную и эффективную работу наших операций.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    }
+    .card {
+        transition: transform 0.3s ease;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}
