@@ -1,105 +1,206 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}О нас - Vagvin{% endblock %}
+{% block title %}Описание сервиса - Vagvin{% endblock %}
 
 {% block content %}
 <!-- About Hero Section -->
-<section class="hero bg-primary text-white py-5">
+<section class="hero py-5 w-100" style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h1 class="display-4 fw-bold">О нас</h1>
-                <p class="lead">Узнайте больше о нашей компании и нашей миссии</p>
+                <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Описание сервиса</h1>
+                <p style="color: #64748b; font-size: 1.1rem;">Для автомобилей марки Audi, VW, Skoda, Seat, Mercedes, Porsche, BMW и др.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Company Info Section -->
+<!-- About Content Section -->
 <section class="py-5">
     <div class="container">
         <div class="row">
-            <div class="col-lg-6">
-                <h2 class="mb-4">Наша история</h2>
-                <p class="lead">Основанная в 2024 году, компания Vagvin находится на переднем крае инноваций в нашей отрасли.</p>
-                <p>Мы начали с простой миссии: предоставлять лучшие решения для наших клиентов. За эти годы мы стали надежным именем в отрасли, обслуживая тысячи довольных клиентов по всему миру.</p>
-                <p>Наша приверженность качеству и удовлетворенности клиентов стала движущей силой нашего успеха.</p>
-            </div>
-            <div class="col-lg-6">
-                <img src="https://via.placeholder.com/600x400" alt="Наш офис" class="img-fluid rounded">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Mission & Values Section -->
-<section class="bg-light py-5">
-    <div class="container">
-        <h2 class="text-center mb-5">Наша миссия и ценности</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-bullseye fa-3x text-primary mb-3"></i>
-                        <h3 class="card-title">Наша миссия</h3>
-                        <p class="card-text">Предоставлять инновационные решения, которые меняют жизнь людей и бизнеса к лучшему.</p>
+            <div class="col-lg-10 mx-auto">
+                <div class="card border-0 shadow-sm p-4 mb-5">
+                    <div class="card-body">
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Наши услуги</h2>
+                        
+                        <div class="service-item mb-5">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="service-number me-3 d-flex align-items-center justify-content-center" style="min-width: 40px; height: 40px; background-color: #0072ff; border-radius: 50%; color: white; font-weight: 600;">1</div>
+                                <div>
+                                    <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem;">Комплектация автомобиля 📋</h3>
+                                    <p style="color: #64748b;">Это расшифровка всех данных автомобиля по vin номеру. Содержит в среднем от <b>150 до 200 PR кодов</b>, каждый отвечает за какую-либо опцию автомобиля. При выборе русского языка комплектации скрипт производит дополнительный перевод всех PR кодов.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="service-item mb-5">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="service-number me-3 d-flex align-items-center justify-content-center" style="min-width: 40px; height: 40px; background-color: #0072ff; border-radius: 50%; color: white; font-weight: 600;">2</div>
+                                <div>
+                                    <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem;">FGST файл 📄</h3>
+                                    <p style="color: #64748b;">Это набор PR кодов в специальной последовательности, который при добавлении его в программу подбора запасных частей <b>ETKA</b> позволит вам самостоятельно подбирать каталожные номера запасных частей. (Инструкции по работе и саму программу можно найти в сети)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="service-item mb-5">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="service-number me-3 d-flex align-items-center justify-content-center" style="min-width: 40px; height: 40px; background-color: #0072ff; border-radius: 50%; color: white; font-weight: 600;">3</div>
+                                <div>
+                                    <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem;">История обслуживания 🔍</h3>
+                                    <p style="color: #64748b;">Содержит информацию из <b>ВСЕХ</b> заказ-нарядов автомобиля марки <b>AUDI, VW, SKODA, SEAT</b>. Полное перечисление <b>ВСЕХ</b> каталожных номеров деталей и <b>ВСЕХ</b> рабочих позиций.</p>
+                                    <p style="color: #64748b;">Указаны <b>ВСЕ</b> даты, пробеги, работы, запасные части, использованные в заказ-наряде (примеры отчета ниже). Прописанные <b>РЕКОМЕНДАЦИИ</b> и <b>комментарии</b> мастеров и диагностов.</p>
+                                    
+                                    <div class="alert mt-4" style="background-color: #f1f5f9; border-left: 4px solid #0072ff; padding: 1rem; border-radius: 6px;">
+                                        <p style="color: #64748b; margin-bottom: 0;"><i class="fas fa-info-circle me-2"></i>Обращаем внимание! В отличие от других сервисов отчетов а/м, мы даём информацию не из бесплатных источников (ГИБДД, ФССП, Страховые, залоги). Это именно данные по обслуживанию у официальных дилеров. Как правило, отчёт приходит в течение 1-5 минут!</p>
+                                    </div>
+                                    
+                                    <h4 class="mt-4 mb-3" style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">Полный Отчёт по истории обслуживания ответит на вопросы:</h4>
+                                    <ul style="color: #64748b; padding-left: 1.5rem;">
+                                        <li class="mb-2">Что делал официальный дилер с машиной ранее? (необходимо при покупке автомобилей б/у)</li>
+                                        <li class="mb-2">В каком объёме обслуживался автомобиль.</li>
+                                        <li class="mb-2">Были ли крупные ремонты — ДВС, КП, кузова.</li>
+                                        <li class="mb-2">Каждый второй пригнанный автомобиль из-за рубежа имеет смотанный пробег.</li>
+                                        <li class="mb-2">Из Америки автомобили часто привозят "утилизированные", так называемые ТОТАЛЬНЫЕ.</li>
+                                        <li class="mb-2">Использовался ли а/м в Европе в качестве такси.</li>
+                                        <li class="mb-2">Был ли а/м "чипован" (фиксируется дилером при проверке ПО ДВС).</li>
+                                        <li class="mb-2">Полное перечисление работ и запасных частей с указанием количества и каталожных номеров!</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="service-item mb-4">
+                            <div class="d-flex align-items-start mb-3">
+                                <div class="service-number me-3 d-flex align-items-center justify-content-center" style="min-width: 40px; height: 40px; background-color: #0072ff; border-radius: 50%; color: white; font-weight: 600;">4</div>
+                                <div>
+                                    <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem;">Технические руководства 📚</h3>
+                                    <p style="color: #64748b;">Руководства по слесарному/кузовному ремонту, электросхемы авто. Это именно полная выгрузка всего раздела дилерской документации, в формате большого pdf документа, который остаётся у Вас локально.</p>
+                                    <p style="color: #64748b;">Ранее для подобных данных можно было использовать образы программы ElsaWIN, но после 2015 года её поддержка прекращена. Мы же собираем её с помощью доступа к порталам локальных мастерских Erwin наших европейских партнеров.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-handshake fa-3x text-primary mb-3"></i>
-                        <h3 class="card-title">Наши ценности</h3>
-                        <p class="card-text">Честность, инновации и удовлетворенность клиентов лежат в основе всего, что мы делаем.</p>
+                
+                <!-- Examples Carousel Section -->
+                <h3 class="mb-4 text-center" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Некоторые примеры 📷</h3>
+                
+                <div class="card border-0 shadow-sm p-4 mb-5">
+                    <div class="card-body">
+                        <!-- Bootstrap Carousel -->
+                        <div id="examplesCarousel" class="carousel slide mb-4" data-bs-ride="carousel">
+                            <div class="carousel-indicators">
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Слайд 1"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="1" aria-label="Слайд 2"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="2" aria-label="Слайд 3"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="3" aria-label="Слайд 4"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="4" aria-label="Слайд 5"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="5" aria-label="Слайд 6"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="6" aria-label="Слайд 7"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="7" aria-label="Слайд 8"></button>
+                                <button type="button" data-bs-target="#examplesCarousel" data-bs-slide-to="8" aria-label="Слайд 9"></button>
+                            </div>
+                            <div class="carousel-inner rounded">
+                                <div class="carousel-item active">
+                                    <img src="{% static 'img/about/example_1.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 1" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_2.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 2" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_3.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 3" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_4.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 4" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_5.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 5" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_6.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 6" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_7.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 7" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_8.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 8" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="{% static 'img/about/example_9.jpg' %}" class="d-block w-100 fullscreen-img" alt="Пример 9" style="cursor: pointer; max-height: 600px; object-fit: contain;">
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#examplesCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Предыдущий</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#examplesCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Следующий</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <div class="card-body text-center">
-                        <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
-                        <h3 class="card-title">Наше видение</h3>
-                        <p class="card-text">Стать мировым лидером в предоставлении инновационных решений для нашей отрасли.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Team Section -->
-<section class="py-5">
-    <div class="container">
-        <h2 class="text-center mb-5">Наша команда</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Член команды">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Иван Петров</h5>
-                        <p class="text-muted">Генеральный директор и основатель</p>
-                        <p class="card-text">С более чем 15-летним опытом работы в отрасли, Иван ведет нашу компанию с видением и профессионализмом.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Член команды">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Анна Смирнова</h5>
-                        <p class="text-muted">Технический директор</p>
-                        <p class="card-text">Анна привносит техническую экспертизу и инновации в нашу команду разработчиков.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                    <img src="https://via.placeholder.com/300x300" class="card-img-top" alt="Член команды">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Михаил Иванов</h5>
-                        <p class="text-muted">Руководитель операционного отдела</p>
-                        <p class="card-text">Михаил обеспечивает бесперебойную и эффективную работу наших операций.</p>
+                
+                <!-- Contact Info Section -->
+                <div class="card border-0 shadow-sm p-4 mb-5">
+                    <div class="card-body">
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Связь с нами 📱</h2>
+                        
+                        <!-- Highlighted Contact Section -->
+                        <div class="contact-box p-4 mb-4" style="background-color: #f1f5f9; border-radius: 8px; border-left: 4px solid #0072ff;">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="min-width: 50px; height: 50px; background-color: #0072ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                                    <i class="fas fa-headset text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="color: #1e293b; font-weight: 600; font-size: 1.2rem; margin-bottom: 5px;">Задайте вопрос оператору 💬</h4>
+                                    <p style="color: #64748b; margin-bottom: 0;">Оперативный ответ на все ваши вопросы</p>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2 mt-2">
+                                <a href="https://t.me/VinVaG" class="btn btn-primary d-flex align-items-center" style="background-color: #0072ff; border: none;" target="_blank">
+                                    <i class="fab fa-telegram-plane me-2"></i> Telegram @VinVaG
+                                </a>
+                                <a href="tel:+79851221741" class="btn btn-outline-primary d-flex align-items-center" style="border-color: #0072ff; color: #0072ff;">
+                                    <i class="fas fa-phone-alt me-2"></i> +7 (985) 122-17-41
+                                </a>
+                                <a href="mailto:adm@vagvin.ru" class="btn btn-outline-primary d-flex align-items-center" style="border-color: #0072ff; color: #0072ff;">
+                                    <i class="fas fa-envelope me-2"></i> adm@vagvin.ru
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Telegram Bot Section -->
+                        <div class="bot-box p-4 mb-4" style="background-color: #f1f5f9; border-radius: 8px; border-left: 4px solid #0072ff;">
+                            <div class="d-flex align-items-center mb-3">
+                                <div style="min-width: 50px; height: 50px; background-color: #0072ff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                                    <i class="fas fa-robot text-white" style="font-size: 1.5rem;"></i>
+                                </div>
+                                <div>
+                                    <h4 style="color: #1e293b; font-weight: 600; font-size: 1.2rem; margin-bottom: 5px;">Воспользуйтесь Telegram ботом 🤖</h4>
+                                    <p style="color: #64748b; margin-bottom: 0;">Автоматический сервис проверки 24/7</p>
+                                </div>
+                            </div>
+                            <div class="text-center my-3">
+                                <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary btn-lg px-4 py-3" style="background-color: #0072ff; border: none; font-weight: 600; border-radius: 8px;" target="_blank">
+                                    👉 Data_ViN_PR_bot 👈
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Video Section -->
+                        <h4 class="mb-3" style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">Видеообзор работы бота Data_ViN_PR_bot 📹</h4>
+                        <div class="ratio ratio-16x9 mb-4">
+                            <iframe src="https://rutube.ru/play/embed/a90855098062cdbbe67fc93b848e942e" frameborder="0" allow="clipboard-write; autoplay" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>
+                        </div>
+                        
+                        <h4 class="mb-3" style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">Видеопример заказа Автотеки в боте! 🚘</h4>
+                        <div class="ratio ratio-16x9 mb-4">
+                            <iframe src="https://rutube.ru/play/embed/180c960e7d57e562e688cf80e70cd68a" frameborder="0" allow="clipboard-write; autoplay" webkitAllowFullScreen mozallowfullscreen allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -110,14 +211,151 @@
 
 {% block extra_css %}
 <style>
-    .hero {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    body {
+        font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .service-number {
+        font-family: 'Inter', sans-serif;
     }
     .card {
-        transition: transform 0.3s ease;
+        transition: none;
     }
     .card:hover {
-        transform: translateY(-5px);
+        transform: none;
+    }
+    
+    /* Carousel customization */
+    .carousel-control-prev,
+    .carousel-control-next {
+        width: 5%;
+        opacity: 0.7;
+    }
+    
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.3);
+        border-radius: 50%;
+        padding: 10px;
+    }
+    
+    .carousel-indicators button {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin: 0 5px;
+    }
+    
+    /* Contact box hover effects */
+    .contact-box a.btn, .bot-box a.btn {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .contact-box a.btn:hover, .bot-box a.btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 114, 255, 0.2);
+    }
+    
+    /* Fix for button hover states to maintain contrast */
+    .btn-primary {
+        background-color: #0072ff !important;
+        border-color: #0072ff !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: #005dd4 !important;
+        border-color: #005dd4 !important;
+        color: white !important;
+    }
+    
+    .btn-outline-primary {
+        border-color: #0072ff !important;
+        color: #0072ff !important;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: rgba(0, 114, 255, 0.1) !important;
+        color: #0072ff !important;
+    }
+    
+    /* Стили для полноэкранного просмотра */
+    .fullscreen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .fullscreen-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    .fullscreen-overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+    }
+    
+    .close-overlay {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
     }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Создаем оверлей один раз
+        const overlay = document.createElement('div');
+        overlay.className = 'fullscreen-overlay';
+        
+        const closeBtn = document.createElement('div');
+        closeBtn.className = 'close-overlay';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.addEventListener('click', function() {
+            overlay.classList.remove('active');
+        });
+        
+        const fullscreenImg = document.createElement('img');
+        overlay.appendChild(fullscreenImg);
+        overlay.appendChild(closeBtn);
+        document.body.appendChild(overlay);
+        
+        // Закрыть при клике на оверлей
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+        
+        // Обработчик для изображений с классом fullscreen-img
+        document.querySelectorAll('.fullscreen-img').forEach(function(img) {
+            img.addEventListener('click', function() {
+                fullscreenImg.src = this.src;
+                overlay.classList.add('active');
+            });
+        });
+        
+        // Закрытие по клавише Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+</script>
 {% endblock %}

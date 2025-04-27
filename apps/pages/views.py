@@ -1,15 +1,12 @@
 from django.shortcuts import render
 
 def home_view(request):
-    """Home page view."""
     return render(request, 'pages/home.html')
 
 def about_view(request):
-    """About page view."""
     return render(request, 'pages/about.html')
 
 def faq_view(request):
-    """FAQ page view."""
     return render(request, 'pages/faq.html')
 
 def requisites_view(request):
@@ -23,3 +20,9 @@ def reviews_view(request):
 
 def login_view(request):
     return render(request, 'pages/login.html')
+
+def privacy_policy_view(request):
+    return render(request, 'pages/privacy_policy.html')
+    
+def payment_rules_view(request):
+    return render(request, 'pages/payment_rules.html')

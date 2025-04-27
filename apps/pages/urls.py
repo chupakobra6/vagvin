@@ -1,14 +1,20 @@
 from django.urls import path
-from . import views
+from .views import (
+    home_view, about_view, faq_view, requisites_view,
+    examples_view, reviews_view, login_view,
+    privacy_policy_view, payment_rules_view
+)
 
 app_name = 'pages'
 
 urlpatterns = [
-    path('', views.home_view, name='home'),
-    path('about/', views.about_view, name='about'),
-    path('faq/', views.faq_view, name='faq'),
-    path('requisites/', views.requisites_view, name='requisites'),
-    path('examples/', views.examples_view, name='examples'),
-    path('reviews/', views.reviews_view, name='reviews'),
-    path('login/', views.login_view, name='login'),
+    path('', home_view, name='home'),
+    path('about/', about_view, name='about'),
+    path('faq/', faq_view, name='faq'),
+    path('requisites/', requisites_view, name='requisites'),
+    path('examples/', examples_view, name='examples'),
+    path('reviews/', reviews_view, name='reviews'),
+    path('login/', login_view, name='login'),
+    path('privacy-policy/', privacy_policy_view, name='privacy_policy'),
+    path('payment-rules/', payment_rules_view, name='payment_rules'),
 ]

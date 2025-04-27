@@ -5,7 +5,7 @@
 
 {% block content %}
 <!-- FAQ Hero Section -->
-<section class="hero py-5" style="background-color: #f7f9fb;">
+<section class="hero py-5 w-100" style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
@@ -72,7 +72,7 @@
                             </div>
                             <div class="step-image mb-4 text-center">
                                 <!-- Первая картинка -->
-                                <img src="{% static 'img/faq/step1.jpg' %}" alt="Отправка VIN" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                <img src="{% static 'img/faq/step1.jpg' %}" alt="Отправка VIN" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 400px; cursor: pointer;">
                             </div>
                         </div>
                         
@@ -86,7 +86,7 @@
                             </div>
                             <div class="step-image mb-4 text-center">
                                 <!-- Вторая картинка -->
-                                <img src="{% static 'img/faq/step2.jpg' %}" alt="Выбор типа запроса" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                <img src="{% static 'img/faq/step2.jpg' %}" alt="Выбор типа запроса" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 400px; cursor: pointer;">
                             </div>
                         </div>
                         
@@ -100,7 +100,7 @@
                             </div>
                             <div class="step-image mb-4 text-center">
                                 <!-- Третья картинка -->
-                                <img src="{% static 'img/faq/step3.jpg' %}" alt="Выбор марки" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                <img src="{% static 'img/faq/step3.jpg' %}" alt="Выбор марки" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 400px; cursor: pointer;">
                             </div>
                         </div>
                         
@@ -114,7 +114,7 @@
                             </div>
                             <div class="step-image mb-4 text-center">
                                 <!-- Четвертая картинка -->
-                                <img src="{% static 'img/faq/step4.jpg' %}" alt="Выбор языка" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                <img src="{% static 'img/faq/step4.jpg' %}" alt="Выбор языка" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 400px; cursor: pointer;">
                             </div>
                         </div>
                         
@@ -128,7 +128,7 @@
                             </div>
                             <div class="step-image mb-4 text-center">
                                 <!-- Пятая картинка -->
-                                <img src="{% static 'img/faq/step5.jpg' %}" alt="Проверка правильности" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                <img src="{% static 'img/faq/step5.jpg' %}" alt="Проверка правильности" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 400px; cursor: pointer;">
                             </div>
                         </div>
                         
@@ -140,7 +140,7 @@
                         
                         <div class="step-image mb-5 text-center">
                             <!-- Шестая картинка - результат запроса -->
-                            <img src="{% static 'img/faq/result.jpg' %}" alt="Результат запроса" class="img-fluid rounded shadow-sm" style="max-height: 500px;">
+                            <img src="{% static 'img/faq/result.jpg' %}" alt="Результат запроса" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 500px; cursor: pointer;">
                         </div>
                         
                         <div class="referral-info p-4 mb-4" style="background-color: #f1f5f9; border-radius: 8px;">
@@ -150,7 +150,7 @@
                             
                             <div class="step-image mt-3 text-center">
                                 <!-- Седьмая картинка - реферальная программа -->
-                                <img src="{% static 'img/faq/referral.jpg' %}" alt="Реферальная программа" class="img-fluid rounded shadow-sm" style="max-height: 400px;">
+                                <img src="{% static 'img/faq/referral.jpg' %}" alt="Реферальная программа" class="img-fluid rounded shadow-sm fullscreen-img" style="max-height: 400px; cursor: pointer;">
                             </div>
                         </div>
                     </div>
@@ -170,18 +170,100 @@
         font-family: 'Inter', sans-serif;
     }
     .card {
-        transition: transform 0.2s;
+        transition: none;
     }
     .card:hover {
-        transform: translateY(-5px);
+        transform: none;
     }
     .step-image img {
         border: 1px solid #e2e8f0;
-        transition: all 0.3s ease;
+        transition: none;
     }
     .step-image img:hover {
-        transform: scale(1.02);
+        transform: none;
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     }
+    
+    /* Стили для полноэкранного просмотра */
+    .fullscreen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .fullscreen-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+    }
+    
+    .fullscreen-overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+    }
+    
+    .close-overlay {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: white;
+        font-size: 30px;
+        cursor: pointer;
+    }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Создаем оверлей один раз
+        const overlay = document.createElement('div');
+        overlay.className = 'fullscreen-overlay';
+        
+        const closeBtn = document.createElement('div');
+        closeBtn.className = 'close-overlay';
+        closeBtn.innerHTML = '&times;';
+        closeBtn.addEventListener('click', function() {
+            overlay.classList.remove('active');
+        });
+        
+        const fullscreenImg = document.createElement('img');
+        overlay.appendChild(fullscreenImg);
+        overlay.appendChild(closeBtn);
+        document.body.appendChild(overlay);
+        
+        // Закрыть при клике на оверлей
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+            }
+        });
+        
+        // Обработка клика на все картинки
+        const images = document.querySelectorAll('.fullscreen-img');
+        images.forEach(function(img) {
+            img.addEventListener('click', function() {
+                fullscreenImg.src = this.src;
+                overlay.classList.add('active');
+            });
+        });
+        
+        // Закрытие по ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                overlay.classList.remove('active');
+            }
+        });
+    });
+</script>
 {% endblock %}
