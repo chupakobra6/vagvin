@@ -22,12 +22,12 @@
                         Канал
                     </a>
                     {% if user.is_authenticated %}
-                        <div class="dropdown">
-                            <button class="btn dropdown-toggle px-4 py-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" 
-                                   style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
+                        <div class="dropdown" style="position: relative;">
+                            <button class="btn dropdown-toggle px-4 py-2 w-100" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" 
+                                   style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem; min-width: 180px;">
                                 <i class="fas fa-user me-1"></i> {{ user.username }}
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userDropdown" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); min-width: 180px;">
                                 <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}" style="color: #64748b; font-weight: 500; font-size: 0.875rem;">
                                     <i class="fas fa-tachometer-alt me-2"></i> Личный кабинет
                                 </a></li>
@@ -72,6 +72,27 @@
         .dropdown-item:active {
             background-color: #e2e8f0;
             color: inherit;
+        }
+        /* Ensure dropdown menu matches button width */
+        .user-dropdown-menu {
+            min-width: 180px;
+            width: 100%;
+            left: 0 !important;
+            right: 0 !important;
+        }
+        @media (min-width: 992px) {
+            .dropdown .dropdown-menu.user-dropdown-menu {
+                min-width: 0;
+                width: auto;
+                left: 0;
+                right: 0;
+            }
+        }
+        .dropdown {
+            min-width: 180px;
+        }
+        .dropdown-toggle {
+            min-width: 180px;
         }
     </style>
 </header> 

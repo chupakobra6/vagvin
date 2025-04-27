@@ -1,7 +1,5 @@
 from django.urls import path
-from django.urls import reverse_lazy
 
-from . import forms
 from . import views
 
 app_name = 'accounts'

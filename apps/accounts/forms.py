@@ -6,7 +6,8 @@ from .models import User
 
 
 class RegistrationForm(forms.Form):
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'}))
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -17,9 +18,11 @@ class RegistrationForm(forms.Form):
 
 
 class LoginForm(AuthenticationForm):
-    username = forms.CharField(label='Email', widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'}))
-    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Введите ваш пароль'}))
-    
+    username = forms.CharField(label='Email', widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'}))
+    password = forms.CharField(label='Пароль', widget=forms.PasswordInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите ваш пароль'}))
+
     def clean(self):
         email = self.cleaned_data.get('username')
         if email and '@' in email:
@@ -29,7 +32,8 @@ class LoginForm(AuthenticationForm):
 
 
 class ForgotPasswordForm(forms.Form):
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите ваш email'}))
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -38,4 +42,5 @@ class ForgotPasswordForm(forms.Form):
 
 
 class AdditionalEmailForm(forms.Form):
-    email = forms.EmailField(label='Email', widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Введите дополнительный email'}))
+    email = forms.EmailField(label='Email', widget=forms.EmailInput(
+        attrs={'class': 'form-control', 'placeholder': 'Введите дополнительный email'}))

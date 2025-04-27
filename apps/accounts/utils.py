@@ -44,30 +44,45 @@ def send_email(subject, to_email, html_content, additional_recipients=None, copy
             logger.error(f"Failed to send email '{subject}' to {recipients}")
             return False
     except Exception as e:
-        logger.exception(f"Error sending email: {str(e)}")
+        logger.exception(f"Error sending email: {e}")
         return False
 
 
-# TODO: Валидация полей и обработка ошибок для методов ниже:
 def get_registration_email_content(user, password):
-    referral_link = f"http://vagvin.ru{user.referral_link}"
-    context = {
-        'username': user.username,
-        'password': password,
-        'email': user.email,
-        'referral_link': referral_link
-    }
-    html_content = render_to_string('accounts/emails/registration.html', context)
-    return html_content
+    if not user or not password:
+        logger.error("Missing user or password for registration email content")
+        return None
+
+    try:
+        referral_link = f"http://vagvin.ru{user.referral_link}"
+        context = {
+            'username': user.username,
+            'password': password,
+            'email': user.email,
+            'referral_link': referral_link
+        }
+        html_content = render_to_string('accounts/emails/registration.html', context)
+        return html_content
+    except Exception as e:
+        logger.exception(f"Error generating registration email content: {e}")
+        return None
 
 
 def get_password_reset_email_content(user, new_password):
-    context = {
-        'username': user.username,
-        'password': new_password,
-    }
-    html_content = render_to_string('accounts/emails/password_reset.html', context)
-    return html_content
+    if not user or not new_password:
+        logger.error("Missing user or new password for reset email content")
+        return None
+
+    try:
+        context = {
+            'username': user.username,
+            'password': new_password,
+        }
+        html_content = render_to_string('accounts/emails/password_reset.html', context)
+        return html_content
+    except Exception as e:
+        logger.exception(f"Error generating password reset email content: {e}")
+        return None
 
 
 def send_registration_email(user, password):
