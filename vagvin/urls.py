@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     # Admin site URL
@@ -28,8 +29,12 @@ urlpatterns = [
     path('payments/', include('apps.payments.urls')),
 
     # User accounts (authentication, profile, etc.)
-    path('', include('apps.accounts.urls')),
+    path('accounts/', include('apps.accounts.urls')),
 
     # Reports and query history URLs
-    path('', include('apps.reports.urls')),
+    path('reports/', include('apps.reports.urls')),
+    
+    # Redirects for backward compatibility
+    path('login/', RedirectView.as_view(pattern_name='accounts:login', permanent=True)),
+    path('register/', RedirectView.as_view(pattern_name='accounts:register', permanent=True)),
 ]

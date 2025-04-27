@@ -21,9 +21,27 @@
                     <a href="https://t.me/Data_ViN_PR_bot" target="_blank" class="btn px-4 py-2" style="background-color: #0072ff; color: white; border-radius: 6px; font-weight: 500; font-size: 0.875rem; border: none;">
                         Канал
                     </a>
-                    <a href="{% url 'pages:login' %}" class="btn px-4 py-2" style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
-                        Войти в ЛК
-                    </a>
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="btn dropdown-toggle px-4 py-2" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" 
+                                   style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
+                                <i class="fas fa-user me-1"></i> {{ user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);">
+                                <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}" style="color: #64748b; font-weight: 500; font-size: 0.875rem;">
+                                    <i class="fas fa-tachometer-alt me-2"></i> Личный кабинет
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}" style="color: #e11d48; font-weight: 500; font-size: 0.875rem;">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Выйти
+                                </a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn px-4 py-2" style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
+                            Войти в ЛК
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -43,6 +61,17 @@
         }
         .navbar .btn:last-child:hover {
             border-color: #0072ff !important;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            transition: background-color 0.2s ease;
+        }
+        .dropdown-item:hover {
+            background-color: #f1f5f9;
+        }
+        .dropdown-item:active {
+            background-color: #e2e8f0;
+            color: inherit;
         }
     </style>
 </header> 

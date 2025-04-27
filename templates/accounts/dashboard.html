@@ -107,108 +107,242 @@
 {% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Личный кабинет</h4>
+<!-- Dashboard Hero Section -->
+<section class="hero py-5 w-100" style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Личный кабинет</h1>
+                <p style="color: #64748b; font-size: 1.1rem;">Управляйте своим аккаунтом и отслеживайте историю запросов</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Content Section -->
+<section class="py-5">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-4">
+                    {{ message }}
                 </div>
-                <div class="card-body">
-                    {% if messages %}
-                        {% for message in messages %}
-                            <div class="alert alert-{{ message.tags }}">
-                                {{ message }}
+            {% endfor %}
+        {% endif %}
+
+        <div class="row g-4">
+            <!-- User Info Card -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 mb-4 h-100">
+                    <div class="card-body">
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Информация о пользователе</h2>
+                        <div class="mb-4" style="color: #64748b;">
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold" style="color: #334155;">Логин:</div>
+                                <div class="col-md-8">{{ user_data.username }}</div>
                             </div>
-                        {% endfor %}
-                    {% endif %}
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-4">
-                                <h5>Информация о пользователе</h5>
-                                <p><strong>Логин:</strong> {{ user_data.username }}</p>
-                                <p><strong>Email:</strong> {{ user_data.email }}</p>
-                                <p><strong>Дата регистрации:</strong> {{ user.registration_date|date:"d.m.Y" }}</p>
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold" style="color: #334155;">Email:</div>
+                                <div class="col-md-8">{{ user_data.email }}</div>
                             </div>
-                            
-                            <div class="mb-4">
-                                <h5>Финансы</h5>
-                                <p><strong>Баланс:</strong> {{ user_data.balance }} ₽</p>
-                                <p><strong>Овердрафт:</strong> {{ user_data.overdraft }} ₽</p>
-                                <a href="{% url 'payments:balance' %}" class="btn btn-primary">Пополнить баланс</a>
+                            <div class="row">
+                                <div class="col-md-4 fw-bold" style="color: #334155;">Дата регистрации:</div>
+                                <div class="col-md-8">{{ user.registration_date|date:"d.m.Y" }}</div>
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="mb-4">
-                                <h5>Реферальная программа</h5>
-                                <p><strong>Реферальный код:</strong> {{ user_data.referral_code }}</p>
-                                <p><strong>Ваша реферальная ссылка:</strong></p>
-                                <div class="input-group mb-3">
-                                    <input type="text" class="form-control" value="{{ user_data.referral_link }}" readonly>
-                                    <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText('{{ user_data.referral_link }}'); alert('Ссылка скопирована');">Копировать</button>
+                        <hr class="my-4">
+                        
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Финансы</h2>
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <div style="color: #64748b;">
+                                    <div class="mb-2">
+                                        <span class="fw-bold" style="color: #334155;">Баланс:</span> 
+                                        <span class="badge bg-success rounded-pill fs-6 ms-2">{{ user_data.balance }} ₽</span>
+                                    </div>
+                                    <div>
+                                        <span class="fw-bold" style="color: #334155;">Овердрафт:</span> 
+                                        <span class="badge bg-secondary rounded-pill fs-6 ms-2">{{ user_data.overdraft }} ₽</span>
+                                    </div>
                                 </div>
-                                <p><strong>Количество рефералов:</strong> {{ user_data.referrals_count }}</p>
                             </div>
-                            
-                            <div class="mb-4">
-                                <h5>Дополнительные email для отчетов</h5>
-                                <ul class="list-group mb-3">
-                                    {% for email in user_data.additional_emails %}
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                                            {{ email }}
-                                            <button class="btn btn-sm btn-danger remove-email" data-email="{{ email }}">Удалить</button>
-                                        </li>
-                                    {% empty %}
-                                        <li class="list-group-item">Нет дополнительных email</li>
-                                    {% endfor %}
-                                </ul>
-                                
-                                {% if user_data.additional_emails|length < 5 %}
-                                    <form id="add-email-form">
-                                        <div class="input-group">
-                                            <input type="email" class="form-control" id="id_email" placeholder="Введите email" required>
-                                            <button class="btn btn-primary" type="submit">Добавить</button>
-                                        </div>
-                                    </form>
-                                    <small class="form-text text-muted">Вы можете добавить до 5 дополнительных email</small>
-                                {% endif %}
+                            <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                                <a href="{% url 'payments:balance' %}" class="btn btn-primary" style="background-color: #0072ff; border: none; font-weight: 600; border-radius: 8px;">
+                                    <i class="fas fa-wallet me-2"></i>Пополнить баланс
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">История запросов</h4>
+            
+            <!-- Referral Program Card -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 mb-4 h-100">
+                    <div class="card-body">
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Реферальная программа</h2>
+                        <p style="color: #64748b;">Приглашайте друзей и получайте <span class="text-primary fw-bold">10%</span> от их пополнений на свой счет.</p>
+                        
+                        <div class="mb-4" style="color: #64748b;">
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold" style="color: #334155;">Реферальный код:</div>
+                                <div class="col-md-8">{{ user_data.referral_code }}</div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-4 fw-bold" style="color: #334155;">Ваша ссылка:</div>
+                                <div class="col-md-8">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" value="{{ user_data.referral_link }}" readonly style="border-radius: 8px 0 0 8px;">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText('{{ user_data.referral_link }}'); alert('Ссылка скопирована');" style="border-radius: 0 8px 8px 0;">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4 fw-bold" style="color: #334155;">Рефералы:</div>
+                                <div class="col-md-8">
+                                    <span class="badge bg-primary rounded-pill fs-6">{{ user_data.referrals_count }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert" style="background-color: #f1f5f9; border-left: 4px solid #0072ff; padding: 1rem; border-radius: 6px;">
+                            <h4 style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">💡 Как это работает?</h4>
+                            <p style="color: #64748b; margin-bottom: 0.5rem;">1. Поделитесь своей реферальной ссылкой с друзьями</p>
+                            <p style="color: #64748b; margin-bottom: 0.5rem;">2. Когда они зарегистрируются и пополнят баланс</p>
+                            <p style="color: #64748b; margin-bottom: 0;">3. Вы получите 10% от суммы их пополнения</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Дата</th>
-                                    <th>VIN</th>
-                                    <th>Марка</th>
-                                    <th>Тип отчета</th>
-                                    <th>Стоимость</th>
-                                </tr>
-                            </thead>
-                            <tbody id="queries-table">
-                                <!-- История запросов будет загружена через AJAX -->
-                                <tr>
-                                    <td colspan="5" class="text-center">Загрузка истории запросов...</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            </div>
+            
+            <!-- Additional Emails Card -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Дополнительные email для отчетов</h2>
+                        <p style="color: #64748b;" class="mb-4">Добавьте до 5 дополнительных адресов для получения отчетов:</p>
+                        
+                        <ul class="list-group mb-4">
+                            {% for email in user_data.additional_emails %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center" style="border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px;">
+                                    <span style="color: #334155;">{{ email }}</span>
+                                    <button class="btn btn-sm btn-danger remove-email" data-email="{{ email }}" style="border-radius: 6px;">
+                                        <i class="fas fa-times me-1"></i>Удалить
+                                    </button>
+                                </li>
+                            {% empty %}
+                                <li class="list-group-item" style="border-radius: 8px; border: 1px solid #e2e8f0; color: #64748b;">
+                                    <i class="fas fa-info-circle me-2 text-muted"></i>Нет дополнительных email
+                                </li>
+                            {% endfor %}
+                        </ul>
+                        
+                        {% if user_data.additional_emails|length < 5 %}
+                            <form id="add-email-form">
+                                <div class="input-group mb-2">
+                                    <input type="email" class="form-control" id="id_email" placeholder="Введите email" required style="border-radius: 8px 0 0 8px;">
+                                    <button class="btn btn-primary" type="submit" style="background-color: #0072ff; border: none; border-radius: 0 8px 8px 0;">
+                                        <i class="fas fa-plus me-1"></i>Добавить
+                                    </button>
+                                </div>
+                                <small class="form-text" style="color: #64748b;">Вы можете добавить до 5 дополнительных email</small>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- History Card -->
+            <div class="col-lg-12">
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <div class="card-body">
+                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">История запросов</h2>
+                        
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th style="color: #334155; font-weight: 600;">Дата</th>
+                                        <th style="color: #334155; font-weight: 600;">VIN</th>
+                                        <th style="color: #334155; font-weight: 600;">Марка</th>
+                                        <th style="color: #334155; font-weight: 600;">Тип отчета</th>
+                                        <th style="color: #334155; font-weight: 600;">Стоимость</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="queries-table">
+                                    <tr>
+                                        <td colspan="5" class="text-center" style="color: #64748b;">
+                                            <div class="py-4">
+                                                <div class="spinner-border text-primary mb-3" role="status"></div>
+                                                <p>Загрузка истории запросов...</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .form-control {
+        padding: 12px 16px;
+        font-size: 1rem;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    .form-control:focus {
+        border-color: #0072ff;
+        box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+    }
+    .btn-primary {
+        border-radius: 8px;
+        transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+    }
+    .card {
+        border-radius: 12px;
+        transition: none;
+    }
+    .card:hover {
+        transform: none;
+    }
+    .alert {
+        border-radius: 8px;
+        border-left: 4px solid;
+    }
+    .alert-danger {
+        border-left-color: #e11d48;
+        background-color: #fff1f2;
+        color: #be123c;
+    }
+    .alert-success {
+        border-left-color: #10b981;
+        background-color: #ecfdf5;
+        color: #047857;
+    }
+    .table th, .table td {
+        padding: 12px 16px;
+        vertical-align: middle;
+    }
+    .badge {
+        font-weight: 500;
+        padding: 6px 10px;
+    }
+</style>
 {% endblock %} 
