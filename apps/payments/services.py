@@ -135,6 +135,7 @@ def verify_robokassa_callback(params):
     payment.status = 'success'
     payment.save(update_fields=['status', 'updated_at'])
     
+    # TODO: Реализовать модель пользователя
     # Пополняем баланс пользователя
     try:
         # Проверяем наличие профиля с балансом
