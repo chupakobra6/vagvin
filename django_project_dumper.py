@@ -1,4 +1,5 @@
 import os
+
 import pyperclip
 
 # Default exclude paths and files
@@ -6,7 +7,8 @@ EXCLUDE_DIRS = {"venv", ".venv", "git", "__pycache__", "migrations"}
 EXCLUDE_FILES = {".env", "README.md", "requirements.txt", ".gitignore", ".git"}
 
 # Django-specific files that are commonly important
-DJANGO_WHITELIST_FILES = ['models.py', 'admin.py', 'serializers.py', 'urls.py', 'views.py', 'utils.py', 'forms.py', 'tests.py', 'middleware.py', 'settings.py']
+DJANGO_WHITELIST_FILES = ['models.py', 'admin.py', 'serializers.py', 'urls.py', 'views.py', 'utils.py', 'forms.py',
+                          'tests.py', 'middleware.py', 'settings.py']
 
 # Web file extensions to include
 WEB_EXTENSIONS = ['.html', '.css', '.js', '.scss', '.jsx', '.ts', '.tsx']
@@ -52,13 +54,13 @@ def choose_file_types():
     print("5. Пользовательский выбор")
 
     choice = input("\nВведите номер выбора: ")
-    
+
     try:
         choice = int(choice)
     except ValueError:
         print("Неверный выбор. Используем опцию 1 по умолчанию.")
         choice = 1
-    
+
     if choice == 1:
         return ['.py'], [], []
     elif choice == 2:
@@ -71,13 +73,14 @@ def choose_file_types():
         # Custom selection
         extensions = input("Введите расширения файлов через запятую (например, .py,.html,.css): ").split(',')
         extensions = [ext.strip() for ext in extensions if ext.strip()]
-        
+
         include_files = input("Введите имена файлов для включения через запятую (или оставьте пустым): ").split(',')
         include_files = [f.strip() for f in include_files if f.strip()]
-        
-        exclude_files = input("Введите дополнительные имена файлов для исключения через запятую (или оставьте пустым): ").split(',')
+
+        exclude_files = input(
+            "Введите дополнительные имена файлов для исключения через запятую (или оставьте пустым): ").split(',')
         exclude_files = [f.strip() for f in exclude_files if f.strip()]
-        
+
         return extensions, include_files, exclude_files
     else:
         print("Неверный выбор. Используем опцию 1 по умолчанию.")
@@ -87,18 +90,18 @@ def choose_file_types():
 def collect_files(directory, extensions, include_files, exclude_dirs, exclude_files):
     """Collect all files that match the criteria."""
     collected_files = []
-    
+
     for root, dirs, files in os.walk(directory, topdown=True):
         # Filter out excluded directories
         dirs[:] = [d for d in dirs if not is_excluded(os.path.join(root, d), exclude_dirs, exclude_files)]
-        
+
         for file in files:
             file_path = os.path.join(root, file)
-            
+
             # Skip excluded files
             if is_excluded(file_path, exclude_dirs, exclude_files):
                 continue
-            
+
             # Include file if it has one of the specified extensions
             if file.endswith(tuple(extensions)) or file in include_files:
                 # Special handling for Python files
@@ -106,9 +109,9 @@ def collect_files(directory, extensions, include_files, exclude_dirs, exclude_fi
                     if not any(file.startswith(prefix) for prefix in ['test_', 'tests_']):
                         # Only include Python files that are in the whitelist or start with test
                         continue
-                
+
                 collected_files.append(file_path)
-    
+
     return collected_files
 
 
@@ -147,10 +150,10 @@ def write_project_structure(structure, output_file, indent_level=0):
 
 def main():
     current_directory = os.getcwd()
-    
+
     # Ask if user wants to select a project or use current directory
     use_current = input("Использовать текущую директорию как проект? (д/н): ").lower()
-    
+
     if use_current.startswith('д'):
         project_directory = current_directory
         project_name = os.path.basename(current_directory)
@@ -158,7 +161,7 @@ def main():
         # List potential projects in current directory
         print("\nДоступные проекты в текущей директории:")
         projects = list_projects(current_directory)
-        
+
         if not projects:
             print("Проекты не найдены. Используем текущую директорию.")
             project_directory = current_directory
@@ -176,34 +179,34 @@ def main():
                 print("Неверный выбор. Используем текущую директорию.")
                 project_directory = current_directory
                 project_name = os.path.basename(current_directory)
-    
+
     # Choose which file types to include
     extensions, include_files, additional_exclude_files = choose_file_types()
-    
+
     # Add additional exclude files to the default list
     exclude_files = EXCLUDE_FILES.union(set(additional_exclude_files))
-    
+
     # Get output file name
     output_file_name = input(f"\nВведите имя файла для сохранения дампа (по умолчанию: {project_name}_dump.txt): ")
     if not output_file_name:
         output_file_name = f"{project_name}_dump.txt"
-    
+
     # Collect files that match the criteria
     print(f"\nСбор файлов проекта '{project_name}'...")
     project_files = collect_files(project_directory, extensions, include_files, EXCLUDE_DIRS, exclude_files)
-    
+
     if not project_files:
         print("Файлы для дампа не найдены. Проверьте настройки и повторите попытку.")
         return
-    
+
     print(f"Найдено {len(project_files)} файлов для дампа.")
-    
+
     # Sort files by path for better organization
     project_files.sort()
-    
+
     # Build project structure for overview
     structure = build_project_structure(project_directory, project_files)
-    
+
     # Generate the dump
     with open(output_file_name, 'w', encoding='utf-8') as output_file:
         # Write project structure
@@ -211,7 +214,7 @@ def main():
         output_file.write("=" * 3 + "\n")
         write_project_structure(structure, output_file)
         output_file.write("\n" + "=" * 3 + "\n\n")
-        
+
         # Write the content of each file
         for file_path in project_files:
             rel_path = os.path.relpath(file_path, project_directory)
@@ -220,14 +223,14 @@ def main():
             file_content = extract_code(file_path)
             output_file.write(file_content)
             output_file.write("\n\n" + "=" * 3 + "\n\n")
-    
+
     print(f"\nДамп проекта успешно сохранен в файл '{output_file_name}'.")
-    
+
     # Copy to clipboard
     try:
         with open(output_file_name, 'r', encoding='utf-8') as f:
             dump_content = f.read()
-            
+
         pyperclip.copy(dump_content)
         print("Содержимое дампа скопировано в буфер обмена.")
     except Exception as e:
@@ -236,4 +239,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
