@@ -1,13 +1,11 @@
 from django.contrib import admin
-from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 
-User = get_user_model()
+from .models import User
 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    """Custom User Admin that includes our custom fields"""
     list_display = ('username', 'email', 'balance', 'overdraft', 'created_at', 'referral_code', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'created_at')
     search_fields = ('username', 'email', 'referral_code')

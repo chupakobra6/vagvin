@@ -1,71 +1,86 @@
+import logging
 import string
 
 from django.conf import settings
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+logger = logging.getLogger(__name__)
 
 
-def generate_password(length=12):
-    """Generates a secure random password including letters, digits, and punctuation."""
+def generate_password(length=14):
     import secrets
-    characters = string.ascii_letters + string.digits + string.punctuation
+    characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
 
-# TODO: Отдельная функция для отправки письма, разделение логики отправки и содержания письма
-# TODO: HTML-стилизация письма
-def send_registration_email(user, password):
-    """Send a welcome email with login credentials to the user"""
-    subject = 'Добро пожаловать на сайт vagvin.ru !'
-    referral_link = f"http://vagvin.ru{user.referral_link}"
-
-    message = f"""
-    Здравствуйте, {user.username}!
-    Вы успешно зарегистрировались на нашем сайте.
-    Ваши данные:
-    --------------------
-    Логин: {user.username}
-    Пароль: {password}
-    Email: {user.email}
-    Сохраните эти данные и используйте их для входа.
-    Запрошенные отчеты на сайте будут приходить на данный email.
-    ---------------------
-    Реферальная ссылка: {referral_link}
-    Получайте до 5% от платежей всех пользователей зарегистрировшихся по Вашей ссылке.
-    ---------------------
-    С уважением,
-    Команда vagvin.ru
-    """
-
+def send_email(subject, to_email, html_content, additional_recipients=None, copy_admin=True):
     from_email = settings.DEFAULT_FROM_EMAIL
+    try:
+        plain_text = strip_tags(html_content)
+        recipients = [to_email]
 
-    return send_mail(
-        subject,
-        message,
-        from_email,
-        [user.email, from_email],  # Sending a copy to the administrator
-        fail_silently=False
-    )
+        if additional_recipients:
+            recipients.extend(additional_recipients)
+
+        if copy_admin and from_email not in recipients:
+            recipients.append(from_email)
+
+        logger.info(f"Attempting to send email '{subject}' to {recipients}")
+        result = send_mail(
+            subject,
+            plain_text,
+            from_email,
+            recipients,
+            html_message=html_content,
+            fail_silently=False
+        )
+
+        if result:
+            logger.info(f"Email '{subject}' successfully sent to {recipients}")
+            return True
+        else:
+            logger.error(f"Failed to send email '{subject}' to {recipients}")
+            return False
+    except Exception as e:
+        logger.exception(f"Error sending email: {str(e)}")
+        return False
+
+
+# TODO: Валидация полей и обработка ошибок для методов ниже:
+def get_registration_email_content(user, password):
+    referral_link = f"http://vagvin.ru{user.referral_link}"
+    context = {
+        'username': user.username,
+        'password': password,
+        'email': user.email,
+        'referral_link': referral_link
+    }
+    html_content = render_to_string('accounts/emails/registration.html', context)
+    return html_content
+
+
+def get_password_reset_email_content(user, new_password):
+    context = {
+        'username': user.username,
+        'password': new_password,
+    }
+    html_content = render_to_string('accounts/emails/password_reset.html', context)
+    return html_content
+
+
+def send_registration_email(user, password):
+    subject = 'Добро пожаловать на сайт vagvin.ru!'
+    html_content = get_registration_email_content(user, password)
+    if settings.DEBUG:
+        logger.debug(f"Generated password for {user.email}: {password}")
+    return send_email(subject, user.email, html_content)
 
 
 def send_password_reset_email(user, new_password):
-    """Send password reset email with new credentials"""
-    subject = 'Восстановление пароля'
-
-    message = f"""
-    Здравствуйте, {user.username}!
-    Вы запросили восстановление пароля.
-    Ваш новый пароль: {new_password}
-    Используйте его для входа в ваш личный кабинет.
-    С уважением,
-    Команда https://vagvin.ru
-    """
-
-    from_email = settings.DEFAULT_FROM_EMAIL
-
-    return send_mail(
-        subject,
-        message,
-        from_email,
-        [user.email],
-        fail_silently=False
-    )
+    subject = 'Восстановление пароля на сайте vagvin.ru'
+    html_content = get_password_reset_email_content(user, new_password)
+    if settings.DEBUG:
+        logger.debug(f"Reset password for {user.email}: {new_password}")
+    return send_email(subject, user.email, html_content, copy_admin=False)

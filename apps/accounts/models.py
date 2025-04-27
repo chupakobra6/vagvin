@@ -27,9 +27,7 @@ class User(AbstractUser, BaseModel):
         ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
-        """
-        Saves the user. If no referral code is set, generates a unique 8-character code.
-        """
+        # Fallback for ensuring referral_code always exists
         if not self.referral_code:
             while True:
                 new_code = str(uuid.uuid4())[:8]
@@ -40,7 +38,4 @@ class User(AbstractUser, BaseModel):
 
     @property
     def referral_link(self):
-        """
-        Returns a short registration link with the user's referral code.
-        """
         return f"/register?ref={self.referral_code}"
