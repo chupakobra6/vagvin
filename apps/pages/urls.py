@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import (
     home_view, about_view, faq_view, requisites_view,
     examples_view, reviews_view, login_view,

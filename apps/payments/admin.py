@@ -1,4 +1,5 @@
 from django.contrib import admin
+
 from .models import Payment
 
 
@@ -10,7 +11,7 @@ class PaymentAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
     readonly_fields = ('invoice_id', 'created_at', 'updated_at')
     list_per_page = 20
-    
+
     fieldsets = (
         ('Основная информация', {
             'fields': ('user', 'provider', 'status', 'invoice_id')
@@ -21,4 +22,4 @@ class PaymentAdmin(admin.ModelAdmin):
         ('Временные метки', {
             'fields': ('created_at', 'updated_at')
         }),
-    ) 
+    )
