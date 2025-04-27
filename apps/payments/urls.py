@@ -7,6 +7,7 @@ app_name = 'payments'
 urlpatterns = [
     # Payment page
     path('', views.PaymentFormView.as_view(), name='payment_form'),
+    path('balance/', views.PaymentFormView.as_view(), name='balance'),
 
     # Robokassa routes
     path('robokassa/initiate/', views.InitiateRobokassaPaymentView.as_view(), name='robokassa_initiate'),

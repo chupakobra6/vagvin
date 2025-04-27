@@ -25,10 +25,6 @@ def reviews_view(request):
     return render(request, 'pages/reviews.html')
 
 
-def login_view(request):
-    return render(request, 'pages/login.html')
-
-
 def privacy_policy_view(request):
     return render(request, 'pages/privacy_policy.html')
 

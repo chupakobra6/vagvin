@@ -8,31 +8,26 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
+from .models import Payment
 from .services import create_robokassa_payment, verify_robokassa_callback
 
 
 class PaymentFormView(View):
-    """Представление для отображения формы оплаты"""
-
     @method_decorator(login_required)
     def get(self, request):
         return render(request, 'payments/payment_form.html')
 
 
 class InitiateRobokassaPaymentView(View):
-    """Представление для инициализации платежа через Robokassa"""
-
     @method_decorator(login_required)
     def post(self, request):
         try:
-            # Получаем данные из запроса
             data = json.loads(request.body) if request.body else request.POST
             amount = float(data.get('amount', 0))
 
             if amount <= 0:
                 return JsonResponse({'error': 'Сумма должна быть положительной'}, status=400)
 
-            # Создаем платеж
             payment, payment_url = create_robokassa_payment(request.user, amount)
 
             return JsonResponse({
@@ -47,14 +42,11 @@ class InitiateRobokassaPaymentView(View):
             }, status=500)
 
 
+# TODO: Разобраться насчёт static и проверки ALLOWED_ROBOKASSA_IPS
 @method_decorator(csrf_exempt, name='dispatch')
 class RobokassaCallbackView(View):
-    """Представление для обработки уведомлений от Robokassa"""
-
     def get(self, request):
-        # Проверяем IP-адрес (если настроена фильтрация по IP)
-        if hasattr(settings, 'ALLOWED_ROBOKASSA_IPS') and request.META.get(
-                'REMOTE_ADDR') not in settings.ALLOWED_ROBOKASSA_IPS:
+        if request.META.get('REMOTE_ADDR') not in settings.ALLOWED_ROBOKASSA_IPS:
             return HttpResponse("Invalid IP", status=403)
 
         params = request.GET.dict()
@@ -64,24 +56,17 @@ class RobokassaCallbackView(View):
             return HttpResponse("Invalid payment", status=400)
 
         if is_valid:
-            # Платеж успешно проверен
             return HttpResponse("OK" + str(payment.id))
         else:
-            # Ошибка проверки платежа
             return HttpResponse("Invalid signature", status=400)
 
     def post(self, request):
-        # Обработка POST-запросов (если используются)
         return self.get(request)
 
 
 class PaymentStatusView(View):
-    """Представление для проверки статуса платежа"""
-
     @method_decorator(login_required)
     def get(self, request, payment_id):
-        from .models import Payment
-
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
             return JsonResponse({
