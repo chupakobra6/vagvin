@@ -18,7 +18,18 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
+    # Admin site URL
     path('admin/', admin.site.urls),
+
+    # Main pages URLs (homepage and static pages)
     path('', include('apps.pages.urls')),
+
+    # Payment-related URLs
     path('payments/', include('apps.payments.urls')),
+
+    # User accounts (authentication, profile, etc.)
+    path('', include('apps.accounts.urls')),
+
+    # Reports and query history URLs
+    path('', include('apps.reports.urls')),
 ]

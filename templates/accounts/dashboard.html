@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет - vagvin.ru{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle adding emails
+        const addEmailForm = document.getElementById('add-email-form');
+        if (addEmailForm) {
+            addEmailForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const emailInput = document.getElementById('id_email');
+                const formData = new FormData();
+                formData.append('email', emailInput.value);
+                
+                fetch("{% url 'accounts:add_email' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Refresh the page to show updated emails
+                        location.reload();
+                    } else {
+                        alert(data.message || 'Произошла ошибка');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Произошла ошибка при добавлении email');
+                });
+            });
+        }
+        
+        // Handle removing emails
+        const removeEmailButtons = document.querySelectorAll('.remove-email');
+        removeEmailButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const email = this.dataset.email;
+                const formData = new FormData();
+                formData.append('email', email);
+                
+                if (confirm(`Вы действительно хотите удалить email ${email}?`)) {
+                    fetch("{% url 'accounts:remove_email' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Refresh the page to show updated emails
+                            location.reload();
+                        } else {
+                            alert(data.message || 'Произошла ошибка');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Произошла ошибка при удалении email');
+                    });
+                }
+            });
+        });
+        
+        // Load user queries
+        const queriesTable = document.getElementById('queries-table');
+        if (queriesTable) {
+            fetch("{% url 'reports:user_queries' %}")
+                .then(response => response.json())
+                .then(data => {
+                    // Clear loading message
+                    queriesTable.innerHTML = '';
+                    
+                    if (data.length === 0) {
+                        queriesTable.innerHTML = '<tr><td colspan="5" class="text-center">У вас пока нет запросов</td></tr>';
+                        return;
+                    }
+                    
+                    // Populate table with query data
+                    data.forEach(query => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${query.created_at}</td>
+                            <td>${query.vin}</td>
+                            <td>${query.marka || '-'}</td>
+                            <td>${query.tip}</td>
+                            <td>${query.cost} ₽</td>
+                        `;
+                        queriesTable.appendChild(row);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error loading queries:', error);
+                    queriesTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка при загрузке истории запросов</td></tr>';
+                });
+        }
+    });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Личный кабинет</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5>Информация о пользователе</h5>
+                                <p><strong>Логин:</strong> {{ user_data.username }}</p>
+                                <p><strong>Email:</strong> {{ user_data.email }}</p>
+                                <p><strong>Дата регистрации:</strong> {{ user.registration_date|date:"d.m.Y" }}</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>Финансы</h5>
+                                <p><strong>Баланс:</strong> {{ user_data.balance }} ₽</p>
+                                <p><strong>Овердрафт:</strong> {{ user_data.overdraft }} ₽</p>
+                                <a href="{% url 'payments:balance' %}" class="btn btn-primary">Пополнить баланс</a>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <h5>Реферальная программа</h5>
+                                <p><strong>Реферальный код:</strong> {{ user_data.referral_code }}</p>
+                                <p><strong>Ваша реферальная ссылка:</strong></p>
+                                <div class="input-group mb-3">
+                                    <input type="text" class="form-control" value="{{ user_data.referral_link }}" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="navigator.clipboard.writeText('{{ user_data.referral_link }}'); alert('Ссылка скопирована');">Копировать</button>
+                                </div>
+                                <p><strong>Количество рефералов:</strong> {{ user_data.referrals_count }}</p>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <h5>Дополнительные email для отчетов</h5>
+                                <ul class="list-group mb-3">
+                                    {% for email in user_data.additional_emails %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ email }}
+                                            <button class="btn btn-sm btn-danger remove-email" data-email="{{ email }}">Удалить</button>
+                                        </li>
+                                    {% empty %}
+                                        <li class="list-group-item">Нет дополнительных email</li>
+                                    {% endfor %}
+                                </ul>
+                                
+                                {% if user_data.additional_emails|length < 5 %}
+                                    <form id="add-email-form">
+                                        <div class="input-group">
+                                            <input type="email" class="form-control" id="id_email" placeholder="Введите email" required>
+                                            <button class="btn btn-primary" type="submit">Добавить</button>
+                                        </div>
+                                    </form>
+                                    <small class="form-text text-muted">Вы можете добавить до 5 дополнительных email</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">История запросов</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>VIN</th>
+                                    <th>Марка</th>
+                                    <th>Тип отчета</th>
+                                    <th>Стоимость</th>
+                                </tr>
+                            </thead>
+                            <tbody id="queries-table">
+                                <!-- История запросов будет загружена через AJAX -->
+                                <tr>
+                                    <td colspan="5" class="text-center">Загрузка истории запросов...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
