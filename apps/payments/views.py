@@ -62,7 +62,7 @@ class BasePaymentView(View):
 class BaseCallbackView(View):
     """Base view for payment callbacks from payment providers"""
     provider = None
-    ip_whitelist_setting = None  # Name of the settings attribute containing allowed IPs
+    ip_whitelist_setting = None
     
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):

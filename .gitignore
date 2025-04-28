@@ -119,7 +119,7 @@ cython_debug/
 vagvin_*_dump.txt
 
 # Test results
-/reports/allure-results/
+/reports/
 .pytest_cache/
 htmlcov/
 coverage.xml

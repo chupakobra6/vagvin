@@ -2,7 +2,6 @@
  * Payment functionality JavaScript
  */
 document.addEventListener('DOMContentLoaded', function() {
-    // Set up amount buttons
     const amountButtons = document.querySelectorAll('.payment-amount-btn');
     amountButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Copy button functionality
     const copyButtons = document.querySelectorAll('.copy-btn');
     copyButtons.forEach(function(btn) {
         btn.addEventListener('click', function(event) {
@@ -34,7 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const targetId = btn.getAttribute('data-copy-target');
             const text = document.getElementById(targetId).textContent;
             
-            // Create an invisible textarea to copy the text
             const textarea = document.createElement('textarea');
             textarea.value = text;
             textarea.style.position = 'absolute';
@@ -44,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.execCommand('copy');
             document.body.removeChild(textarea);
             
-            // Show success feedback
             const icon = btn.querySelector('i');
             const originalClass = icon.className;
             icon.className = 'fas fa-check text-success';

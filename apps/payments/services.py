@@ -57,7 +57,7 @@ class RobokassaPaymentProcessor(PaymentProcessor):
     """Robokassa payment processing service"""
     
     def __init__(self):
-        super().__init__('robokassa', 0.1)  # 10% commission
+        super().__init__('robokassa', 0.1)
     
     @staticmethod
     def calculate_signature(*args) -> str:
@@ -150,7 +150,7 @@ class YookassaPaymentProcessor(PaymentProcessor):
     """YooKassa payment processing service"""
     
     def __init__(self):
-        super().__init__('yookassa', 0.1)  # 10% commission
+        super().__init__('yookassa', 0.1)
     
     def create_payment_url(self, payment: Payment, user) -> str:
         """Create payment URL for YooKassa."""
@@ -238,7 +238,7 @@ class HelekitPaymentProcessor(PaymentProcessor):
     """Helekit payment processing service"""
     
     def __init__(self):
-        super().__init__('heleket', 0.06)  # 6% commission
+        super().__init__('heleket', 0.06)
     
     def create_payment_url(self, payment: Payment, user) -> str:
         """Create payment URL for Helekit."""
