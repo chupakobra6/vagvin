@@ -1,5 +1,7 @@
 from django.contrib import admin
+
 from .models import Review
+
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
@@ -25,4 +27,5 @@ class ReviewAdmin(admin.ModelAdmin):
     def approve_reviews(self, request, queryset):
         queryset.update(approved=True)
         self.message_user(request, f"{queryset.count()} отзывов одобрено")
+
     approve_reviews.short_description = "Одобрить выбранные отзывы"

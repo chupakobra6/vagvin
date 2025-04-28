@@ -180,6 +180,7 @@ def dashboard(request):
 
     return render(request, 'accounts/dashboard.html', {'user_data': user_data})
 
+
 @login_required
 def add_email(request):
     if request.method == 'POST':

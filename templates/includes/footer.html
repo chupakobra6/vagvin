@@ -1,5 +1,6 @@
 {% load static %}
-<footer class="footer pt-5 pb-4 mt-5" style="background-color: #f7f9fb; font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;">
+<footer class="footer pt-5 pb-4 mt-5"
+        style="background-color: #f7f9fb; font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;">
     <div class="container">
         <div class="row mb-5">
             <!-- Первая колонка -->
@@ -12,13 +13,16 @@
                 </ul>
                 <div class="mb-3 fw-bold" style="color: #1e293b; font-size: 0.875rem;">Мы в соцсетях:</div>
                 <div class="d-flex gap-3">
-                    <a href="https://www.drive2.ru/users/vinvag/" target="_blank" class="social-link car-icon" style="background-color: #f1f5f9;">
+                    <a href="https://www.drive2.ru/users/vinvag/" target="_blank" class="social-link car-icon"
+                       style="background-color: #f1f5f9;">
                         <i class="fas fa-car" style="font-size: 1rem;"></i>
                     </a>
-                    <a href="https://vk.com/vinvag" target="_blank" class="social-link" style="background-color: #f1f5f9;">
+                    <a href="https://vk.com/vinvag" target="_blank" class="social-link"
+                       style="background-color: #f1f5f9;">
                         <i class="fab fa-vk" style="font-size: 1rem;"></i>
                     </a>
-                    <a href="https://t.me/VinVaG" target="_blank" class="social-link" style="background-color: #f1f5f9;">
+                    <a href="https://t.me/VinVaG" target="_blank" class="social-link"
+                       style="background-color: #f1f5f9;">
                         <i class="fab fa-telegram-plane" style="font-size: 1rem;"></i>
                     </a>
                 </div>
@@ -26,7 +30,8 @@
 
             <!-- Вторая колонка -->
             <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Навигация</h5>
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">
+                    Навигация</h5>
                 <ul class="list-unstyled">
                     <li class="mb-3"><a href="{% url 'pages:home' %}" class="footer-link">Главная</a></li>
                     <li class="mb-3"><a href="{% url 'pages:about' %}" class="footer-link">Описание</a></li>
@@ -39,7 +44,8 @@
 
             <!-- Третья колонка -->
             <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Юридическая информация</h5>
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Юридическая
+                    информация</h5>
                 <div style="color: #64748b; font-size: 0.875rem;">
                     <div class="mb-3"><span style="font-weight: 500;">ГРН:</span> 323508100651940</div>
                     <div class="mb-3"><span style="font-weight: 500;">ИНН:</span> 344108952246</div>
@@ -49,10 +55,13 @@
 
             <!-- Четвертая колонка -->
             <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">Документы</h5>
+                <h5 class="footer-heading mb-4" style="font-weight: 600; font-size: 1rem; color: #1e293b;">
+                    Документы</h5>
                 <ul class="list-unstyled">
-                    <li class="mb-3"><a href="{% url 'pages:payment_rules' %}" class="footer-link">Правила оплаты и безопасность платежей</a></li>
-                    <li class="mb-3"><a href="{% url 'pages:privacy_policy' %}" class="footer-link">Политика конфиденциальности</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:payment_rules' %}" class="footer-link">Правила оплаты и
+                        безопасность платежей</a></li>
+                    <li class="mb-3"><a href="{% url 'pages:privacy_policy' %}" class="footer-link">Политика
+                        конфиденциальности</a></li>
                 </ul>
             </div>
         </div>
@@ -61,7 +70,8 @@
         <div class="pt-4 border-top" style="border-color: #e2e8f0 !important;">
             <div class="row align-items-center">
                 <div class="col-12 text-center">
-                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0;">© 2025 Vagvin. Все права защищены.</p>
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 0;">© 2025 Vagvin. Все права
+                        защищены.</p>
                 </div>
             </div>
         </div>
@@ -71,15 +81,18 @@
         .footer {
             font-size: 0.875rem;
         }
+
         .footer-link {
             color: #64748b;
             text-decoration: none;
             transition: color 0.2s ease;
             font-weight: 400;
         }
+
         .footer-link:hover {
             color: #0072ff;
         }
+
         .social-link {
             display: flex;
             align-items: center;
@@ -94,16 +107,19 @@
             border: none;
             overflow: hidden;
         }
+
         .social-link i {
             line-height: 1;
             display: flex;
             align-items: center;
             justify-content: center;
         }
+
         .social-link:hover {
             background-color: #0072ff !important;
             color: white;
         }
+
         .social-link.car-icon:hover {
             background-color: #dc2626 !important;
         }
@@ -111,10 +127,10 @@
 </footer>
 
 {% block extra_js %}
-<!-- Font Awesome CDN -->
-<script src="https://kit.fontawesome.com/your_kit_id.js" crossorigin="anonymous"></script>
-<!-- Google Fonts - Inter -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome CDN -->
+    <script src="https://kit.fontawesome.com/your_kit_id.js" crossorigin="anonymous"></script>
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 {% endblock %}

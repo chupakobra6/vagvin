@@ -5,34 +5,35 @@
 {% block title %}Главная - Vagvin{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-body text-center py-5">
-                    <h1 class="mb-4" style="color: #1e293b; font-weight: 600;">Главная страница</h1>
-                    <p class="lead mb-4" style="color: #64748b;">
-                        Здесь скоро появится содержимое главной страницы.<br>
-                        Следите за обновлениями!
-                    </p>
-                    <div class="mb-3">
-                        <i class="fas fa-home fa-3x text-primary"></i>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body text-center py-5">
+                        <h1 class="mb-4" style="color: #1e293b; font-weight: 600;">Главная страница</h1>
+                        <p class="lead mb-4" style="color: #64748b;">
+                            Здесь скоро появится содержимое главной страницы.<br>
+                            Следите за обновлениями!
+                        </p>
+                        <div class="mb-3">
+                            <i class="fas fa-home fa-3x text-primary"></i>
+                        </div>
+                        <a href="{% url 'pages:about' %}" class="btn btn-outline-primary">О проекте</a>
                     </div>
-                    <a href="{% url 'pages:about' %}" class="btn btn-outline-primary">О проекте</a>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-    .card {
-        transition: transform 0.3s ease;
-    }
-    .card:hover {
-        transform: translateY(-5px);
-    }
-</style>
+    <style>
+        .card {
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
 {% endblock %}

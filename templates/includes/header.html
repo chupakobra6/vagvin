@@ -1,45 +1,71 @@
 {% load static %}
 <header style="font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;">
-    <nav class="navbar navbar-expand-lg navbar-light border-bottom" style="background-color: #f7f9fb; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);">
+    <nav class="navbar navbar-expand-lg navbar-light border-bottom"
+         style="background-color: #f7f9fb; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);">
         <div class="container py-2">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'pages:home' %}" style="color: #1e293b; font-size: 1.25rem; letter-spacing: -0.5px;">
-                <img src="{% static 'img/favicon.svg' %}" alt="Vagvin Logo" width="32" height="32" class="me-2" style="vertical-align: middle;">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'pages:home' %}"
+               style="color: #1e293b; font-size: 1.25rem; letter-spacing: -0.5px;">
+                <img src="{% static 'img/favicon.svg' %}" alt="Vagvin Logo" width="32" height="32" class="me-2"
+                     style="vertical-align: middle;">
                 VAGVIN
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border: none; padding: 0.25rem;">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    style="border: none; padding: 0.25rem;">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:home' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Главная</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:about' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Описание</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:faq' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Вопросы</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:requisites' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Реквизиты</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:examples' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Примеры</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'reviews:list' %}" style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Отзывы</a></li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:home' %}"
+                                            style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Главная</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:about' %}"
+                                            style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Описание</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:faq' %}"
+                                            style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Вопросы</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:requisites' %}"
+                                            style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Реквизиты</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:examples' %}"
+                                            style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Примеры</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'reviews:list' %}"
+                                            style="color: #64748b; font-weight: 500; font-size: 0.925rem;">Отзывы</a>
+                    </li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="https://t.me/Data_ViN_PR_bot" target="_blank" class="btn px-4 py-2 d-flex align-items-center" style="background-color: #0072ff; color: white; border-radius: 6px; font-weight: 500; font-size: 0.875rem; border: none;">
+                    <a href="https://t.me/Data_ViN_PR_bot" target="_blank"
+                       class="btn px-4 py-2 d-flex align-items-center"
+                       style="background-color: #0072ff; color: white; border-radius: 6px; font-weight: 500; font-size: 0.875rem; border: none;">
                         <i class="fab fa-telegram-plane me-2" style="font-size: 1.1rem;"></i>Канал
                     </a>
                     {% if user.is_authenticated %}
                         <div class="dropdown" style="position: relative;">
-                            <button class="btn dropdown-toggle px-4 py-2 w-100" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false" 
-                                   style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem; min-width: 180px;">
+                            <button class="btn dropdown-toggle px-4 py-2 w-100" type="button" id="userDropdown"
+                                    data-bs-toggle="dropdown" aria-expanded="false"
+                                    style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem; min-width: 180px;">
                                 <i class="fas fa-user me-1"></i> {{ user.username }}
                             </button>
-                            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userDropdown" style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); min-width: 180px;">
-                                <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}" style="color: #64748b; font-weight: 500; font-size: 0.875rem;">
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu"
+                                aria-labelledby="userDropdown"
+                                style="border-radius: 8px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); min-width: 180px;">
+                                <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}"
+                                       style="color: #64748b; font-weight: 500; font-size: 0.875rem;">
                                     <i class="fas fa-tachometer-alt me-2"></i> Личный кабинет
                                 </a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}" style="color: #e11d48; font-weight: 500; font-size: 0.875rem;">
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"
+                                       style="color: #e11d48; font-weight: 500; font-size: 0.875rem;">
                                     <i class="fas fa-sign-out-alt me-2"></i> Выйти
                                 </a></li>
                             </ul>
                         </div>
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="btn px-4 py-2" style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
+                        <a href="{% url 'accounts:login' %}" class="btn px-4 py-2"
+                           style="background-color: white; color: #0072ff; border: 1px solid #e2e8f0; border-radius: 6px; font-weight: 500; font-size: 0.875rem;">
                             Войти в ЛК
                         </a>
                     {% endif %}
@@ -51,36 +77,44 @@
         .navbar .nav-link {
             transition: color 0.2s ease;
         }
+
         .navbar .nav-link:hover {
             color: #0072ff !important;
         }
+
         .navbar .btn {
             transition: all 0.2s ease;
         }
+
         .navbar .btn:first-child:hover {
             background-color: #0065e6 !important;
         }
+
         .navbar .btn:last-child:hover {
             border-color: #0072ff !important;
         }
+
         .dropdown-item {
             padding: 0.5rem 1rem;
             transition: background-color 0.2s ease;
         }
+
         .dropdown-item:hover {
             background-color: #f1f5f9;
         }
+
         .dropdown-item:active {
             background-color: #e2e8f0;
             color: inherit;
         }
-        /* Ensure dropdown menu matches button width */
+
         .user-dropdown-menu {
             min-width: 180px;
             width: 100%;
             left: 0 !important;
             right: 0 !important;
         }
+
         @media (min-width: 992px) {
             .dropdown .dropdown-menu.user-dropdown-menu {
                 min-width: 0;
@@ -89,9 +123,11 @@
                 right: 0;
             }
         }
+
         .dropdown {
             min-width: 180px;
         }
+
         .dropdown-toggle {
             min-width: 180px;
         }

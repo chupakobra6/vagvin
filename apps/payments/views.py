@@ -151,7 +151,8 @@ class HelekitCallbackView(View):
     def get(self, request):
         try:
             # Проверка IP адреса, если настроено в settings
-            if hasattr(settings, 'ALLOWED_HELEKET_IPS') and request.META.get('REMOTE_ADDR') not in settings.ALLOWED_HELEKET_IPS:
+            if hasattr(settings, 'ALLOWED_HELEKET_IPS') and request.META.get(
+                    'REMOTE_ADDR') not in settings.ALLOWED_HELEKET_IPS:
                 return HttpResponse("Invalid IP", status=403)
 
             params = request.GET.dict()

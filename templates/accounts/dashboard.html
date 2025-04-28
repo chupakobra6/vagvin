@@ -7,18 +7,15 @@
 {% block extra_js %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize all tooltips
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
-            // Handle copy referral link button
             const copyButton = document.querySelector('.btn-copy-referral');
             if (copyButton) {
                 copyButton.addEventListener('click', function () {
                     navigator.clipboard.writeText('{{ user_data.referral_link }}');
-                    // Visual feedback
                     const originalIcon = this.innerHTML;
                     this.innerHTML = '<i class="fas fa-check text-success"></i>';
                     setTimeout(() => {
@@ -27,7 +24,6 @@
                 });
             }
 
-            // Handle adding emails
             const addEmailForm = document.getElementById('add-email-form');
             if (addEmailForm) {
                 addEmailForm.addEventListener('submit', function (e) {
@@ -46,10 +42,8 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Refresh the page to show updated emails
                                 location.reload();
                             } else {
-                                // Replace alert with silent error handling
                                 console.error('Error:', data.message || 'Произошла ошибка');
                             }
                         })
@@ -59,7 +53,6 @@
                 });
             }
 
-            // Handle removing emails
             const removeEmailButtons = document.querySelectorAll('.remove-email');
             removeEmailButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -77,10 +70,8 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                // Refresh the page to show updated emails
                                 location.reload();
                             } else {
-                                // Replace alert with silent error handling
                                 console.error('Error:', data.message || 'Произошла ошибка');
                             }
                         })
@@ -90,13 +81,11 @@
                 });
             });
 
-            // Load user queries
             const queriesTable = document.getElementById('queries-table');
             if (queriesTable) {
                 fetch("{% url 'reports:user_queries' %}")
                     .then(response => response.json())
                     .then(data => {
-                        // Clear loading message
                         queriesTable.innerHTML = '';
 
                         if (data.length === 0) {
@@ -104,7 +93,6 @@
                             return;
                         }
 
-                        // Populate table with query data
                         data.forEach(query => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
@@ -122,19 +110,17 @@
                         queriesTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка при загрузке истории запросов</td></tr>';
                     });
             }
-            
-            // Handle quick amount buttons
+
             const amountButtons = document.querySelectorAll('.amount-btn');
             amountButtons.forEach(button => {
-                button.addEventListener('click', function() {
+                button.addEventListener('click', function () {
                     const targetId = this.dataset.target;
                     const amount = this.dataset.amount;
                     const inputField = document.getElementById(targetId);
                     if (inputField) {
                         inputField.value = amount;
                     }
-                    
-                    // Highlight the selected button
+
                     const parentForm = this.closest('form');
                     if (parentForm) {
                         parentForm.querySelectorAll('.amount-btn').forEach(btn => {
@@ -147,7 +133,6 @@
                 });
             });
 
-            // Payment form handling
             const robokassaForm = document.getElementById('robokassa-form');
             const yookassaForm = document.getElementById('yookassa-form');
             const helekitForm = document.getElementById('helekit-form');
@@ -163,15 +148,13 @@
                         }
 
                         const amount = parseFloat(amountInput.value);
-                        
-                        // Calculate total amount with commission
-                        let commissionRate = 0.1; // 10% by default
+
+                        let commissionRate = 0.1;
                         if (form.id === 'helekit-form') {
-                            commissionRate = 0.06; // 6% for crypto
+                            commissionRate = 0.06;
                         }
                         const totalAmount = amount * (1 + commissionRate);
-                        
-                        // Show loading state
+
                         const submitBtn = form.querySelector('button[type="submit"]');
                         const originalBtnText = submitBtn.innerHTML;
                         submitBtn.disabled = true;
@@ -191,16 +174,12 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.payment_url) {
-                                    // Открываем ссылку оплаты в новой вкладке
                                     window.open(data.payment_url, '_blank');
-                                    // Сохраняем флаг, что инициирован платеж
                                     sessionStorage.setItem('payment_initiated', '1');
-                                    // Возвращаем кнопку в исходное состояние
                                     submitBtn.disabled = false;
                                     submitBtn.innerHTML = originalBtnText;
                                 } else {
                                     alert(data.error || 'Произошла ошибка при создании платежа');
-                                    // Reset button state
                                     submitBtn.disabled = false;
                                     submitBtn.innerHTML = originalBtnText;
                                 }
@@ -208,7 +187,6 @@
                             .catch(error => {
                                 console.error('Error:', error);
                                 alert('Произошла ошибка при создании платежа');
-                                // Reset button state
                                 submitBtn.disabled = false;
                                 submitBtn.innerHTML = originalBtnText;
                             });
@@ -216,14 +194,11 @@
                 }
             }
 
-            // Решение проблемы с бесконечной загрузкой истории при возврате назад
             if (sessionStorage.getItem('payment_initiated')) {
                 sessionStorage.removeItem('payment_initiated');
-                // Принудительно перезагружаем страницу, чтобы сбросить состояние и корректно загрузить историю
                 window.location.reload();
             }
 
-            // Initialize payment forms
             handlePaymentSubmit(robokassaForm, "{% url 'payments:robokassa_initiate' %}");
             handlePaymentSubmit(yookassaForm, "{% url 'payments:yookassa_initiate' %}");
             handlePaymentSubmit(helekitForm, "{% url 'payments:heleket_initiate' %}");
@@ -412,7 +387,8 @@
                                     <div class="alert alert-info mb-4"
                                          style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
                                         <p style="color: #64748b;" class="mb-0">Быстрый и безопасный способ оплаты.
-                                            Поддерживаются банковские карты и электронные кошельки. Система автоматически добавит
+                                            Поддерживаются банковские карты и электронные кошельки. Система
+                                            автоматически добавит
                                             комиссию 10% к указанной вами сумме.</p>
                                     </div>
                                     <form id="robokassa-form">
@@ -430,10 +406,18 @@
                                             <small class="text-muted">Минимальная сумма: 100 руб.</small>
                                         </div>
                                         <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="500">500 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="1000">1 000 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="2000">2 000 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="5000">5 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="robokassa-amount" data-amount="500">500 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="robokassa-amount" data-amount="1000">1 000 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="robokassa-amount" data-amount="2000">2 000 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="robokassa-amount" data-amount="5000">5 000 ₽
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -461,10 +445,18 @@
                                             <small class="text-muted">Минимальная сумма: 100 руб.</small>
                                         </div>
                                         <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="500">500 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="1000">1 000 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="2000">2 000 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="5000">5 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="yookassa-amount" data-amount="500">500 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="yookassa-amount" data-amount="1000">1 000 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="yookassa-amount" data-amount="2000">2 000 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="yookassa-amount" data-amount="5000">5 000 ₽
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -492,10 +484,18 @@
                                             <small class="text-muted">Минимальная сумма: 500 руб.</small>
                                         </div>
                                         <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="500">500 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="1000">1 000 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="2000">2 000 ₽</button>
-                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="5000">5 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="helekit-amount" data-amount="500">500 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="helekit-amount" data-amount="1000">1 000 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="helekit-amount" data-amount="2000">2 000 ₽
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn"
+                                                    data-target="helekit-amount" data-amount="5000">5 000 ₽
+                                            </button>
                                         </div>
                                     </form>
                                 </div>
@@ -651,7 +651,6 @@
                         box-shadow: 0 0 0 2px #0072ff33;
                     }
 
-                    /* Синхронизируем цветовые эффекты для обеих кнопок */
                     .btn-outline-secondary.animated-btn:active,
                     .btn-outline-secondary.animated-btn:focus {
                         background-color: #e5e7eb !important;
@@ -731,11 +730,11 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
         }
-        
+
         .amount-btn {
             min-width: 80px;
         }
-        
+
         .amount-btn.active {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);

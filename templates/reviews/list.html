@@ -5,240 +5,270 @@
 {% block title %}Отзывы - Vagvin{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero py-5 w-100" style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Отзывы клиентов</h1>
-                <p style="color: #64748b; font-size: 1.1rem;">Узнайте, что думают о нашем сервисе пользователи</p>
+    <!-- Hero Section -->
+    <section class="hero py-5 w-100"
+             style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Отзывы
+                        клиентов</h1>
+                    <p style="color: #64748b; font-size: 1.1rem;">Узнайте, что думают о нашем сервисе пользователи</p>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Content Section -->
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-10 mx-auto">
-                <!-- Add Review Card -->
-                <div class="card border-0 shadow-sm p-4 mb-5">
-                    <div class="card-body">
-                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Оставить отзыв</h2>
-                        
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }} mb-4">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
-                        
-                        <form method="post" action="{% url 'reviews:add' %}" id="review-form">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
-                                    {{ form.name }}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
-                                    {{ form.email }}
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.rating.id_for_label }}" class="form-label">{{ form.rating.label }}</label>
-                                {{ form.rating }}
-                            </div>
-                            <div class="mb-3">
-                                <label for="{{ form.text.id_for_label }}" class="form-label">{{ form.text.label }}</label>
-                                {{ form.text }}
-                            </div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
-                            </button>
-                        </form>
-                        
-                        <div id="thank-you-message" style="display: none; margin-top: 15px;">
-                            <div class="alert alert-success">
-                                Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Reviews List -->
-                {% if page_obj %}
-                    <div class="card border-0 shadow-sm p-4 mb-4">
+    <!-- Content Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <!-- Add Review Card -->
+                    <div class="card border-0 shadow-sm p-4 mb-5">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Отзывы клиентов</h2>
-                            
-                            <div class="row">
-                                {% for review in page_obj %}
-                                    <div class="col-md-6 mb-4">
-                                        <div class="review-card p-3" style="border: 1px solid #e2e8f0; border-radius: 12px; height: 100%;">
-                                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                                <h5 style="color: #1e293b; font-weight: 600; margin-bottom: 0;">{{ review.name }}</h5>
-                                                <div style="color: #f59e0b; font-size: 18px;">
-                                                    {% for i in "12345"|make_list %}
-                                                        {% if forloop.counter <= review.rating %}
-                                                            <i class="fas fa-star"></i>
-                                                        {% else %}
-                                                            <i class="far fa-star"></i>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </div>
-                                            </div>
-                                            <p style="color: #64748b; margin-bottom: 10px;">{{ review.text }}</p>
-                                            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0;">{{ review.created_at|date:"d.m.Y" }}</p>
-                                            
-                                            {% if review.admin_response %}
-                                                <div class="admin-response mt-3 p-3" style="background-color: #f1f5f9; border-left: 3px solid #0072ff; border-radius: 6px;">
-                                                    <p style="font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 5px;">Ответ администратора:</p>
-                                                    <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 0;">{{ review.admin_response }}</p>
-                                                </div>
-                                            {% endif %}
-                                        </div>
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Оставить
+                                отзыв</h2>
+
+                            {% if messages %}
+                                {% for message in messages %}
+                                    <div class="alert alert-{{ message.tags }} mb-4">
+                                        {{ message }}
                                     </div>
                                 {% endfor %}
-                            </div>
-                            
-                            <!-- Pagination -->
-                            {% if page_obj.has_other_pages %}
-                                <div class="pagination justify-content-center mt-4">
-                                    <ul class="pagination">
-                                        {% if page_obj.has_previous %}
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
-                                                    <span aria-hidden="true">&laquo;</span>
-                                                </a>
-                                            </li>
-                                        {% else %}
-                                            <li class="page-item disabled">
-                                                <a class="page-link" href="#" aria-label="Previous">
-                                                    <span aria-hidden="true">&laquo;</span>
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                        
-                                        {% for i in page_obj.paginator.page_range %}
-                                            {% if page_obj.number == i %}
-                                                <li class="page-item active"><a class="page-link" href="#">{{ i }}</a></li>
-                                            {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
-                                                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
-                                            {% endif %}
-                                        {% endfor %}
-                                        
-                                        {% if page_obj.has_next %}
-                                            <li class="page-item">
-                                                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
-                                                    <span aria-hidden="true">&raquo;</span>
-                                                </a>
-                                            </li>
-                                        {% else %}
-                                            <li class="page-item disabled">
-                                                <a class="page-link" href="#" aria-label="Next">
-                                                    <span aria-hidden="true">&raquo;</span>
-                                                </a>
-                                            </li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
                             {% endif %}
+
+                            <form method="post" action="{% url 'reviews:add' %}" id="review-form">
+                                {% csrf_token %}
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.name.id_for_label }}"
+                                               class="form-label">{{ form.name.label }}</label>
+                                        {{ form.name }}
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="{{ form.email.id_for_label }}"
+                                               class="form-label">{{ form.email.label }}</label>
+                                        {{ form.email }}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.rating.id_for_label }}"
+                                           class="form-label">{{ form.rating.label }}</label>
+                                    {{ form.rating }}
+                                </div>
+                                <div class="mb-3">
+                                    <label for="{{ form.text.id_for_label }}"
+                                           class="form-label">{{ form.text.label }}</label>
+                                    {{ form.text }}
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
+                                </button>
+                            </form>
+
+                            <div id="thank-you-message" style="display: none; margin-top: 15px;">
+                                <div class="alert alert-success">
+                                    Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.
+                                </div>
+                            </div>
                         </div>
                     </div>
-                {% else %}
-                    <div class="card border-0 shadow-sm p-4 mb-4">
-                        <div class="card-body text-center">
-                            <p style="color: #64748b; font-size: 1.1rem;">Пока нет отзывов. Будьте первым, кто поделится своим мнением!</p>
+
+                    <!-- Reviews List -->
+                    {% if page_obj %}
+                        <div class="card border-0 shadow-sm p-4 mb-4">
+                            <div class="card-body">
+                                <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Отзывы
+                                    клиентов</h2>
+
+                                <div class="row">
+                                    {% for review in page_obj %}
+                                        <div class="col-md-6 mb-4">
+                                            <div class="review-card p-3"
+                                                 style="border: 1px solid #e2e8f0; border-radius: 12px; height: 100%;">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h5 style="color: #1e293b; font-weight: 600; margin-bottom: 0;">{{ review.name }}</h5>
+                                                    <div style="color: #f59e0b; font-size: 18px;">
+                                                        {% for i in "12345"|make_list %}
+                                                            {% if forloop.counter <= review.rating %}
+                                                                <i class="fas fa-star"></i>
+                                                            {% else %}
+                                                                <i class="far fa-star"></i>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                                <p style="color: #64748b; margin-bottom: 10px;">{{ review.text }}</p>
+                                                <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0;">{{ review.created_at|date:"d.m.Y" }}</p>
+
+                                                {% if review.admin_response %}
+                                                    <div class="admin-response mt-3 p-3"
+                                                         style="background-color: #f1f5f9; border-left: 3px solid #0072ff; border-radius: 6px;">
+                                                        <p style="font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 5px;">
+                                                            Ответ администратора:</p>
+                                                        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 0;">{{ review.admin_response }}</p>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- Pagination -->
+                                {% if page_obj.has_other_pages %}
+                                    <div class="pagination justify-content-center mt-4">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                                <li class="page-item">
+                                                    <a class="page-link"
+                                                       href="?page={{ page_obj.previous_page_number }}"
+                                                       aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <a class="page-link" href="#" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+
+                                            {% for i in page_obj.paginator.page_range %}
+                                                {% if page_obj.number == i %}
+                                                    <li class="page-item active"><a class="page-link"
+                                                                                    href="#">{{ i }}</a></li>
+                                                {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                                                    <li class="page-item"><a class="page-link"
+                                                                             href="?page={{ i }}">{{ i }}</a></li>
+                                                {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                                <li class="page-item">
+                                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}"
+                                                       aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                            {% else %}
+                                                <li class="page-item disabled">
+                                                    <a class="page-link" href="#" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
+                    {% else %}
+                        <div class="card border-0 shadow-sm p-4 mb-4">
+                            <div class="card-body text-center">
+                                <p style="color: #64748b; font-size: 1.1rem;">Пока нет отзывов. Будьте первым, кто
+                                    поделится своим мнением!</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('review-form');
-    const thankYouMessage = document.getElementById('thank-you-message');
-    
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            // Form will submit normally, this is just for the animation
-            setTimeout(() => {
-                form.style.display = 'none';
-                thankYouMessage.style.display = 'block';
-                
-                // Scroll to thank you message
-                thankYouMessage.scrollIntoView({ behavior: 'smooth' });
-            }, 100);
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('review-form');
+            const thankYouMessage = document.getElementById('thank-you-message');
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    // Form will submit normally, this is just for the animation
+                    setTimeout(() => {
+                        form.style.display = 'none';
+                        thankYouMessage.style.display = 'block';
+
+                        // Scroll to thank you message
+                        thankYouMessage.scrollIntoView({behavior: 'smooth'});
+                    }, 100);
+                });
+            }
         });
-    }
-});
-</script>
+    </script>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-    body {
-        font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    .card {
-        border-radius: 12px;
-        transition: none;
-    }
-    .card:hover {
-        transform: none;
-    }
-    .btn {
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        transition: all 0.2s ease;
-    }
-    .btn:hover {
-        transform: translateY(-1px);
-    }
-    .btn-primary {
-        background-color: #0072ff;
-        border: none;
-    }
-    .btn-primary:hover {
-        background-color: #0066e6;
-        box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
-    }
-    .form-control {
-        padding: 12px 16px;
-        font-size: 1rem;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-    }
-    .form-control:focus {
-        border-color: #0072ff;
-        box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
-    }
-    .alert {
-        border-radius: 8px;
-    }
-    .review-card {
-        transition: all 0.2s ease;
-    }
-    .review-card:hover {
-        border-color: #cbd5e1;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-    .page-link {
-        color: #0072ff;
-        border-radius: 6px;
-        margin: 0 3px;
-    }
-    .page-item.active .page-link {
-        background-color: #0072ff;
-        border-color: #0072ff;
-    }
-</style>
+    <style>
+        body {
+            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .card {
+            border-radius: 12px;
+            transition: none;
+        }
+
+        .card:hover {
+            transform: none;
+        }
+
+        .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background-color: #0072ff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0066e6;
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-control:focus {
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+        }
+
+        .alert {
+            border-radius: 8px;
+        }
+
+        .review-card {
+            transition: all 0.2s ease;
+        }
+
+        .review-card:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .page-link {
+            color: #0072ff;
+            border-radius: 6px;
+            margin: 0 3px;
+        }
+
+        .page-item.active .page-link {
+            background-color: #0072ff;
+            border-color: #0072ff;
+        }
+    </style>
 {% endblock %}

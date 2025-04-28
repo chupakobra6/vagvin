@@ -5,125 +5,131 @@
 {% block title %}Пополнение баланса - Vagvin{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Пополнение баланса</h3>
-                </div>
-                <div class="card-body">
-                    <!-- Информация о комиссии -->
-                    <div class="alert alert-info mb-4">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <span>К сумме пополнения добавляется комиссия 10%</span>
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">Пополнение баланса</h3>
                     </div>
-                    
-                    <!-- Форма выбора суммы -->
-                    <div class="mb-4">
-                        <label for="amount" class="form-label">Сумма пополнения (руб.)</label>
-                        <div class="input-group">
-                            <input type="number" id="amount" class="form-control" min="100" value="500" step="100">
-                            <button class="btn btn-primary" id="pay-button">Пополнить</button>
+                    <div class="card-body">
+                        <!-- Информация о комиссии -->
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <span>К сумме пополнения добавляется комиссия 10%</span>
                         </div>
-                        <div class="form-text mt-2">
-                            Сумма к оплате с учетом комиссии: <strong id="total-amount">560</strong> руб.
+
+                        <!-- Форма выбора суммы -->
+                        <div class="mb-4">
+                            <label for="amount" class="form-label">Сумма пополнения (руб.)</label>
+                            <div class="input-group">
+                                <input type="number" id="amount" class="form-control" min="100" value="500" step="100">
+                                <button class="btn btn-primary" id="pay-button">Пополнить</button>
+                            </div>
+                            <div class="form-text mt-2">
+                                Сумма к оплате с учетом комиссии: <strong id="total-amount">560</strong> руб.
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Предустановленные суммы -->
-                    <div class="mb-4">
-                        <p class="mb-2">Быстрый выбор суммы:</p>
-                        <div class="d-flex flex-wrap gap-2">
-                            <button class="btn btn-outline-primary preset-amount" data-amount="500">500 ₽</button>
-                            <button class="btn btn-outline-primary preset-amount" data-amount="1000">1000 ₽</button>
-                            <button class="btn btn-outline-primary preset-amount" data-amount="2000">2000 ₽</button>
-                            <button class="btn btn-outline-primary preset-amount" data-amount="5000">5000 ₽</button>
+
+                        <!-- Предустановленные суммы -->
+                        <div class="mb-4">
+                            <p class="mb-2">Быстрый выбор суммы:</p>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button class="btn btn-outline-primary preset-amount" data-amount="500">500 ₽</button>
+                                <button class="btn btn-outline-primary preset-amount" data-amount="1000">1000 ₽</button>
+                                <button class="btn btn-outline-primary preset-amount" data-amount="2000">2000 ₽</button>
+                                <button class="btn btn-outline-primary preset-amount" data-amount="5000">5000 ₽</button>
+                            </div>
                         </div>
-                    </div>
-                    
-                    <!-- Дополнительная информация -->
-                    <div class="mt-4">
-                        <h5>О платежах</h5>
-                        <ul class="list-unstyled">
-                            <li><i class="fas fa-check-circle text-success me-2"></i> Безопасная оплата через Robokassa</li>
-                            <li><i class="fas fa-check-circle text-success me-2"></i> Мгновенное зачисление на баланс</li>
-                            <li><i class="fas fa-check-circle text-success me-2"></i> Оплата картой, электронными деньгами</li>
-                        </ul>
+
+                        <!-- Дополнительная информация -->
+                        <div class="mt-4">
+                            <h5>О платежах</h5>
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Безопасная оплата через
+                                    Robokassa
+                                </li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Мгновенное зачисление на
+                                    баланс
+                                </li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i> Оплата картой, электронными
+                                    деньгами
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const amountInput = document.getElementById('amount');
-        const totalAmountElement = document.getElementById('total-amount');
-        const payButton = document.getElementById('pay-button');
-        const presetButtons = document.querySelectorAll('.preset-amount');
-        
-        // Функция расчета итоговой суммы с комиссией
-        function calculateTotal(amount) {
-            return (amount * 1.10).toFixed(0);
-        }
-        
-        // Обновление итоговой суммы при изменении основной суммы
-        function updateTotalAmount() {
-            const amount = parseFloat(amountInput.value) || 0;
-            totalAmountElement.textContent = calculateTotal(amount);
-        }
-        
-        // Обработчик изменения суммы
-        amountInput.addEventListener('input', updateTotalAmount);
-        
-        // Обработчик кнопок предустановленной суммы
-        presetButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const amount = parseFloat(this.dataset.amount);
-                amountInput.value = amount;
-                updateTotalAmount();
-            });
-        });
-        
-        // Обработчик кнопки оплаты
-        payButton.addEventListener('click', function() {
-            const amount = parseFloat(amountInput.value) || 0;
-            
-            if (amount < 100) {
-                alert('Минимальная сумма пополнения - 100 руб.');
-                return;
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const amountInput = document.getElementById('amount');
+            const totalAmountElement = document.getElementById('total-amount');
+            const payButton = document.getElementById('pay-button');
+            const presetButtons = document.querySelectorAll('.preset-amount');
+
+            // Функция расчета итоговой суммы с комиссией
+            function calculateTotal(amount) {
+                return (amount * 1.10).toFixed(0);
             }
-            
-            // Отправка запроса на инициацию платежа
-            fetch('{% url "payments:robokassa_initiate" %}', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ amount: amount })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Редирект на страницу оплаты Robokassa
-                    window.location.href = data.payment_url;
-                } else {
-                    alert('Ошибка: ' + (data.error || 'Не удалось создать платеж'));
-                }
-            })
-            .catch(error => {
-                console.error('Ошибка:', error);
-                alert('Произошла ошибка при создании платежа');
+
+            // Обновление итоговой суммы при изменении основной суммы
+            function updateTotalAmount() {
+                const amount = parseFloat(amountInput.value) || 0;
+                totalAmountElement.textContent = calculateTotal(amount);
+            }
+
+            // Обработчик изменения суммы
+            amountInput.addEventListener('input', updateTotalAmount);
+
+            // Обработчик кнопок предустановленной суммы
+            presetButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const amount = parseFloat(this.dataset.amount);
+                    amountInput.value = amount;
+                    updateTotalAmount();
+                });
             });
+
+            // Обработчик кнопки оплаты
+            payButton.addEventListener('click', function () {
+                const amount = parseFloat(amountInput.value) || 0;
+
+                if (amount < 100) {
+                    alert('Минимальная сумма пополнения - 100 руб.');
+                    return;
+                }
+
+                // Отправка запроса на инициацию платежа
+                fetch('{% url "payments:robokassa_initiate" %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({amount: amount})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Редирект на страницу оплаты Robokassa
+                            window.location.href = data.payment_url;
+                        } else {
+                            alert('Ошибка: ' + (data.error || 'Не удалось создать платеж'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                        alert('Произошла ошибка при создании платежа');
+                    });
+            });
+
+            // Инициализация
+            updateTotalAmount();
         });
-        
-        // Инициализация
-        updateTotalAmount();
-    });
-</script>
+    </script>
 {% endblock %} 

@@ -1,5 +1,7 @@
 from django.db import models
+
 from vagvin.models import BaseModel
+
 
 class Review(BaseModel):
     RATING_CHOICES = [
