@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Пополнение баланса - Vagvin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/payments.css' %}">
+{% endblock %}
+
+{% block content %}
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} mt-3 payment-alert" role="alert">
+      {{ message }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+<div class="dashboard-section mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="dashboard-section-title">Мой баланс</h2>
+    <a href="{% url 'payments:requisites' %}" class="btn btn-primary">
+      <i class="fas fa-plus-circle me-2"></i>Пополнить баланс
+    </a>
+  </div>
+  
+  <div class="balance-card">
+    <div class="row">
+      <div class="col-lg-4 mb-3 mb-lg-0">
+        <div class="balance-info p-4">
+          <div class="balance-title">Текущий баланс</div>
+          <div class="balance-value">{{ balance }} руб.</div>
+          <div class="balance-status {% if is_enough_balance %}text-success{% else %}text-danger{% endif %}">
+            {% if is_enough_balance %}
+              <i class="fas fa-check-circle me-1"></i>Достаточно для запуска
+            {% else %}
+              <i class="fas fa-exclamation-circle me-1"></i>Недостаточно для запуска
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-8">
+        <div class="row payment-stats">
+          <div class="col-md-6 mb-3">
+            <div class="stat-card p-3">
+              <div class="stat-title">Всего пополнений</div>
+              <div class="stat-value">{{ payments_count }}</div>
+              <div class="stat-info">За все время</div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <div class="stat-card p-3">
+              <div class="stat-title">Сумма пополнений</div>
+              <div class="stat-value">{{ total_amount }} руб.</div>
+              <div class="stat-info">За все время</div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <div class="stat-card p-3">
+              <div class="stat-title">Последнее пополнение</div>
+              <div class="stat-value">{{ last_payment.amount|default:"0" }} руб.</div>
+              <div class="stat-info">{{ last_payment.created_at|date:"d.m.Y"|default:"Нет данных" }}</div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <div class="stat-card p-3">
+              <div class="stat-title">Требуется для запуска</div>
+              <div class="stat-value">{{ min_balance }} руб.</div>
+              <div class="stat-info">Минимальный баланс</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-section mb-4">
+  <h2 class="dashboard-section-title mb-3">История пополнений</h2>
+  
+  {% if payments %}
+    <div class="table-responsive">
+      <table class="table payment-history-table">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Сумма</th>
+            <th>Статус</th>
+            <th>Способ оплаты</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for payment in payments %}
+            <tr>
+              <td>{{ payment.created_at|date:"d.m.Y H:i" }}</td>
+              <td>{{ payment.amount }} руб.</td>
+              <td>
+                <span class="payment-status-badge 
+                  {% if payment.status == 'success' %}badge-success
+                  {% elif payment.status == 'pending' %}badge-pending
+                  {% else %}badge-failed{% endif %}">
+                  {% if payment.status == 'success' %}Успешно
+                  {% elif payment.status == 'pending' %}В обработке
+                  {% else %}Отклонено{% endif %}
+                </span>
+              </td>
+              <td>{{ payment.get_payment_method_display }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state p-4 text-center">
+      <div class="empty-state-icon mb-3">
+        <i class="fas fa-receipt fa-3x text-muted"></i>
+      </div>
+      <h3 class="empty-state-title">Нет истории платежей</h3>
+      <p class="empty-state-description">Пополните баланс, чтобы увидеть историю платежей</p>
+      <a href="{% url 'payments:requisites' %}" class="btn btn-primary mt-2">
+        <i class="fas fa-plus-circle me-2"></i>Пополнить баланс
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/payments.js' %}"></script>
+{% endblock %} 

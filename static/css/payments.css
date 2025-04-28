@@ -1,0 +1,158 @@
+/* Payment Forms General Styling */
+.card {
+    border-radius: 12px;
+    transition: none;
+    border: 0;
+}
+
+.card:hover {
+    transform: none;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.section-heading {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-control:focus {
+    border-color: #0072ff;
+    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+}
+
+.form-label {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background-color: #0072ff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0066e6;
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+}
+
+.btn-outline-primary {
+    color: #0072ff;
+    border-color: #0072ff;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0072ff;
+    border-color: #0072ff;
+    color: white;
+}
+
+/* Payment Tab Navigation */
+.nav-tabs .nav-link {
+    color: #64748b;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0072ff;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0072ff;
+    background: none;
+    border-bottom: 2px solid #0072ff;
+}
+
+.tab-content {
+    padding-top: 1.5rem;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-info {
+    background-color: #f1f5f9;
+    border-left-color: #0072ff;
+}
+
+.alert-danger {
+    border-left-color: #e11d48;
+    background-color: #fff1f2;
+    color: #be123c;
+}
+
+.alert-success {
+    border-left-color: #10b981;
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.alert-warning {
+    background-color: #fff7ed;
+    border-left-color: #f97316;
+}
+
+/* Amount Selection Buttons */
+.payment-amount-btn {
+    min-width: 80px;
+}
+
+.payment-amount-btn.active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+}
+
+/* Hero Section */
+.hero {
+    background-color: #f7f9fb;
+    padding: 3rem 0;
+}
+
+.hero h1 {
+    color: #1e293b;
+    font-size: 2.5rem;
+    letter-spacing: -0.5px;
+    font-weight: 700;
+}
+
+.hero p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+/* Copy Button */
+.copy-btn {
+    font-size: 0.85rem;
+} 
