@@ -110,3 +110,17 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
+# Django migrations
+**/migrations/
+
+# Dump files
+*_dump.txt
+vagvin_*_dump.txt
+
+# Test results
+/reports/allure-results/
+.pytest_cache/
+htmlcov/
+coverage.xml
+.coverage
+.coverage.*

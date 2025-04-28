@@ -1,6 +1,10 @@
 import os
+import logging
 
 import pyperclip
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Default exclude paths and files
 EXCLUDE_DIRS = {"venv", ".venv", "git", "__pycache__", "migrations"}
@@ -8,7 +12,7 @@ EXCLUDE_FILES = {".env", "README.md", "requirements.txt", ".gitignore", ".git"}
 
 # Django-specific files that are commonly important
 DJANGO_WHITELIST_FILES = ['models.py', 'admin.py', 'serializers.py', 'urls.py', 'views.py', 'utils.py', 'forms.py',
-                          'tests.py', 'middleware.py', 'settings.py']
+                          'tests.py', 'middleware.py', 'settings.py', 'factories.py', 'signals.py', 'services.py']
 
 # Web file extensions to include
 WEB_EXTENSIONS = ['.html', '.css', '.js', '.scss', '.jsx', '.ts', '.tsx']
@@ -44,21 +48,46 @@ def list_projects(directory):
     return projects
 
 
+def list_django_apps(project_directory):
+    """List all Django apps in the project."""
+    apps_dir = os.path.join(project_directory, "apps")
+    
+    # If the apps directory exists, list apps from there
+    if os.path.exists(apps_dir) and os.path.isdir(apps_dir):
+        apps = [d for d in os.listdir(apps_dir) if os.path.isdir(os.path.join(apps_dir, d))]
+        # Filter out non-app directories
+        apps = [app for app in apps if not app.startswith('.') and app != '__pycache__']
+    else:
+        # Try to find apps in the root directory
+        apps = []
+        for d in os.listdir(project_directory):
+            app_dir = os.path.join(project_directory, d)
+            if (os.path.isdir(app_dir) and 
+                os.path.exists(os.path.join(app_dir, 'models.py')) or 
+                os.path.exists(os.path.join(app_dir, 'views.py'))):
+                apps.append(d)
+    
+    for idx, app in enumerate(apps):
+        print(f"{idx + 1}. {app}")
+    
+    return apps
+
+
 def choose_file_types():
     """Let the user choose which types of files to include in the dump."""
-    print("\nВыберите типы файлов для включения в дамп:")
-    print("1. Только Python файлы (.py)")
-    print("2. Python + HTML файлы (.py, .html)")
-    print("3. Python + все веб-файлы (.py, .html, .css, .js)")
-    print("4. Все файлы проекта (включая конфигурационные)")
-    print("5. Пользовательский выбор")
+    print("\nSelect file types to include in the dump:")
+    print("1. Python files only (.py)")
+    print("2. Python + HTML files (.py, .html)")
+    print("3. Python + all web files (.py, .html, .css, .js)")
+    print("4. All project files (including configuration files)")
+    print("5. Custom selection")
 
-    choice = input("\nВведите номер выбора: ")
+    choice = input("\nEnter your choice number: ")
 
     try:
         choice = int(choice)
     except ValueError:
-        print("Неверный выбор. Используем опцию 1 по умолчанию.")
+        print("Invalid choice. Using option 1 as default.")
         choice = 1
 
     if choice == 1:
@@ -71,27 +100,43 @@ def choose_file_types():
         return ['.py', '.html', '.css', '.js', '.json', '.yml', '.yaml', '.txt', '.md'], [], []
     elif choice == 5:
         # Custom selection
-        extensions = input("Введите расширения файлов через запятую (например, .py,.html,.css): ").split(',')
+        extensions = input("Enter file extensions separated by comma (e.g., .py,.html,.css): ").split(',')
         extensions = [ext.strip() for ext in extensions if ext.strip()]
 
-        include_files = input("Введите имена файлов для включения через запятую (или оставьте пустым): ").split(',')
+        include_files = input("Enter filenames to include separated by comma (or leave empty): ").split(',')
         include_files = [f.strip() for f in include_files if f.strip()]
 
-        exclude_files = input(
-            "Введите дополнительные имена файлов для исключения через запятую (или оставьте пустым): ").split(',')
+        exclude_files = input("Enter additional filenames to exclude separated by comma (or leave empty): ").split(',')
         exclude_files = [f.strip() for f in exclude_files if f.strip()]
 
         return extensions, include_files, exclude_files
     else:
-        print("Неверный выбор. Используем опцию 1 по умолчанию.")
+        print("Invalid choice. Using option 1 as default.")
         return ['.py'], [], []
 
 
-def collect_files(directory, extensions, include_files, exclude_dirs, exclude_files):
+def collect_files(directory, extensions, include_files, exclude_dirs, exclude_files, app_name=None):
     """Collect all files that match the criteria."""
     collected_files = []
-
+    
+    # If app_name is specified, construct app directory path
+    app_dir = None
+    if app_name:
+        # Check for app in the apps directory first
+        possible_app_dir = os.path.join(directory, "apps", app_name)
+        if os.path.exists(possible_app_dir) and os.path.isdir(possible_app_dir):
+            app_dir = possible_app_dir
+        else:
+            # Check for app in the root directory
+            possible_app_dir = os.path.join(directory, app_name)
+            if os.path.exists(possible_app_dir) and os.path.isdir(possible_app_dir):
+                app_dir = possible_app_dir
+    
     for root, dirs, files in os.walk(directory, topdown=True):
+        # Skip if app_name is specified and we're not in the app directory
+        if app_name and app_dir and not root.startswith(app_dir):
+            continue
+            
         # Filter out excluded directories
         dirs[:] = [d for d in dirs if not is_excluded(os.path.join(root, d), exclude_dirs, exclude_files)]
 
@@ -121,6 +166,7 @@ def extract_code(file_path):
         with open(file_path, 'r', encoding='utf-8') as file:
             return file.read()
     except Exception as e:
+        logger.exception(f"Could not read file {file_path}")
         return f"ERROR: Could not read file {file_path}: {str(e)}"
 
 
@@ -152,23 +198,23 @@ def main():
     current_directory = os.getcwd()
 
     # Ask if user wants to select a project or use current directory
-    use_current = input("Использовать текущую директорию как проект? (д/н): ").lower()
+    use_current = input("Use current directory as project? (y/n): ").lower()
 
-    if use_current.startswith('д'):
+    if use_current.startswith('y'):
         project_directory = current_directory
         project_name = os.path.basename(current_directory)
     else:
         # List potential projects in current directory
-        print("\nДоступные проекты в текущей директории:")
+        print("\nAvailable projects in current directory:")
         projects = list_projects(current_directory)
 
         if not projects:
-            print("Проекты не найдены. Используем текущую директорию.")
+            print("No projects found. Using current directory.")
             project_directory = current_directory
             project_name = os.path.basename(current_directory)
         else:
             try:
-                project_number = int(input("\nВыберите номер проекта (или 0 для текущей директории): "))
+                project_number = int(input("\nSelect project number (or 0 for current directory): "))
                 if project_number == 0:
                     project_directory = current_directory
                     project_name = os.path.basename(current_directory)
@@ -176,9 +222,28 @@ def main():
                     project_name = projects[project_number - 1]
                     project_directory = os.path.join(current_directory, project_name)
             except (ValueError, IndexError):
-                print("Неверный выбор. Используем текущую директорию.")
+                print("Invalid choice. Using current directory.")
                 project_directory = current_directory
                 project_name = os.path.basename(current_directory)
+
+    # Ask if user wants to dump files from a specific app
+    dump_specific_app = input("\nDump files from a specific Django app only? (y/n): ").lower()
+    selected_app = None
+    
+    if dump_specific_app.startswith('y'):
+        print("\nAvailable Django apps:")
+        apps = list_django_apps(project_directory)
+        
+        if not apps:
+            print("No Django apps found. Dumping entire project.")
+        else:
+            try:
+                app_number = int(input("\nSelect app number (or 0 for entire project): "))
+                if app_number != 0:
+                    selected_app = apps[app_number - 1]
+                    print(f"Selected app: {selected_app}")
+            except (ValueError, IndexError):
+                print("Invalid choice. Dumping entire project.")
 
     # Choose which file types to include
     extensions, include_files, additional_exclude_files = choose_file_types()
@@ -187,19 +252,26 @@ def main():
     exclude_files = EXCLUDE_FILES.union(set(additional_exclude_files))
 
     # Get output file name
-    output_file_name = input(f"\nВведите имя файла для сохранения дампа (по умолчанию: {project_name}_dump.txt): ")
+    output_file_name = input(f"\nEnter filename to save the dump (default: {project_name}_dump.txt): ")
     if not output_file_name:
-        output_file_name = f"{project_name}_dump.txt"
+        if selected_app:
+            output_file_name = f"{project_name}_{selected_app}_dump.txt"
+        else:
+            output_file_name = f"{project_name}_dump.txt"
 
     # Collect files that match the criteria
-    print(f"\nСбор файлов проекта '{project_name}'...")
-    project_files = collect_files(project_directory, extensions, include_files, EXCLUDE_DIRS, exclude_files)
+    if selected_app:
+        print(f"\nCollecting files from app '{selected_app}'...")
+    else:
+        print(f"\nCollecting files from project '{project_name}'...")
+        
+    project_files = collect_files(project_directory, extensions, include_files, EXCLUDE_DIRS, exclude_files, selected_app)
 
     if not project_files:
-        print("Файлы для дампа не найдены. Проверьте настройки и повторите попытку.")
+        print("No files found for dump. Check your settings and try again.")
         return
 
-    print(f"Найдено {len(project_files)} файлов для дампа.")
+    print(f"Found {len(project_files)} files for dump.")
 
     # Sort files by path for better organization
     project_files.sort()
@@ -210,7 +282,11 @@ def main():
     # Generate the dump
     with open(output_file_name, 'w', encoding='utf-8') as output_file:
         # Write project structure
-        output_file.write(f"Project Structure Overview: {project_name}\n")
+        if selected_app:
+            output_file.write(f"Project Structure Overview: {project_name} - App: {selected_app}\n")
+        else:
+            output_file.write(f"Project Structure Overview: {project_name}\n")
+            
         output_file.write("=" * 3 + "\n")
         write_project_structure(structure, output_file)
         output_file.write("\n" + "=" * 3 + "\n\n")
@@ -224,7 +300,7 @@ def main():
             output_file.write(file_content)
             output_file.write("\n\n" + "=" * 3 + "\n\n")
 
-    print(f"\nДамп проекта успешно сохранен в файл '{output_file_name}'.")
+    print(f"\nProject dump successfully saved to '{output_file_name}'.")
 
     # Copy to clipboard
     try:
@@ -232,10 +308,11 @@ def main():
             dump_content = f.read()
 
         pyperclip.copy(dump_content)
-        print("Содержимое дампа скопировано в буфер обмена.")
+        print("Dump content copied to clipboard.")
     except Exception as e:
-        print(f"Не удалось скопировать содержимое в буфер обмена: {e}")
-        print("Попробуйте установить pyperclip: pip install pyperclip")
+        logger.exception("Failed to copy content to clipboard")
+        print(f"Failed to copy content to clipboard: {e}")
+        print("Try installing pyperclip: pip install pyperclip")
 
 
 if __name__ == "__main__":
