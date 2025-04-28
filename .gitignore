@@ -1,7 +1,3 @@
-/.venv/
-/.idea/
-/vagvin/settings.py
-
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
@@ -110,6 +106,11 @@ dmypy.json
 .pyre/
 .pytype/
 cython_debug/
+
+# Virtual environment
+/.venv/
+/.idea/
+
 # Django migrations
 **/migrations/
 
