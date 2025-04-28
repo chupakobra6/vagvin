@@ -14,6 +14,7 @@ class Payment(BaseModel):
     PROVIDER_CHOICES = [
         ('robokassa', 'Robokassa'),
         ('yookassa', 'YooKassa'),
+        ('heleket', 'Heleket'),
     ]
 
     STATUS_CHOICES = [
