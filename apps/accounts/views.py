@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import FormView
 
@@ -166,6 +166,7 @@ def dashboard(request):
         ',') if user.additional_emails else []
 
     user_data = {
+        'id': user.id,
         'username': user.username,
         'email': user.email,
         'balance': user.balance,
@@ -178,7 +179,6 @@ def dashboard(request):
     }
 
     return render(request, 'accounts/dashboard.html', {'user_data': user_data})
-
 
 @login_required
 def add_email(request):
@@ -222,8 +222,7 @@ def remove_email(request):
         email = request.POST.get('email')
         user = request.user
 
-        emails = user.additional_emails.split(
-            ',') if user.additional_emails else []
+        emails = user.additional_emails.split(',') if user.additional_emails else []
 
         if email in emails:
             try:

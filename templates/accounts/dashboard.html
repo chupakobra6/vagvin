@@ -1,283 +1,603 @@
 {% extends 'base.html' %}
 
-{% block title %}Личный кабинет - vagvin.ru{% endblock %}
+{% load static %}
+
+{% block title %}Личный кабинет - Vagvin{% endblock %}
 
 {% block extra_js %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle copy button
-        const copyButton = document.querySelector('.btn-outline-secondary');
-        if (copyButton) {
-            copyButton.addEventListener('click', function() {
-                navigator.clipboard.writeText('{{ user_data.referral_link }}');
-                // Visual feedback
-                const originalIcon = this.innerHTML;
-                this.innerHTML = '<i class="fas fa-check text-success"></i>';
-                setTimeout(() => {
-                    this.innerHTML = originalIcon;
-                }, 1000);
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize all tooltips
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
             });
-        }
-        
-        // Handle adding emails
-        const addEmailForm = document.getElementById('add-email-form');
-        if (addEmailForm) {
-            addEmailForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const emailInput = document.getElementById('id_email');
-                const formData = new FormData();
-                formData.append('email', emailInput.value);
-                
-                fetch("{% url 'accounts:add_email' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Refresh the page to show updated emails
-                        location.reload();
-                    } else {
-                        // Replace alert with silent error handling
-                        console.error('Error:', data.message || 'Произошла ошибка');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
+
+            // Handle copy referral link button
+            const copyButton = document.querySelector('.btn-copy-referral');
+            if (copyButton) {
+                copyButton.addEventListener('click', function () {
+                    navigator.clipboard.writeText('{{ user_data.referral_link }}');
+                    // Visual feedback
+                    const originalIcon = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check text-success"></i>';
+                    setTimeout(() => {
+                        this.innerHTML = originalIcon;
+                    }, 1000);
+                });
+            }
+
+            // Handle adding emails
+            const addEmailForm = document.getElementById('add-email-form');
+            if (addEmailForm) {
+                addEmailForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const emailInput = document.getElementById('id_email');
+                    const formData = new FormData();
+                    formData.append('email', emailInput.value);
+
+                    fetch("{% url 'accounts:add_email' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Refresh the page to show updated emails
+                                location.reload();
+                            } else {
+                                // Replace alert with silent error handling
+                                console.error('Error:', data.message || 'Произошла ошибка');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                });
+            }
+
+            // Handle removing emails
+            const removeEmailButtons = document.querySelectorAll('.remove-email');
+            removeEmailButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const email = this.dataset.email;
+                    const formData = new FormData();
+                    formData.append('email', email);
+
+                    fetch("{% url 'accounts:remove_email' %}", {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        }
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Refresh the page to show updated emails
+                                location.reload();
+                            } else {
+                                // Replace alert with silent error handling
+                                console.error('Error:', data.message || 'Произошла ошибка');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
                 });
             });
-        }
-        
-        // Handle removing emails
-        const removeEmailButtons = document.querySelectorAll('.remove-email');
-        removeEmailButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const email = this.dataset.email;
-                const formData = new FormData();
-                formData.append('email', email);
-                
-                fetch("{% url 'accounts:remove_email' %}", {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Refresh the page to show updated emails
-                        location.reload();
-                    } else {
-                        // Replace alert with silent error handling
-                        console.error('Error:', data.message || 'Произошла ошибка');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        });
-        
-        // Load user queries
-        const queriesTable = document.getElementById('queries-table');
-        if (queriesTable) {
-            fetch("{% url 'reports:user_queries' %}")
-                .then(response => response.json())
-                .then(data => {
-                    // Clear loading message
-                    queriesTable.innerHTML = '';
-                    
-                    if (data.length === 0) {
-                        queriesTable.innerHTML = '<tr><td colspan="5" class="text-center">У вас пока нет запросов</td></tr>';
-                        return;
-                    }
-                    
-                    // Populate table with query data
-                    data.forEach(query => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
+
+            // Load user queries
+            const queriesTable = document.getElementById('queries-table');
+            if (queriesTable) {
+                fetch("{% url 'reports:user_queries' %}")
+                    .then(response => response.json())
+                    .then(data => {
+                        // Clear loading message
+                        queriesTable.innerHTML = '';
+
+                        if (data.length === 0) {
+                            queriesTable.innerHTML = '<tr><td colspan="5" class="text-center">У вас пока нет запросов</td></tr>';
+                            return;
+                        }
+
+                        // Populate table with query data
+                        data.forEach(query => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
                             <td>${query.created_at}</td>
                             <td>${query.vin}</td>
                             <td>${query.marka || '-'}</td>
                             <td>${query.tip}</td>
                             <td>${query.cost} ₽</td>
                         `;
-                        queriesTable.appendChild(row);
+                            queriesTable.appendChild(row);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error loading queries:', error);
+                        queriesTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка при загрузке истории запросов</td></tr>';
                     });
-                })
-                .catch(error => {
-                    console.error('Error loading queries:', error);
-                    queriesTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка при загрузке истории запросов</td></tr>';
-                });
-        }
-    });
-</script>
+            }
+
+            // Payment form handling
+            const robokassaForm = document.getElementById('robokassa-form');
+            const yookassaForm = document.getElementById('yookassa-form');
+            const helekitForm = document.getElementById('helekit-form');
+
+            function handlePaymentSubmit(form, endpoint) {
+                if (form) {
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        const amountInput = form.querySelector('input[type="number"]');
+                        if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
+                            alert('Пожалуйста, введите корректную сумму пополнения');
+                            return;
+                        }
+
+                        const amount = parseFloat(amountInput.value);
+
+                        fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRFToken': '{{ csrf_token }}'
+                            },
+                            body: JSON.stringify({amount: amount})
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.payment_url) {
+                                    window.location.href = data.payment_url;
+                                } else {
+                                    alert(data.error || 'Произошла ошибка при создании платежа');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('Произошла ошибка при создании платежа');
+                            });
+                    });
+                }
+            }
+
+            // Initialize payment forms
+            handlePaymentSubmit(robokassaForm, "{% url 'payments:robokassa_initiate' %}");
+            handlePaymentSubmit(yookassaForm, "{% url 'payments:yookassa_initiate' %}");
+            handlePaymentSubmit(helekitForm, "{% url 'payments:heleket_initiate' %}");
+        });
+    </script>
 {% endblock %}
 
 {% block content %}
-<!-- Dashboard Hero Section -->
-<section class="hero py-5 w-100" style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto text-center">
-                <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Личный кабинет</h1>
-                <p style="color: #64748b; font-size: 1.1rem;">Управляйте своим аккаунтом и отслеживайте историю запросов</p>
+    <!-- Dashboard Hero Section -->
+    <section class="hero py-5 w-100"
+             style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Личный
+                        кабинет</h1>
+                    <p style="color: #64748b; font-size: 1.1rem;">Управляйте своим аккаунтом и отслеживайте историю
+                        запросов</p>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Dashboard Content Section -->
-<section class="py-5">
-    <div class="container">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} mb-4">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+    <!-- Dashboard Content Section -->
+    <section class="py-5">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} mb-4">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
 
-        <div class="row g-4">
-            <!-- User Info Card -->
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm p-4 mb-4 h-100">
-                    <div class="card-body">
-                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Информация о пользователе</h2>
-                        <div class="mb-4" style="color: #64748b;">
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold" style="color: #334155;">Логин:</div>
-                                <div class="col-md-8">{{ user_data.username }}</div>
+            <div class="row g-4">
+                <!-- User Info Card -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm p-4 mb-4 h-100">
+                        <div class="card-body">
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Ваши
+                                данные</h2>
+                            <div class="mb-4" style="color: #64748b;">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155; width: 40%;">Логин</td>
+                                            <td>{{ user_data.username }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155;">
+                                                Почта
+                                                <i class="fas fa-question-circle text-secondary ms-1"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Основной email, указанный при регистрации"></i>
+                                            </td>
+                                            <td>{{ user_data.email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155;">
+                                                Баланс
+                                                <i class="fas fa-question-circle text-secondary ms-1"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Ваш текущий баланс для оплаты отчетов"></i>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-success rounded-pill fs-6">{{ user_data.balance }} руб.</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155;">Овердрафт</td>
+                                            <td>
+                                                <span class="badge bg-success rounded-pill fs-6">{{ user_data.overdraft }} руб.</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155;">Кол-во реф.</td>
+                                            <td>{{ user_data.referrals_count }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155;">
+                                                Реф. ссылка
+                                                <i class="fas fa-question-circle text-secondary ms-1"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Ваша реферальная ссылка для приглашения друзей. Получайте 10% от их пополнений"></i>
+                                            </td>
+                                            <td>
+                                                <div class="input-group">
+                                                    <input type="text" class="form-control"
+                                                           value="{{ user_data.referral_link }}" readonly
+                                                           style="border-radius: 8px 0 0 8px;">
+                                                    <button class="btn btn-outline-secondary btn-copy-referral"
+                                                            type="button" style="border-radius: 0 8px 8px 0;">
+                                                        <i class="fas fa-copy"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-bold" style="color: #334155;">
+                                                Доп. почты
+                                                <i class="fas fa-question-circle text-secondary ms-1"
+                                                   data-bs-toggle="tooltip"
+                                                   title="Дополнительные адреса электронной почты для получения отчетов"></i>
+                                            </td>
+                                            <td>
+                                                {% if user_data.additional_emails %}
+                                                    {{ user_data.additional_emails|join:", " }}
+                                                {% else %}
+                                                    Нет
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold" style="color: #334155;">Email:</div>
-                                <div class="col-md-8">{{ user_data.email }}</div>
+
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a href="https://t.me/VinVaG?text=Здравствуйте.%0AID:%20{{ user_data.id|urlencode }}%0AПочта:%20{{ user_data.email|urlencode }}%0AУ%20меня%20есть%20вопрос%20по%20моему%20аккаунту."
+                                   target="_blank"
+                                   class="btn btn-primary">
+                                    <i class="fas fa-headset me-2"></i>Связаться с поддержкой
+                                </a>
+                                <a href="https://t.me/VinVaG?text=Здравствуйте.%0AID:%20{{ user_data.id|urlencode }}%0AПочта:%20{{ user_data.email|urlencode }}%0AПрошу%20рассмотреть%20возможность%20возврата%20средств.%0AЗапрашиваемая%20сумма%20возврата:%20"
+                                   target="_blank"
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Запрос на возврат
+                                </a>
                             </div>
-                            <div class="row">
-                                <div class="col-md-4 fw-bold" style="color: #334155;">Дата регистрации:</div>
-                                <div class="col-md-8">{{ user_data.created_at|date:"d.m.Y" }}</div>
-                            </div>
-                        </div>
-                        
-                        <hr class="my-4">
-                        
-                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Финансы</h2>
-                        <div class="row align-items-center">
-                            <div class="col-md-12">
-                                <div style="color: #64748b;">
-                                    <div class="mb-2">
-                                        <span class="fw-bold" style="color: #334155;">Баланс:</span> 
-                                        <span class="badge bg-success rounded-pill fs-6 ms-2">{{ user_data.balance }} ₽</span>
-                                    </div>
+
+                            <div class="alert alert-info mt-4"
+                                 style="background-color: #f1f5f9; border-left: 4px solid #0072ff; padding: 1rem; border-radius: 6px;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-crown text-warning me-3 fs-4"></i>
                                     <div>
-                                        <span class="fw-bold" style="color: #334155;">Овердрафт:</span> 
-                                        <span class="badge bg-secondary rounded-pill fs-6 ms-2">{{ user_data.overdraft }} ₽</span>
+                                        <a href="https://t.me/VinVaG?text=Здравствуйте.%0AID:%20{{ user_data.id|urlencode }}%0AПочта:%20{{ user_data.email|urlencode }}%0AИнтересуют%20специальные%20условия%20при%20пополнении%20от%2010000%20руб."
+                                           target="_blank"
+                                           class="fw-bold text-decoration-none"
+                                           style="color: #1e293b; font-size: 1.1rem;">
+                                            Специальные условия при пополнении от 10&nbsp;000&nbsp;₽ — узнать
+                                            подробности
+                                        </a>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-4">
-                            <div class="col-12 text-center">
-                                <a href="{% url 'payments:balance' %}" class="btn btn-primary d-inline-block" style="background-color: #0072ff; border: none; font-weight: 600; border-radius: 8px; padding: 10px 16px;">
-                                    <i class="fas fa-wallet me-2"></i>Пополнить баланс
+                    </div>
+                </div>
+
+                <!-- Balance & Payment Card -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm p-4 mb-4 h-100">
+                        <div class="card-body">
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Пополнение
+                                баланса</h2>
+
+                            <ul class="nav nav-tabs mb-4" id="paymentTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="robokassa-tab" data-bs-toggle="tab"
+                                            data-bs-target="#robokassa" type="button" role="tab"
+                                            aria-controls="robokassa" aria-selected="true">
+                                        <i class="fas fa-wallet me-2"></i>Robokassa
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="yookassa-tab" data-bs-toggle="tab"
+                                            data-bs-target="#yookassa" type="button" role="tab" aria-controls="yookassa"
+                                            aria-selected="false">
+                                        <i class="fas fa-credit-card me-2"></i>ЮKassa
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="helekit-tab" data-bs-toggle="tab"
+                                            data-bs-target="#helekit" type="button" role="tab" aria-controls="helekit"
+                                            aria-selected="false">
+                                        <i class="fas fa-coins me-2"></i>Crypto
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content" id="paymentTabsContent">
+                                <!-- Robokassa Form -->
+                                <div class="tab-pane fade show active" id="robokassa" role="tabpanel"
+                                     aria-labelledby="robokassa-tab">
+                                    <div class="alert alert-info mb-4"
+                                         style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
+                                        <p style="color: #64748b;" class="mb-0">Быстрый и безопасный способ оплаты.
+                                            Поддерживаются банковские карты и электронные кошельки. К сумме
+                                            автоматически добавляется комиссия 10%.</p>
+                                    </div>
+                                    <form id="robokassa-form">
+                                        <div class="mb-3">
+                                            <label for="robokassa-amount" class="form-label"
+                                                   style="color: #1e293b; font-weight: 600;">Сумма пополнения
+                                                (руб.)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="robokassa-amount"
+                                                       min="100" step="100" placeholder="Например, 1000" required>
+                                                <button type="submit" class="btn btn-primary"
+                                                        style="border-radius: 0 8px 8px 0;">Пополнить
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">Минимальная сумма: 100 руб.</small>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- YooKassa Form -->
+                                <div class="tab-pane fade" id="yookassa" role="tabpanel" aria-labelledby="yookassa-tab">
+                                    <div class="alert alert-info mb-4"
+                                         style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
+                                        <p style="color: #64748b;" class="mb-0">Удобный способ оплаты с поддержкой всех
+                                            основных банковских карт и платёжных систем. Мгновенное зачисление средств.
+                                            Комиссия 10%.</p>
+                                    </div>
+                                    <form id="yookassa-form">
+                                        <div class="mb-3">
+                                            <label for="yookassa-amount" class="form-label"
+                                                   style="color: #1e293b; font-weight: 600;">Сумма пополнения
+                                                (руб.)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="yookassa-amount" min="100"
+                                                       step="100" placeholder="Например, 1000" required>
+                                                <button type="submit" class="btn btn-primary"
+                                                        style="border-radius: 0 8px 8px 0;">Пополнить
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">Минимальная сумма: 100 руб.</small>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Helekit (Crypto) Form -->
+                                <div class="tab-pane fade" id="helekit" role="tabpanel" aria-labelledby="helekit-tab">
+                                    <div class="alert alert-info mb-4"
+                                         style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
+                                        <p style="color: #64748b;" class="mb-0">Оплата криптовалютой. Поддерживаются
+                                            основные криптовалюты (BTC, ETH, USDT и др.). Комиссия 6%.</p>
+                                    </div>
+                                    <form id="helekit-form">
+                                        <div class="mb-3">
+                                            <label for="helekit-amount" class="form-label"
+                                                   style="color: #1e293b; font-weight: 600;">Сумма пополнения
+                                                (руб.)</label>
+                                            <div class="input-group">
+                                                <input type="number" class="form-control" id="helekit-amount" min="500"
+                                                       step="100" placeholder="Например, 1000" required>
+                                                <button type="submit" class="btn btn-primary"
+                                                        style="border-radius: 0 8px 8px 0;">Пополнить
+                                                </button>
+                                            </div>
+                                            <small class="text-muted">Минимальная сумма: 500 руб.</small>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <a href="{% url 'pages:requisites' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-credit-card me-2"></i>Другие способы оплаты
                                 </a>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Referral Program Card -->
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm p-4 mb-4 h-100">
-                    <div class="card-body">
-                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Реферальная программа</h2>
-                        <p style="color: #64748b;">Приглашайте друзей и получайте <span class="text-primary fw-bold">10%</span> от их пополнений на свой счет.</p>
-                        
-                        <div class="mb-4" style="color: #64748b;">
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold" style="color: #334155;">Реферальный код:</div>
-                                <div class="col-md-8">{{ user_data.referral_code }}</div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-4 fw-bold" style="color: #334155;">Ваша ссылка:</div>
-                                <div class="col-md-8">
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" value="{{ user_data.referral_link }}" readonly style="border-radius: 8px 0 0 8px;">
-                                        <button class="btn btn-outline-secondary" type="button" style="border-radius: 0 8px 8px 0;">
-                                            <i class="fas fa-copy"></i>
+
+                <!-- Additional Emails Card -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm p-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">
+                                Дополнительные адреса для отчетов
+                            </h2>
+                            <p style="color: #64748b;" class="mb-2">
+                                Здесь вы можете указать до 5 дополнительных email-адресов, на которые будут отправляться
+                                копии ваших автоотчетов вместе с основным адресом. Это удобно, если вы хотите получать
+                                отчёты на рабочую почту, делиться ими с коллегами или сохранять в отдельном почтовом
+                                ящике.
+                            </p>
+                            <p style="color: #94a3b8; font-size: 0.95rem;" class="mb-4">
+                                Дополнительные адреса не используются для входа в аккаунт и не получают рекламные
+                                рассылки.
+                            </p>
+
+                            <ul class="list-group mb-4">
+                                {% for email in user_data.additional_emails %}
+                                    <li class="list-group-item"
+                                        style="border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; padding: 0;">
+                                        <div class="input-group" style="width: 100%;">
+                                            <input type="text" class="form-control border-0" value="{{ email }}"
+                                                   readonly
+                                                   style="background: transparent; color: #334155; border-radius: 8px 0 0 8px; box-shadow: none;">
+                                            <button class="btn remove-email" data-email="{{ email }}" type="button"
+                                                    style="background-color: #ef4444; color: #fff; border: none; border-radius: 0 8px 8px 0; font-weight: 500; min-width: 120px;">
+                                                Удалить
+                                            </button>
+                                        </div>
+                                    </li>
+                                {% empty %}
+                                    <li class="list-group-item"
+                                        style="border-radius: 8px; border: 1px solid #e2e8f0; color: #64748b;">
+                                        Пока нет дополнительных адресов
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            {% if user_data.additional_emails|length < 5 %}
+                                <form id="add-email-form">
+                                    <div class="input-group mb-2">
+                                        <input type="email" class="form-control" id="id_email"
+                                               placeholder="Добавить новый адрес" required
+                                               style="border-radius: 8px 0 0 8px;">
+                                        <button class="btn btn-primary" type="submit"
+                                                style="background-color: #0072ff; border: none; border-radius: 0 8px 8px 0; font-weight: 500; min-width: 120px;">
+                                            Добавить
                                         </button>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4 fw-bold" style="color: #334155;">Рефералы:</div>
-                                <div class="col-md-8">
-                                    <span class="badge bg-primary rounded-pill fs-6">{{ user_data.referrals_count }}</span>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="alert" style="background-color: #f1f5f9; border-left: 4px solid #0072ff; padding: 1rem; border-radius: 6px;">
-                            <h4 style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">💡 Как это работает?</h4>
-                            <p style="color: #64748b; margin-bottom: 0.5rem;">1. Поделитесь своей реферальной ссылкой с друзьями</p>
-                            <p style="color: #64748b; margin-bottom: 0.5rem;">2. Когда они зарегистрируются и пополнят баланс</p>
-                            <p style="color: #64748b; margin-bottom: 0;">3. Вы получите 10% от суммы их пополнения</p>
+                                    <small class="form-text" style="color: #64748b;">
+                                        Можно добавить до 5 дополнительных адресов для получения копий автоотчетов.
+                                    </small>
+                                </form>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Additional Emails Card -->
-            <div class="col-lg-6">
-                <div class="card border-0 shadow-sm p-4 mb-4">
-                    <div class="card-body">
-                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Дополнительные email для отчетов</h2>
-                        <p style="color: #64748b;" class="mb-4">Добавьте до 5 дополнительных адресов для получения отчетов:</p>
-                        
-                        <ul class="list-group mb-4">
-                            {% for email in user_data.additional_emails %}
-                                <li class="list-group-item" style="border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 8px; padding: 0;">
-                                    <div class="input-group" style="width: 100%;">
-                                        <input type="text" class="form-control border-0" value="{{ email }}" readonly style="background: transparent; color: #334155; border-radius: 8px 0 0 8px; box-shadow: none;">
-                                        <button class="btn remove-email" data-email="{{ email }}" type="button"
-                                            style="background-color: #ef4444; color: #fff; border: none; border-radius: 0 8px 8px 0; font-weight: 500; min-width: 120px;">
-                                            <i class="fas fa-times me-1"></i>Удалить
-                                        </button>
-                                    </div>
-                                </li>
-                            {% empty %}
-                                <li class="list-group-item" style="border-radius: 8px; border: 1px solid #e2e8f0; color: #64748b;">
-                                    <i class="fas fa-info-circle me-2 text-muted"></i>Нет дополнительных email
-                                </li>
-                            {% endfor %}
-                        </ul>
-                        
-                        {% if user_data.additional_emails|length < 5 %}
-                            <form id="add-email-form">
-                                <div class="input-group mb-2">
-                                    <input type="email" class="form-control" id="id_email" placeholder="Введите email" required style="border-radius: 8px 0 0 8px;">
-                                    <button class="btn btn-primary" type="submit" style="background-color: #0072ff; border: none; border-radius: 0 8px 8px 0; font-weight: 500; min-width: 120px;">
-                                        <i class="fas fa-plus me-1"></i>Добавить
+
+                <!-- Referral Program Card -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm p-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Реферальная
+                                программа</h2>
+                            <p style="color: #64748b;">
+                                Приглашайте друзей и получайте <span class="text-primary fw-bold">10%</span> от каждого
+                                их пополнения на ваш баланс. Делитесь ссылкой — зарабатывайте вместе!
+                            </p>
+                            <div class="alert"
+                                 style="background-color: #f1f5f9; border-left: 4px solid #0072ff; padding: 1rem; border-radius: 6px;">
+                                <h4 style="color: #1e293b; font-weight: 600; font-size: 1.1rem;">💡 Как это
+                                    работает?</h4>
+                                <ol style="color: #64748b; margin-bottom: 0;">
+                                    <li style="margin-bottom: 0.5rem;">Скопируйте и отправьте свою реферальную ссылку
+                                        друзьям.
+                                    </li>
+                                    <li style="margin-bottom: 0.5rem;">Друзья регистрируются и пополняют баланс.</li>
+                                    <li style="margin-bottom: 0;">Вы автоматически получаете <span
+                                            class="fw-bold text-primary">10%</span> от каждого их пополнения на свой
+                                        счет.
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Car Check Service -->
+                <div class="col-lg-12">
+                    <div class="card border-0 shadow-sm p-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Проверка
+                                автомобиля</h2>
+                            <p style="color: #64748b;" class="mb-4">
+                                Получите полную картину по автомобилю за пару минут. Просто укажите VIN, госномер,
+                                ссылку на Авито или серийный номер магнитолы VAG — и мы соберём для вас подробный отчёт:
+                                комплектация, дилерское обслуживание, таможенные сведения, а также данные из
+                                CarVertical, Autocheck, CARFAX, autoDNA, AIR, Eva, ElsaPro, Etka, PIN магнитолы,
+                                аукционные и страховые истории и многое другое.<br>
+                                Вся важная информация — в одном месте, чтобы вы могли принять взвешенное решение.
+                            </p>
+
+                            <form class="mb-4">
+                                <div class="mb-3">
+                                    <label for="vin-input" class="form-label" style="color: #1e293b; font-weight: 600;">
+                                        Укажите идентификатор: VIN (17 знаков), госномер РФ, ссылку на Авито или
+                                        серийный номер магнитолы VAG (14 знаков)
+                                    </label>
+                                    <input type="text" class="form-control" id="vin-input"
+                                           placeholder="Например: XW8ZZZ61ZKG000001, А123ВС77, avito.ru/..., VWZ1Z2H1234567"
+                                           required>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary animated-btn">
+                                        <i class="fas fa-search me-2"></i>Показать отчёт
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary animated-btn">
+                                        <i class="fas fa-eraser me-2"></i>Сбросить
                                     </button>
                                 </div>
-                                <small class="form-text" style="color: #64748b;">Можно добавить не более 5 дополнительных email-адресов</small>
                             </form>
-                        {% endif %}
+                        </div>
                     </div>
                 </div>
-            </div>
-                <div class="card border-0 shadow-sm p-4 mb-4">
-                    <div class="card-body">
-                        <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">История запросов</h2>
-                        
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
+                <style>
+                    .animated-btn {
+                        transition: transform 0.12s cubic-bezier(.4, 0, .2, 1), box-shadow 0.12s cubic-bezier(.4, 0, .2, 1), background-color 0.12s cubic-bezier(.4, 0, .2, 1), color 0.12s cubic-bezier(.4, 0, .2, 1), border-color 0.12s cubic-bezier(.4, 0, .2, 1);
+                    }
+
+                    .animated-btn:active {
+                        transform: scale(0.96);
+                        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .animated-btn:focus {
+                        outline: none;
+                        box-shadow: 0 0 0 2px #0072ff33;
+                    }
+
+                    /* Синхронизируем цветовые эффекты для обеих кнопок */
+                    .btn-outline-secondary.animated-btn:active,
+                    .btn-outline-secondary.animated-btn:focus {
+                        background-color: #e5e7eb !important;
+                        color: #334155 !important;
+                        border-color: #cbd5e1 !important;
+                    }
+
+                    .btn-primary.animated-btn:active,
+                    .btn-primary.animated-btn:focus {
+                        background-color: #2563eb !important;
+                        color: #fff !important;
+                        border-color: #2563eb !important;
+                    }
+                </style>
+
+                <div class="col-lg-12">
+                    <div class="card border-0 shadow-sm p-4 mb-4">
+                        <div class="card-body">
+                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">История
+                                запросов</h2>
+
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
                                     <tr>
                                         <th style="color: #334155; font-weight: 600;">Дата</th>
                                         <th style="color: #334155; font-weight: 600;">VIN</th>
@@ -285,8 +605,8 @@
                                         <th style="color: #334155; font-weight: 600;">Тип отчета</th>
                                         <th style="color: #334155; font-weight: 600;">Стоимость</th>
                                     </tr>
-                                </thead>
-                                <tbody id="queries-table">
+                                    </thead>
+                                    <tbody id="queries-table">
                                     <tr>
                                         <td colspan="5" class="text-center" style="color: #64748b;">
                                             <div class="py-4">
@@ -295,68 +615,101 @@
                                             </div>
                                         </td>
                                     </tr>
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 {% endblock %}
 
 {% block extra_css %}
-<style>
-    body {
-        font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    .form-control {
-        padding: 12px 16px;
-        font-size: 1rem;
-        border-radius: 8px;
-        border: 1px solid #e2e8f0;
-    }
-    .form-control:focus {
-        border-color: #0072ff;
-        box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
-    }
-    .btn-primary {
-        border-radius: 8px;
-        transition: all 0.2s ease;
-    }
-    .btn-primary:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
-    }
-    .card {
-        border-radius: 12px;
-        transition: none;
-    }
-    .card:hover {
-        transform: none;
-    }
-    .alert {
-        border-radius: 8px;
-        border-left: 4px solid;
-    }
-    .alert-danger {
-        border-left-color: #e11d48;
-        background-color: #fff1f2;
-        color: #be123c;
-    }
-    .alert-success {
-        border-left-color: #10b981;
-        background-color: #ecfdf5;
-        color: #047857;
-    }
-    .table th, .table td {
-        padding: 12px 16px;
-        vertical-align: middle;
-    }
-    .badge {
-        font-weight: 500;
-        padding: 6px 10px;
-    }
-</style>
+    <style>
+        body {
+            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        .form-control {
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .form-control:focus {
+            border-color: #0072ff;
+            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+        }
+
+        .btn-primary {
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+        }
+
+        .card {
+            border-radius: 12px;
+            transition: none;
+        }
+
+        .card:hover {
+            transform: none;
+        }
+
+        .alert {
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alert-danger {
+            border-left-color: #e11d48;
+            background-color: #fff1f2;
+            color: #be123c;
+        }
+
+        .alert-success {
+            border-left-color: #10b981;
+            background-color: #ecfdf5;
+            color: #047857;
+        }
+
+        .table th, .table td {
+            padding: 12px 16px;
+            vertical-align: middle;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 6px 10px;
+        }
+
+        .nav-tabs .nav-link {
+            color: #64748b;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #0072ff;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #0072ff;
+            background: none;
+            border-bottom: 2px solid #0072ff;
+        }
+
+        .tab-content {
+            padding-top: 1.5rem;
+        }
+    </style>
 {% endblock %} 
