@@ -61,7 +61,7 @@ def get_registration_email_content(user, password):
             'email': user.email,
             'referral_link': referral_link
         }
-        html_content = render_to_string('accounts/emails/registration.html', context)
+        html_content = render_to_string('emails/registration.html', context)
         return html_content
     except Exception as e:
         logger.exception(f"Error generating registration email content: {e}")
@@ -78,7 +78,7 @@ def get_password_reset_email_content(user, new_password):
             'username': user.username,
             'password': new_password,
         }
-        html_content = render_to_string('accounts/emails/password_reset.html', context)
+        html_content = render_to_string('emails/password_reset.html', context)
         return html_content
     except Exception as e:
         logger.exception(f"Error generating password reset email content: {e}")

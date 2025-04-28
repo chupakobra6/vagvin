@@ -34,7 +34,11 @@ urlpatterns = [
     # Reports and query history URLs
     path('reports/', include('apps.reports.urls')),
     
+    # Reviews URLs
+    path('reviews/', include('apps.reviews.urls')),
+
     # Redirects for backward compatibility
     path('login/', RedirectView.as_view(pattern_name='accounts:login', permanent=True)),
     path('register/', RedirectView.as_view(pattern_name='accounts:register', permanent=True)),
+    path('pages/reviews/', RedirectView.as_view(pattern_name='reviews:list', permanent=True)),
 ]
