@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Конфигурация API</h1>
+    <p class="lead">Эта страница предназначена для администраторов для диагностики настроек API.</p>
+    
+    <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle"></i> <strong>Внимание!</strong> 
+        Эта страница содержит конфиденциальную информацию. Не делитесь доступом к ней.
+    </div>
+    
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'success' %}success{% else %}danger{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Статус API ключей</h2>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Сервис</th>
+                        <th>Статус</th>
+                        <th>Детали</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Avito/Autoteka</td>
+                        <td>
+                            {% if avito_status %}
+                                <span class="badge bg-success">Настроено</span>
+                            {% else %}
+                                <span class="badge bg-danger">Проблема</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <ul class="list-unstyled">
+                                <li>Token URL: {{ avito_token_url|default:"Не указан" }}</li>
+                                <li>Client ID: {% if avito_client_id %}<span class="text-success">Настроен</span>{% else %}<span class="text-danger">Не настроен</span>{% endif %}</li>
+                                <li>Client Secret: {% if avito_client_secret %}<span class="text-success">Настроен</span>{% else %}<span class="text-danger">Не настроен</span>{% endif %}</li>
+                                <li>Token Cache: {% if avito_token_cached %}<span class="text-success">В кэше</span>{% else %}<span class="text-warning">Не в кэше</span>{% endif %}</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <a href="?refresh_token=1" class="btn btn-sm btn-primary">Обновить токен</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Carstat</td>
+                        <td>
+                            {% if carstat_status %}
+                                <span class="badge bg-success">Настроено</span>
+                            {% else %}
+                                <span class="badge bg-danger">Проблема</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <ul class="list-unstyled">
+                                <li>API Key: {% if carstat_api_key %}<span class="text-success">Настроен</span>{% else %}<span class="text-danger">Не настроен</span>{% endif %}</li>
+                            </ul>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>VINHistory</td>
+                        <td>
+                            {% if vinhistory_status %}
+                                <span class="badge bg-success">Настроено</span>
+                            {% else %}
+                                <span class="badge bg-danger">Проблема</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <ul class="list-unstyled">
+                                <li>Login: {% if vinhistory_login %}<span class="text-success">Настроен</span>{% else %}<span class="text-danger">Не настроен</span>{% endif %}</li>
+                                <li>Password: {% if vinhistory_pass %}<span class="text-success">Настроен</span>{% else %}<span class="text-danger">Не настроен</span>{% endif %}</li>
+                            </ul>
+                        </td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>Кэширование</h2>
+        </div>
+        <div class="card-body">
+            <p>Тип кэша: <strong>{{ cache_backend }}</strong></p>
+            <p>Статус: {% if cache_working %}<span class="badge bg-success">Работает</span>{% else %}<span class="badge bg-danger">Проблема</span>{% endif %}</p>
+            
+            <h3 class="mt-3">Тест кэширования</h3>
+            <div class="alert {% if cache_working %}alert-success{% else %}alert-danger{% endif %}">
+                {% if cache_working %}
+                    <p>Кэширование работает правильно.</p>
+                {% else %}
+                    <p>Проблемы с кэшированием. Убедитесь, что параметр CACHES настроен в settings.py.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

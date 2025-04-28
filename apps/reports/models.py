@@ -4,7 +4,6 @@ from django.db import models
 from vagvin.models import BaseModel
 
 
-# TODO: Реализовать базовую модель для всех моделей проекта, где нужен BaseModel с created_at и updated_at
 class Query(BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='queries',
                              verbose_name="Пользователь")
