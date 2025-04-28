@@ -16,16 +16,20 @@ def calculate_signature(*args) -> str:
     return hashlib.md5(':'.join(str(arg) for arg in args).encode()).hexdigest()
 
 
-def create_robokassa_payment(user, amount):
+def create_robokassa_payment(user, amount, total_amount=None):
     invoice_id = f"robokassa_{uuid.uuid4().hex}"
+    
+    # If total_amount is not provided, apply a default 10% commission
+    if total_amount is None:
+        total_amount = round(float(amount) * 1.1, 2)
+        
     payment = Payment.objects.create(
         user=user,
         provider='robokassa',
         amount=amount,
+        total_amount=total_amount,
         invoice_id=invoice_id,
     )
-
-    total_amount = payment.apply_commission(rate=0.12)
 
     merchant_login = settings.ROBOKASSA_LOGIN
     merchant_password1 = settings.ROBOKASSA_PASSWORD1
@@ -122,20 +126,22 @@ def verify_robokassa_callback(params):
     return payment, True
 
 
-def create_yookassa_payment(user, amount):
+def create_yookassa_payment(user, amount, total_amount=None):
     """Инициализация платежа через YooKassa"""
     invoice_id = f"yookassa_{uuid.uuid4().hex}"
+    
+    # If total_amount is not provided, apply a default 10% commission
+    if total_amount is None:
+        total_amount = round(float(amount) * 1.1, 2)
     
     # Create payment record
     payment = Payment.objects.create(
         user=user,
         provider='yookassa',
         amount=amount,
+        total_amount=total_amount,
         invoice_id=invoice_id,
     )
-    
-    # Рассчитываем сумму с комиссией 12%
-    total_amount = payment.apply_commission(rate=0.12)
     
     # YooKassa API credentials
     shop_id = settings.YOOKASSA_SHOP_ID
@@ -240,20 +246,22 @@ def verify_yookassa_callback(data):
     return payment, False
 
 
-def create_heleket_payment(user, amount):
-    """Инициализация криптоплатежа через Heleket"""
+def create_heleket_payment(user, amount, total_amount=None):
+    """Инициализация платежа через Heleket"""
     invoice_id = f"heleket_{uuid.uuid4().hex}"
+    
+    # If total_amount is not provided, apply a default 6% commission
+    if total_amount is None:
+        total_amount = round(float(amount) * 1.06, 2)
     
     # Create payment record
     payment = Payment.objects.create(
         user=user,
         provider='heleket',
         amount=amount,
+        total_amount=total_amount,
         invoice_id=invoice_id,
     )
-    
-    # Рассчитываем сумму с комиссией 6%
-    total_amount = payment.apply_commission(rate=0.06)
     
     # Heleket API credentials
     merchant_id = settings.HELEKET_MERCHANT_ID

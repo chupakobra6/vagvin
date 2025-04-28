@@ -28,11 +28,12 @@ class InitiateRobokassaPaymentView(View):
         try:
             data = json.loads(request.body) if request.body else request.POST
             amount = float(data.get('amount', 0))
+            total_amount = float(data.get('total_amount', 0))
 
             if amount <= 0:
                 return JsonResponse({'error': 'Сумма должна быть положительной'}, status=400)
 
-            payment, payment_url = create_robokassa_payment(request.user, amount)
+            payment, payment_url = create_robokassa_payment(request.user, amount, total_amount)
 
             return JsonResponse({
                 'success': True,
@@ -74,11 +75,12 @@ class InitiateYooKassaPaymentView(View):
         try:
             data = json.loads(request.body) if request.body else request.POST
             amount = float(data.get('amount', 0))
+            total_amount = float(data.get('total_amount', 0))
 
             if amount <= 0:
                 return JsonResponse({'error': 'Сумма должна быть положительной'}, status=400)
 
-            payment, payment_url = create_yookassa_payment(request.user, amount)
+            payment, payment_url = create_yookassa_payment(request.user, amount, total_amount)
 
             return JsonResponse({
                 'success': True,
@@ -122,11 +124,12 @@ class InitiateHelekitPaymentView(View):
         try:
             data = json.loads(request.body) if request.body else request.POST
             amount = float(data.get('amount', 0))
+            total_amount = float(data.get('total_amount', 0))
 
             if amount <= 0:
                 return JsonResponse({'error': 'Сумма должна быть положительной'}, status=400)
 
-            payment, payment_url = create_heleket_payment(request.user, amount)
+            payment, payment_url = create_heleket_payment(request.user, amount, total_amount)
 
             return JsonResponse({
                 'success': True,

@@ -122,6 +122,30 @@
                         queriesTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка при загрузке истории запросов</td></tr>';
                     });
             }
+            
+            // Handle quick amount buttons
+            const amountButtons = document.querySelectorAll('.amount-btn');
+            amountButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const targetId = this.dataset.target;
+                    const amount = this.dataset.amount;
+                    const inputField = document.getElementById(targetId);
+                    if (inputField) {
+                        inputField.value = amount;
+                    }
+                    
+                    // Highlight the selected button
+                    const parentForm = this.closest('form');
+                    if (parentForm) {
+                        parentForm.querySelectorAll('.amount-btn').forEach(btn => {
+                            btn.classList.remove('active', 'btn-primary');
+                            btn.classList.add('btn-outline-primary');
+                        });
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-primary', 'active');
+                    }
+                });
+            });
 
             // Payment form handling
             const robokassaForm = document.getElementById('robokassa-form');
@@ -139,6 +163,19 @@
                         }
 
                         const amount = parseFloat(amountInput.value);
+                        
+                        // Calculate total amount with commission
+                        let commissionRate = 0.1; // 10% by default
+                        if (form.id === 'helekit-form') {
+                            commissionRate = 0.06; // 6% for crypto
+                        }
+                        const totalAmount = amount * (1 + commissionRate);
+                        
+                        // Show loading state
+                        const submitBtn = form.querySelector('button[type="submit"]');
+                        const originalBtnText = submitBtn.innerHTML;
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...';
 
                         fetch(endpoint, {
                             method: 'POST',
@@ -146,22 +183,44 @@
                                 'Content-Type': 'application/json',
                                 'X-CSRFToken': '{{ csrf_token }}'
                             },
-                            body: JSON.stringify({amount: amount})
+                            body: JSON.stringify({
+                                amount: amount,
+                                total_amount: totalAmount
+                            })
                         })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.payment_url) {
-                                    window.location.href = data.payment_url;
+                                    // Открываем ссылку оплаты в новой вкладке
+                                    window.open(data.payment_url, '_blank');
+                                    // Сохраняем флаг, что инициирован платеж
+                                    sessionStorage.setItem('payment_initiated', '1');
+                                    // Возвращаем кнопку в исходное состояние
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = originalBtnText;
                                 } else {
                                     alert(data.error || 'Произошла ошибка при создании платежа');
+                                    // Reset button state
+                                    submitBtn.disabled = false;
+                                    submitBtn.innerHTML = originalBtnText;
                                 }
                             })
                             .catch(error => {
                                 console.error('Error:', error);
                                 alert('Произошла ошибка при создании платежа');
+                                // Reset button state
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = originalBtnText;
                             });
                     });
                 }
+            }
+
+            // Решение проблемы с бесконечной загрузкой истории при возврате назад
+            if (sessionStorage.getItem('payment_initiated')) {
+                sessionStorage.removeItem('payment_initiated');
+                // Принудительно перезагружаем страницу, чтобы сбросить состояние и корректно загрузить историю
+                window.location.reload();
             }
 
             // Initialize payment forms
@@ -353,8 +412,8 @@
                                     <div class="alert alert-info mb-4"
                                          style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
                                         <p style="color: #64748b;" class="mb-0">Быстрый и безопасный способ оплаты.
-                                            Поддерживаются банковские карты и электронные кошельки. К сумме
-                                            автоматически добавляется комиссия 10%.</p>
+                                            Поддерживаются банковские карты и электронные кошельки. Система автоматически добавит
+                                            комиссию 10% к указанной вами сумме.</p>
                                     </div>
                                     <form id="robokassa-form">
                                         <div class="mb-3">
@@ -370,6 +429,12 @@
                                             </div>
                                             <small class="text-muted">Минимальная сумма: 100 руб.</small>
                                         </div>
+                                        <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="500">500 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="1000">1 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="2000">2 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="robokassa-amount" data-amount="5000">5 000 ₽</button>
+                                        </div>
                                     </form>
                                 </div>
 
@@ -379,7 +444,7 @@
                                          style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
                                         <p style="color: #64748b;" class="mb-0">Удобный способ оплаты с поддержкой всех
                                             основных банковских карт и платёжных систем. Мгновенное зачисление средств.
-                                            Комиссия 10%.</p>
+                                            Система автоматически добавит комиссию 10% к указанной вами сумме.</p>
                                     </div>
                                     <form id="yookassa-form">
                                         <div class="mb-3">
@@ -395,6 +460,12 @@
                                             </div>
                                             <small class="text-muted">Минимальная сумма: 100 руб.</small>
                                         </div>
+                                        <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="500">500 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="1000">1 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="2000">2 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="yookassa-amount" data-amount="5000">5 000 ₽</button>
+                                        </div>
                                     </form>
                                 </div>
 
@@ -403,7 +474,8 @@
                                     <div class="alert alert-info mb-4"
                                          style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
                                         <p style="color: #64748b;" class="mb-0">Оплата криптовалютой. Поддерживаются
-                                            основные криптовалюты (BTC, ETH, USDT и др.). Комиссия 6%.</p>
+                                            основные криптовалюты (BTC, ETH, USDT и др.). Система автоматически добавит
+                                            комиссию 6% к указанной вами сумме.</p>
                                     </div>
                                     <form id="helekit-form">
                                         <div class="mb-3">
@@ -418,6 +490,12 @@
                                                 </button>
                                             </div>
                                             <small class="text-muted">Минимальная сумма: 500 руб.</small>
+                                        </div>
+                                        <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="500">500 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="1000">1 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="2000">2 000 ₽</button>
+                                            <button type="button" class="btn btn-outline-primary amount-btn" data-target="helekit-amount" data-amount="5000">5 000 ₽</button>
                                         </div>
                                     </form>
                                 </div>
@@ -644,13 +722,32 @@
             box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
         }
 
-        .btn-primary {
+        .btn {
             border-radius: 8px;
             transition: all 0.2s ease;
         }
 
-        .btn-primary:hover {
+        .btn:hover {
             transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+        }
+        
+        .amount-btn {
+            min-width: 80px;
+        }
+        
+        .amount-btn.active {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+        }
+
+        .btn-primary {
+            background-color: #0072ff;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #0066e6;
             box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
         }
 
