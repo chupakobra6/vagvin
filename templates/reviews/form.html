@@ -4,6 +4,10 @@
 
 {% block title %}Добавить отзыв - Vagvin{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reviews/reviews.css' %}">
+{% endblock %}
+
 {% block content %}
     <!-- Hero Section -->
     <section class="hero py-5 w-100"
@@ -66,12 +70,6 @@
                                     <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
                                 </button>
                             </form>
-
-                            <div id="thank-you-message" style="display: none; margin-top: 15px;">
-                                <div class="alert alert-success">
-                                    Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -84,79 +82,4 @@
             </div>
         </div>
     </section>
-{% endblock %}
-
-{% block extra_js %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('review-form');
-            const thankYouMessage = document.getElementById('thank-you-message');
-
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    // Form will submit normally, this is just for the animation
-                    setTimeout(() => {
-                        form.style.display = 'none';
-                        thankYouMessage.style.display = 'block';
-
-                        // Scroll to thank you message
-                        thankYouMessage.scrollIntoView({behavior: 'smooth'});
-                    }, 100);
-                });
-            }
-        });
-    </script>
-{% endblock %}
-
-{% block extra_css %}
-    <style>
-        body {
-            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        .card {
-            border-radius: 12px;
-            transition: none;
-        }
-
-        .card:hover {
-            transform: none;
-        }
-
-        .btn {
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background-color: #0072ff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0066e6;
-            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
-        }
-
-        .form-control {
-            padding: 12px 16px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .form-control:focus {
-            border-color: #0072ff;
-            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
-        }
-
-        .alert {
-            border-radius: 8px;
-        }
-    </style>
 {% endblock %} 

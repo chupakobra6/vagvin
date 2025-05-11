@@ -1,0 +1,97 @@
+body {
+    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.card {
+    border-radius: 12px;
+    transition: none;
+}
+
+.card:hover {
+    transform: none;
+}
+
+.btn {
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background-color: #0072ff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0066e6;
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+}
+
+.form-control {
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-control:focus {
+    border-color: #0072ff;
+    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+}
+
+.alert {
+    border-radius: 8px;
+}
+
+.review-card {
+    transition: all 0.2s ease;
+}
+
+.review-card:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Enhanced pagination styles */
+.pagination-container {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.page-link {
+    color: #0072ff;
+    border-radius: 6px;
+    margin: 0 3px;
+    padding: 8px 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.page-link:hover {
+    background-color: #e6f0ff;
+    color: #0066e6;
+    z-index: 1;
+}
+
+.page-item.active .page-link {
+    background-color: #0072ff;
+    border-color: #0072ff;
+    color: white;
+    box-shadow: 0 2px 5px rgba(0, 114, 255, 0.3);
+}
+
+.page-item.disabled .page-link {
+    color: #94a3b8;
+    background-color: #f8fafc;
+    border-color: #e2e8f0;
+}
+
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-weight: bold;
+} 

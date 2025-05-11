@@ -4,6 +4,10 @@
 
 {% block title %}Отзывы - Vagvin{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reviews/reviews.css' %}">
+{% endblock %}
+
 {% block content %}
     <!-- Hero Section -->
     <section class="hero py-5 w-100"
@@ -66,24 +70,22 @@
                                     <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
                                 </button>
                             </form>
-
-                            <div id="thank-you-message" style="display: none; margin-top: 15px;">
-                                <div class="alert alert-success">
-                                    Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.
-                                </div>
-                            </div>
                         </div>
                     </div>
 
                     <!-- Reviews List -->
-                    {% if page_obj %}
+                    {% if reviews %}
                         <div class="card border-0 shadow-sm p-4 mb-4">
                             <div class="card-body">
-                                <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Отзывы
-                                    клиентов</h2>
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <h2 style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Отзывы клиентов</h2>
+                                    <div class="text-muted">
+                                        Страница {{ current_page }} из {{ total_pages }}
+                                    </div>
+                                </div>
 
                                 <div class="row">
-                                    {% for review in page_obj %}
+                                    {% for review in reviews %}
                                         <div class="col-md-6 mb-4">
                                             <div class="review-card p-3"
                                                  style="border: 1px solid #e2e8f0; border-radius: 12px; height: 100%;">
@@ -116,51 +118,47 @@
                                 </div>
 
                                 <!-- Pagination -->
-                                {% if page_obj.has_other_pages %}
-                                    <div class="pagination justify-content-center mt-4">
-                                        <ul class="pagination">
-                                            {% if page_obj.has_previous %}
-                                                <li class="page-item">
-                                                    <a class="page-link"
-                                                       href="?page={{ page_obj.previous_page_number }}"
-                                                       aria-label="Previous">
-                                                        <span aria-hidden="true">&laquo;</span>
-                                                    </a>
+                                {% if total_pages > 1 %}
+                                <div class="pagination-container mt-4">
+                                    <nav aria-label="Навигация по страницам">
+                                        <ul class="pagination justify-content-center">
+                                            <!-- First page button -->
+                                            <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                                <a class="page-link" href="?page=1" aria-label="Первая">
+                                                    <span aria-hidden="true">&laquo;&laquo;</span>
+                                                </a>
+                                            </li>
+                                            
+                                            <!-- Previous page button -->
+                                            <li class="page-item {% if current_page == 1 %}disabled{% endif %}">
+                                                <a class="page-link" href="{% if has_previous %}?page={{ current_page|add:'-1' }}{% else %}#{% endif %}" aria-label="Предыдущая">
+                                                    <span aria-hidden="true">&laquo;</span>
+                                                </a>
+                                            </li>
+                                            
+                                            <!-- Page numbers -->
+                                            {% for i in page_range %}
+                                                <li class="page-item {% if current_page == i %}active{% endif %}">
+                                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
                                                 </li>
-                                            {% else %}
-                                                <li class="page-item disabled">
-                                                    <a class="page-link" href="#" aria-label="Previous">
-                                                        <span aria-hidden="true">&laquo;</span>
-                                                    </a>
-                                                </li>
-                                            {% endif %}
-
-                                            {% for i in page_obj.paginator.page_range %}
-                                                {% if page_obj.number == i %}
-                                                    <li class="page-item active"><a class="page-link"
-                                                                                    href="#">{{ i }}</a></li>
-                                                {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
-                                                    <li class="page-item"><a class="page-link"
-                                                                             href="?page={{ i }}">{{ i }}</a></li>
-                                                {% endif %}
                                             {% endfor %}
-
-                                            {% if page_obj.has_next %}
-                                                <li class="page-item">
-                                                    <a class="page-link" href="?page={{ page_obj.next_page_number }}"
-                                                       aria-label="Next">
-                                                        <span aria-hidden="true">&raquo;</span>
-                                                    </a>
-                                                </li>
-                                            {% else %}
-                                                <li class="page-item disabled">
-                                                    <a class="page-link" href="#" aria-label="Next">
-                                                        <span aria-hidden="true">&raquo;</span>
-                                                    </a>
-                                                </li>
-                                            {% endif %}
+                                            
+                                            <!-- Next page button -->
+                                            <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                                <a class="page-link" href="{% if has_next %}?page={{ current_page|add:'1' }}{% else %}#{% endif %}" aria-label="Следующая">
+                                                    <span aria-hidden="true">&raquo;</span>
+                                                </a>
+                                            </li>
+                                            
+                                            <!-- Last page button -->
+                                            <li class="page-item {% if current_page == total_pages %}disabled{% endif %}">
+                                                <a class="page-link" href="?page={{ total_pages }}" aria-label="Последняя">
+                                                    <span aria-hidden="true">&raquo;&raquo;</span>
+                                                </a>
+                                            </li>
                                         </ul>
-                                    </div>
+                                    </nav>
+                                </div>
                                 {% endif %}
                             </div>
                         </div>
@@ -176,99 +174,4 @@
             </div>
         </div>
     </section>
-{% endblock %}
-
-{% block extra_js %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const form = document.getElementById('review-form');
-            const thankYouMessage = document.getElementById('thank-you-message');
-
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    // Form will submit normally, this is just for the animation
-                    setTimeout(() => {
-                        form.style.display = 'none';
-                        thankYouMessage.style.display = 'block';
-
-                        // Scroll to thank you message
-                        thankYouMessage.scrollIntoView({behavior: 'smooth'});
-                    }, 100);
-                });
-            }
-        });
-    </script>
-{% endblock %}
-
-{% block extra_css %}
-    <style>
-        body {
-            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        .card {
-            border-radius: 12px;
-            transition: none;
-        }
-
-        .card:hover {
-            transform: none;
-        }
-
-        .btn {
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background-color: #0072ff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0066e6;
-            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
-        }
-
-        .form-control {
-            padding: 12px 16px;
-            font-size: 1rem;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .form-control:focus {
-            border-color: #0072ff;
-            box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
-        }
-
-        .alert {
-            border-radius: 8px;
-        }
-
-        .review-card {
-            transition: all 0.2s ease;
-        }
-
-        .review-card:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .page-link {
-            color: #0072ff;
-            border-radius: 6px;
-            margin: 0 3px;
-        }
-
-        .page-item.active .page-link {
-            background-color: #0072ff;
-            border-color: #0072ff;
-        }
-    </style>
 {% endblock %}
