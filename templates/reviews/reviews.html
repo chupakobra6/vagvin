@@ -1,16 +1,21 @@
 {% extends 'base.html' %}
+
 {% load static %}
+
 {% block title %}Отзывы - Vagvin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/reviews/reviews.css' %}">
+{% endblock %}
+
 {% block content %}
     <!-- Hero Section -->
-    <section class="hero py-5 w-100"
-             style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+    <section class="hero py-5 w-100">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Отзывы
-                        клиентов</h1>
-                    <p style="color: #64748b; font-size: 1.1rem;">Узнайте, что думают о нашем сервисе пользователи</p>
+                    <h1 class="hero-title">Отзывы клиентов</h1>
+                    <p class="hero-subtitle">Узнайте, что думают о нашем сервисе пользователи</p>
                 </div>
             </div>
         </div>

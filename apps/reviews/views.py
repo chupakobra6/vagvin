@@ -1,9 +1,10 @@
 import logging
 
 from django.contrib import messages
-from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView
+from django.shortcuts import redirect
+from django.views.generic import ListView
 
+from . import services
 from .forms import ReviewForm
 from .models import Review
 
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class ReviewListView(ListView):
-    """View for displaying the list of approved reviews with pagination."""
+    """View for displaying the list of approved reviews with pagination and handling new review submission."""
     model = Review
     template_name = 'reviews/list.html'
     context_object_name = 'reviews'
@@ -19,50 +20,51 @@ class ReviewListView(ListView):
 
     def get_queryset(self):
         """Return only approved reviews ordered by creation date."""
-        return Review.objects.filter(approved=True).order_by('-created_at')
+        return services.get_approved_reviews_queryset()
 
     def get_context_data(self, **kwargs):
         """Add form and pagination data to context."""
         context = super().get_context_data(**kwargs)
-        context['form'] = ReviewForm()
+        
+        # Use form from POST data if available (e.g., after failed validation)
+        form = kwargs.get('form', ReviewForm())
+        context['form'] = form
 
         # Add pagination data to context
         if context['paginator'] and context['page_obj']:
-            page_obj = context['page_obj']
-
-            # Add pagination-related context
-            context['current_page'] = page_obj.number
-            context['total_pages'] = page_obj.paginator.num_pages
-            context['has_previous'] = page_obj.has_previous()
-            context['has_next'] = page_obj.has_next()
-
-            # Add page range for pagination navigation
-            page_range = []
-            for i in range(max(1, page_obj.number - 2), min(page_obj.paginator.num_pages + 1, page_obj.number + 3)):
-                page_range.append(i)
-            context['page_range'] = page_range
+            pagination_context = services.get_pagination_context(context['page_obj'])
+            context.update(pagination_context)
 
         return context
-
-
-class ReviewCreateView(CreateView):
-    """View for creating a new review."""
-    model = Review
-    form_class = ReviewForm
-    template_name = 'reviews/form.html'
-    success_url = reverse_lazy('reviews:list')
-
-    def form_valid(self, form):
-        """Process valid form data and add success message."""
-        logger.info("ReviewCreateView: processing valid form")
-        response = super().form_valid(form)
-        messages.success(self.request, "Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.")
-        return response
-
-    def form_invalid(self, form):
-        """Handle invalid form data and show error messages."""
-        logger.warning(f"ReviewCreateView: form validation failed - {form.errors}")
-        for field, errors in form.errors.items():
-            for error in errors:
-                messages.error(self.request, f"{field}: {error}")
-        return super().form_invalid(form)
+        
+    def post(self, request, *args, **kwargs):
+        """Handle review form submission."""
+        form = ReviewForm(request.POST)
+        
+        if form.is_valid():
+            try:
+                services.create_review(
+                    name=form.cleaned_data['name'],
+                    email=form.cleaned_data['email'],
+                    rating=form.cleaned_data['rating'],
+                    text=form.cleaned_data['text']
+                )
+                messages.success(request, "Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.")
+                return redirect('reviews:list')
+            except Exception:
+                logger.exception("Error saving review")
+                messages.error(request, "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.")
+                # Setup for rendering
+                self.object_list = self.get_queryset()
+                return self.render_to_response(self.get_context_data(form=form))
+        else:
+            logger.warning("Review form validation failed")
+            
+            # Add error messages without field prefixes
+            for field_name, error_list in form.errors.items():
+                for error in error_list:
+                    messages.error(request, error)
+            
+            # Setup for rendering
+            self.object_list = self.get_queryset()
+            return self.render_to_response(self.get_context_data(form=form))

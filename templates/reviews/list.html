@@ -10,14 +10,12 @@
 
 {% block content %}
     <!-- Hero Section -->
-    <section class="hero py-5 w-100"
-             style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+    <section class="hero py-5 w-100">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Отзывы
-                        клиентов</h1>
-                    <p style="color: #64748b; font-size: 1.1rem;">Узнайте, что думают о нашем сервисе пользователи</p>
+                    <h1 class="hero-title">Отзывы клиентов</h1>
+                    <p class="hero-subtitle">Узнайте, что думают о нашем сервисе пользователи</p>
                 </div>
             </div>
         </div>
@@ -31,8 +29,7 @@
                     <!-- Add Review Card -->
                     <div class="card border-0 shadow-sm p-4 mb-5">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Оставить
-                                отзыв</h2>
+                            <h2 class="section-title mb-4">Оставить отзыв</h2>
 
                             {% if messages %}
                                 {% for message in messages %}
@@ -42,29 +39,37 @@
                                 {% endfor %}
                             {% endif %}
 
-                            <form method="post" action="{% url 'reviews:add' %}" id="review-form">
+                            <form method="post" action="" id="review-form">
                                 {% csrf_token %}
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
-                                        <label for="{{ form.name.id_for_label }}"
-                                               class="form-label">{{ form.name.label }}</label>
+                                        <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
                                         {{ form.name }}
+                                        {% if form.name.errors %}
+                                            <div class="invalid-feedback">{{ form.name.errors.0 }}</div>
+                                        {% endif %}
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label for="{{ form.email.id_for_label }}"
-                                               class="form-label">{{ form.email.label }}</label>
+                                        <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
                                         {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="invalid-feedback">{{ form.email.errors.0 }}</div>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label for="{{ form.rating.id_for_label }}"
-                                           class="form-label">{{ form.rating.label }}</label>
+                                    <label for="{{ form.rating.id_for_label }}" class="form-label">{{ form.rating.label }}</label>
                                     {{ form.rating }}
+                                    {% if form.rating.errors %}
+                                        <div class="invalid-feedback">{{ form.rating.errors.0 }}</div>
+                                    {% endif %}
                                 </div>
                                 <div class="mb-3">
-                                    <label for="{{ form.text.id_for_label }}"
-                                           class="form-label">{{ form.text.label }}</label>
+                                    <label for="{{ form.text.id_for_label }}" class="form-label">{{ form.text.label }}</label>
                                     {{ form.text }}
+                                    {% if form.text.errors %}
+                                        <div class="invalid-feedback">{{ form.text.errors.0 }}</div>
+                                    {% endif %}
                                 </div>
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-paper-plane me-2"></i>Отправить отзыв
@@ -78,7 +83,7 @@
                         <div class="card border-0 shadow-sm p-4 mb-4">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h2 style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Отзывы клиентов</h2>
+                                    <h2 class="section-title">Отзывы клиентов</h2>
                                     <div class="text-muted">
                                         Страница {{ current_page }} из {{ total_pages }}
                                     </div>
@@ -87,11 +92,10 @@
                                 <div class="row">
                                     {% for review in reviews %}
                                         <div class="col-md-6 mb-4">
-                                            <div class="review-card p-3"
-                                                 style="border: 1px solid #e2e8f0; border-radius: 12px; height: 100%;">
+                                            <div class="review-card p-3">
                                                 <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <h5 style="color: #1e293b; font-weight: 600; margin-bottom: 0;">{{ review.name }}</h5>
-                                                    <div style="color: #f59e0b; font-size: 18px;">
+                                                    <h5 class="review-name">{{ review.name }}</h5>
+                                                    <div class="review-stars">
                                                         {% for i in "12345"|make_list %}
                                                             {% if forloop.counter <= review.rating %}
                                                                 <i class="fas fa-star"></i>
@@ -101,15 +105,13 @@
                                                         {% endfor %}
                                                     </div>
                                                 </div>
-                                                <p style="color: #64748b; margin-bottom: 10px;">{{ review.text }}</p>
-                                                <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 0;">{{ review.created_at|date:"d.m.Y" }}</p>
+                                                <p class="review-text">{{ review.text }}</p>
+                                                <p class="review-date">{{ review.created_at|date:"d.m.Y" }}</p>
 
                                                 {% if review.admin_response %}
-                                                    <div class="admin-response mt-3 p-3"
-                                                         style="background-color: #f1f5f9; border-left: 3px solid #0072ff; border-radius: 6px;">
-                                                        <p style="font-size: 0.9rem; font-weight: 600; color: #1e293b; margin-bottom: 5px;">
-                                                            Ответ администратора:</p>
-                                                        <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 0;">{{ review.admin_response }}</p>
+                                                    <div class="admin-response mt-3 p-3">
+                                                        <p class="admin-response-title">Ответ администратора:</p>
+                                                        <p class="admin-response-text">{{ review.admin_response }}</p>
                                                     </div>
                                                 {% endif %}
                                             </div>
@@ -165,8 +167,7 @@
                     {% else %}
                         <div class="card border-0 shadow-sm p-4 mb-4">
                             <div class="card-body text-center">
-                                <p style="color: #64748b; font-size: 1.1rem;">Пока нет отзывов. Будьте первым, кто
-                                    поделится своим мнением!</p>
+                                <p class="empty-reviews-message">Пока нет отзывов. Будьте первым, кто поделится своим мнением!</p>
                             </div>
                         </div>
                     {% endif %}
