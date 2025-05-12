@@ -10,7 +10,7 @@ from django.db.models import F
 from django.utils import timezone
 
 from .models import User
-from .utils import generate_password, send_registration_email, send_password_reset_email
+from .utils import PasswordService, EmailService
 
 logger = logging.getLogger(__name__)
 
@@ -30,12 +30,7 @@ class UserService:
     @classmethod
     @transaction.atomic
     def register_user(cls, email: str, referral_code: Optional[str] = None) -> Tuple[bool, str, Optional[User]]:
-        """
-        Register a new user
-        
-        Returns:
-            Tuple[bool, str, Optional[User]]: (success, message, user)
-        """
+        """Register a new user"""
         if not email:
             return False, "Требуется указать адрес электронной почты", None
             
@@ -47,17 +42,13 @@ class UserService:
             
         try:
             user = User(username=username, email=email)
-            
-            # Generate unique referral code
             user.referral_code = cls._generate_unique_referral_code()
             
-            # Process referral if provided
             if referral_code:
                 cls._process_referral(user, referral_code)
             
-            # Generate password and send registration email
-            password = generate_password()
-            email_sent = send_registration_email(user, password)
+            password = PasswordService.generate_password()
+            email_sent = EmailService.send_registration_email(user, password)
             
             if not email_sent:
                 logger.error(f"Failed to send registration email to {email}")
@@ -67,7 +58,6 @@ class UserService:
             user.save()
             logger.info(f"New user created: {username} ({email})")
             
-            # Determine success message based on referral status
             match (referral_code, user.referral):
                 case (str(), _) if user.referral is not None:
                     success_message = "Регистрация с использованием реферальной ссылки успешно завершена. Данные для входа отправлены на вашу электронную почту."
@@ -101,26 +91,19 @@ class UserService:
     @classmethod
     @transaction.atomic
     def reset_password(cls, email: str) -> Tuple[bool, str]:
-        """
-        Reset a user's password
-        
-        Returns:
-            Tuple[bool, str]: (success, message)
-        """
+        """Reset a user's password"""
         if not email:
             return False, "Требуется указать адрес электронной почты"
             
         try:
             now = timezone.now()
             
-            # Find user by email
             try:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
                 logger.warning(f"User with email {email} not found during password reset")
                 return False, "Пользователь с таким адресом электронной почты не найден"
-            
-            # Check if password was reset recently    
+                
             last_reset = user.last_password_reset
             if last_reset and (now - last_reset).total_seconds() < settings.PASSWORD_RESET_TIMEOUT:
                 minutes_ago = int((now - last_reset).total_seconds() // 60)
@@ -128,15 +111,13 @@ class UserService:
                 
                 return False, f"Пароль был недавно сброшен. Подождите ещё {wait_time} минут, прежде чем запрашивать снова."
             
-            # Generate new password and send email
-            new_password = generate_password()
-            email_sent = send_password_reset_email(user, new_password)
+            new_password = PasswordService.generate_password()
+            email_sent = EmailService.send_password_reset_email(user, new_password)
             
             if not email_sent:
                 logger.error(f"Failed to send password reset email to {email}")
                 return False, "Не удалось отправить письмо. Попробуйте позже или обратитесь в службу поддержки."
                 
-            # Update user's password
             user.set_password(new_password)
             user.last_password_reset = now
             user.save(update_fields=['password', 'last_password_reset'])
@@ -178,27 +159,18 @@ class UserService:
     @classmethod
     def set_additional_emails(cls, user: User, emails: List[str]) -> None:
         """Set additional emails from list"""
-        if not emails:
-            user.additional_emails = ""
-        else:
-            user.additional_emails = ','.join(emails)
+        user.additional_emails = '' if not emails else ','.join(emails)
     
     @classmethod
     @transaction.atomic
     def add_additional_email(cls, user: User, email: str) -> Tuple[bool, str, List[str]]:
-        """
-        Add an additional email to a user's account
-        
-        Returns:
-            Tuple[bool, str, List[str]]: (success, message, emails_list)
-        """
+        """Add an additional email to a user's account"""
         if not user or not email:
             return False, "Требуются данные пользователя и email", []
             
         emails = cls.get_additional_emails(user)
         email = email.strip()
         
-        # Check email validity conditions
         match (email, emails):
             case (e, _) if e == user.email:
                 return False, "Этот email уже добавлен", emails
@@ -223,12 +195,7 @@ class UserService:
     @classmethod
     @transaction.atomic
     def remove_additional_email(cls, user: User, email: str) -> Tuple[bool, str, List[str]]:
-        """
-        Remove an additional email from a user's account
-        
-        Returns:
-            Tuple[bool, str, List[str]]: (success, message, emails_list)
-        """
+        """Remove an additional email from a user's account"""
         if not user or not email:
             return False, "Требуются данные пользователя и email", []
             
