@@ -17,10 +17,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Header CSS - Loaded first to ensure precedence -->
+    <link href="{% static 'css/header.css' %}" rel="stylesheet">
     <!-- Common CSS -->
     <link href="{% static 'css/common.css' %}" rel="stylesheet">
-    <!-- Header and Footer CSS -->
-    <link href="{% static 'css/header.css' %}" rel="stylesheet">
+    <!-- Footer CSS -->
     <link href="{% static 'css/footer.css' %}" rel="stylesheet">
     <!-- Page-specific CSS -->
     {% block extra_css %}{% endblock %}

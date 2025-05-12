@@ -5,121 +5,17 @@
 {% block title %}Примеры отчетов - Vagvin{% endblock %}
 
 {% block extra_css %}
-<style>
-    .hero-section {
-        background-color: #f7f9fb;
-        margin-left: -15px;
-        margin-right: -15px;
-        width: calc(100% + 30px);
-        padding: 3rem 0;
-    }
-    
-    .section-card {
-        background-color: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-        border: none;
-    }
-
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1e293b;
-        display: flex;
-        align-items: center;
-    }
-    
-    .section-subtitle {
-        color: #64748b;
-        margin-bottom: 1rem;
-    }
-    
-    .section-description {
-        color: #64748b;
-        margin-bottom: 1rem;
-        padding: 0.75rem;
-        background-color: #f1f5f9;
-        border-radius: 6px;
-        border-left: 3px solid #0072ff;
-    }
-    
-    .items-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 1rem;
-    }
-    
-    .item-link {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem;
-        background-color: #f7f9fb;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-        text-decoration: none;
-        color: #1e293b;
-    }
-    
-    .item-link:hover {
-        background-color: #e2e8f0;
-        transform: translateY(-2px);
-    }
-    
-    .item-link i {
-        margin-right: 0.5rem;
-        color: #0072ff;
-    }
-    
-    .telegram-cta {
-        background: linear-gradient(135deg, #0088cc, #0072ff);
-        border-radius: 12px;
-        padding: 2rem;
-        text-align: center;
-        margin-top: 2rem;
-        color: white;
-        box-shadow: 0 4px 12px rgba(0, 114, 255, 0.2);
-    }
-    
-    .telegram-btn {
-        display: inline-flex;
-        align-items: center;
-        background-color: white;
-        color: #0072ff;
-        font-weight: 600;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        text-decoration: none;
-        margin-top: 1rem;
-        transition: all 0.2s ease;
-    }
-    
-    .telegram-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .telegram-btn i {
-        font-size: 1.2rem;
-        margin-right: 0.5rem;
-    }
-    
-    .section-icon {
-        color: #0072ff;
-        margin-right: 0.75rem;
-        font-size: 1.2rem;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
 {% endblock %}
+
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
         <div class="row">
             <div class="col-lg-8 mx-auto text-center">
-                <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Примеры отчетов</h1>
-                <p style="color: #64748b; font-size: 1.1rem;">Ознакомьтесь с примерами отчетов и данных, доступных в нашем сервисе</p>
+                <h1 class="fw-bold examples-heading">Примеры отчетов</h1>
+                <p class="examples-subheading">Ознакомьтесь с примерами отчетов и данных, доступных в нашем сервисе</p>
             </div>
         </div>
     </div>
@@ -133,10 +29,10 @@
                 <div class="card section-card mb-4">
                     <div class="card-body">
                         <div class="d-flex align-items-center mb-3">
-                            <i class="fab fa-telegram section-icon" style="font-size: 2rem;"></i>
+                            <i class="fab fa-telegram section-icon large-icon"></i>
                             <h2 class="section-title mb-0">Актуальная информация в боте</h2>
                         </div>
-                        <p class="section-subtitle">Наиболее полная и актуальная информация доступна в нашем телеграм-боте <a href="https://t.me/{{ telegram_bot }}" target="_blank" style="color: #0072ff; text-decoration: none;">@{{ telegram_bot }}</a>. Ниже представлены некоторые примеры отчетов.</p>
+                        <p class="section-subtitle">Наиболее полная и актуальная информация доступна в нашем телеграм-боте <a href="https://t.me/{{ telegram_bot }}" target="_blank" class="telegram-bot-link">@{{ telegram_bot }}</a>. Ниже представлены некоторые примеры отчетов.</p>
                     </div>
                 </div>
                 
@@ -162,7 +58,7 @@
                         {% if section.items %}
                         <div class="items-grid mt-4">
                             {% for item in section.items %}
-                            <a href="{{ item.url }}" target="_blank" class="item-link">
+                            <a href="{% static item.url %}" target="_blank" class="item-link">
                                 <i class="fas {% if 'pdf' in item.url %}fa-file-pdf{% else %}fa-file-image{% endif %}"></i>
                                 <span>{{ item.name }}</span>
                             </a>
@@ -187,9 +83,9 @@
                 
                 <!-- Telegram Bot CTA -->
                 <div class="telegram-cta">
-                    <h2 class="mb-3" style="font-weight: 600;">Воспользуйтесь нашим телеграм-ботом</h2>
+                    <h2 class="mb-3 telegram-cta-heading">Воспользуйтесь нашим телеграм-ботом</h2>
                     <p class="mb-4">Получите полную информацию о любом автомобиле прямо сейчас</p>
-                    <a href="https://t.me/{{ telegram_bot }}" target="_blank" class="telegram-btn">
+                    <a href="https://t.me/{{ telegram_bot }}" target="_blank" class="telegram-cta-btn">
                         <i class="fab fa-telegram-plane"></i>
                         @{{ telegram_bot }}
                     </a>

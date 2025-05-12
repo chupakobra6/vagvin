@@ -4,16 +4,23 @@
 
 {% block title %}Способы оплаты - Vagvin{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages.css' %}">
+{% endblock %} 
+
+{% block extra_js %}
+<script src="{% static 'js/pages.js' %}"></script>
+<script src="{% static 'js/payments.js' %}"></script>
+{% endblock %}
+
 {% block content %}
     <!-- Hero Section -->
-    <section class="hero py-5 w-100"
-             style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+    <section class="hero py-5 w-100 legal-page">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Способы
-                        оплаты</h1>
-                    <p style="color: #64748b; font-size: 1.1rem;">Выберите удобный для вас способ пополнения баланса</p>
+                    <h1 class="fw-bold legal-heading">Способы оплаты</h1>
+                    <p class="legal-subtitle">Выберите удобный для вас способ пополнения баланса</p>
                 </div>
             </div>
         </div>
@@ -27,14 +34,11 @@
                     <!-- Robokassa Widget -->
                     <div class="card border-0 shadow-sm p-4 mb-4">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">
+                            <h2 class="mb-4 legal-section-title">
                                 <i class="fas fa-wallet me-2"></i>Оплата через Robokassa
                             </h2>
-                            <div class="alert alert-info mb-4"
-                                 style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
-                                <p style="color: #64748b;" class="mb-0">Удобный и безопасный способ оплаты с поддержкой
-                                    банковских карт и электронных кошельков. <strong>Важно:</strong> при вводе суммы
-                                    самостоятельно добавьте 10% к желаемой сумме пополнения баланса.</p>
+                            <div class="alert info-box mb-4">
+                                <p class="mb-0">Удобный и безопасный способ оплаты с поддержкой банковских карт и электронных кошельков. <strong>Важно:</strong> при вводе суммы самостоятельно добавьте 10% к желаемой сумме пополнения баланса.</p>
                             </div>
                             <div id="robokassa-widget">
                                 <script type="text/javascript"
@@ -46,14 +50,11 @@
                     <!-- YooKassa Payment -->
                     <div class="card border-0 shadow-sm p-4 mb-4">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">
+                            <h2 class="mb-4 legal-section-title">
                                 <i class="fas fa-credit-card me-2"></i>Оплата через ЮKassa
                             </h2>
-                            <div class="alert alert-info mb-4"
-                                 style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
-                                <p style="color: #64748b;" class="mb-0">Быстрое зачисление средств через популярные
-                                    платежные системы и банковские карты. <strong>Важно:</strong> при вводе суммы
-                                    самостоятельно добавьте 10% к желаемой сумме пополнения баланса.</p>
+                            <div class="alert info-box mb-4">
+                                <p class="mb-0">Быстрое зачисление средств через популярные платежные системы и банковские карты. <strong>Важно:</strong> при вводе суммы самостоятельно добавьте 10% к желаемой сумме пополнения баланса.</p>
                             </div>
                             <a href="https://yookassa.ru/my/i/Z6c7Wu43bgvE/l" target="_blank" class="btn btn-primary">
                                 <i class="fas fa-external-link-alt me-2"></i>Перейти к оплате
@@ -64,14 +65,12 @@
                     <!-- Belarus Payment -->
                     <div class="card border-0 shadow-sm p-4 mb-4">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">
+                            <h2 class="mb-4 legal-section-title">
                                 <i class="fas fa-money-bill-wave me-2"></i>Перевод с карты на карту (Беларусь)
                             </h2>
-                            <div class="alert alert-info mb-4"
-                                 style="background-color: #f1f5f9; border-left: 4px solid #0072ff;">
-                                <p style="color: #1e293b; margin-bottom: 0.5rem;"><strong>Важная информация:</strong>
-                                </p>
-                                <ul style="color: #64748b; margin-bottom: 0;">
+                            <div class="alert info-box mb-4">
+                                <p class="mb-0 fw-bold">Важная информация:</p>
+                                <ul class="mb-0 mt-2">
                                     <li>Принимаются только белорусские рубли (BYN)</li>
                                     <li>Рассчитайте сумму по курсу ЦБ + самостоятельно добавьте 10%</li>
                                     <li>Не используйте переводы с российских банков</li>
@@ -79,18 +78,16 @@
                             </div>
                             <div class="row align-items-center">
                                 <div class="col-md-8">
-                                    <p style="color: #64748b;" class="mb-2"><strong>Получатель:</strong> Koshenskiy
+                                    <p class="requisites-company-info mb-2"><strong>Получатель:</strong> Koshenskiy
                                         Mikhail</p>
-                                    <p style="color: #64748b;" class="mb-2"><strong>Банк:</strong> Альфа-Банк</p>
-                                    <p style="color: #64748b;" class="mb-2"><strong>Номер карты:</strong>
+                                    <p class="requisites-company-info mb-2"><strong>Банк:</strong> Альфа-Банк</p>
+                                    <p class="requisites-company-info mb-2"><strong>Номер карты:</strong>
                                         <span id="card-number">2200 1509 9113 8600</span>
-                                        <button class="btn btn-sm btn-outline-primary ms-2 copy-btn"
-                                                data-copy-target="card-number">
+                                        <button class="btn btn-sm btn-outline-primary ms-2 copy-btn" data-copy-target="card-number">
                                             <i class="fas fa-copy"></i>
                                         </button>
                                     </p>
-                                    <p style="color: #64748b;" class="mb-0"><strong>Телефон:</strong> +7 (985) 122-17-41
-                                    </p>
+                                    <p class="requisites-company-info mb-0"><strong>Телефон:</strong> +7 (985) 122-17-41</p>
                                 </div>
                             </div>
                         </div>
@@ -99,7 +96,7 @@
                     <!-- International Payments -->
                     <div class="card border-0 shadow-sm p-4 mb-4">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">
+                            <h2 class="mb-4 legal-section-title">
                                 <i class="fas fa-globe me-2"></i>Международные способы оплаты
                             </h2>
 
@@ -107,30 +104,25 @@
                             <div class="mb-4 pb-3 border-bottom">
                                 <div class="row align-items-center mb-3 flex-wrap">
                                     <div class="col-12 col-md-8">
-                                        <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem; margin-bottom: 0;">
-                                            Profee
-                                        </h3>
-                                        <p style="color: #64748b;" class="mb-0 mt-2 text-break">
+                                        <h3 class="requisites-card-title">Profee</h3>
+                                        <p class="requisites-card-subtitle mt-2 text-break">
                                             Оплата картами из Европы и других стран. Быстрое зачисление, поддержка
                                             большинства международных карт.
                                         </p>
                                     </div>
                                     <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                                        <img src="{% static 'img/payments/profee-logo.png' %}" alt="Profee"
-                                             style="height: 80px; max-width: 100%; display: block;">
+                                        <img src="{% static 'img/payments/profee-logo.png' %}" alt="Profee" class="payment-logo">
                                     </div>
                                 </div>
                                 <div class="mb-3">
-                                    <p style="color: #64748b;" class="mb-2"><strong>Карта для перевода:</strong>
+                                    <p class="requisites-company-info mb-2"><strong>Карта для перевода:</strong>
                                         <span id="profee-card">5379 6530 2000 9112</span>
-                                        <button class="btn btn-sm btn-outline-primary ms-2 copy-btn"
-                                                data-copy-target="profee-card">
+                                        <button class="btn btn-sm btn-outline-primary ms-2 copy-btn" data-copy-target="profee-card">
                                             <i class="fas fa-copy"></i>
                                         </button>
                                     </p>
-                                    <p style="color: #64748b;" class="mb-2"><strong>Получатель:</strong> KOSHENSKIY
-                                        MIKHAIL</p>
-                                    <p style="color: #64748b;" class="mb-2"><strong>Банк:</strong> Raiffeisen</p>
+                                    <p class="requisites-company-info mb-2"><strong>Получатель:</strong> KOSHENSKIY MIKHAIL</p>
+                                    <p class="requisites-company-info mb-2"><strong>Банк:</strong> Raiffeisen</p>
                                 </div>
                                 <a href="https://www.profee.com" target="_blank" class="btn btn-outline-primary">
                                     <i class="fas fa-external-link-alt me-2"></i>Открыть сайт Profee
@@ -141,21 +133,17 @@
                             <div class="mb-4 pb-3 border-bottom">
                                 <div class="row align-items-center mb-3 flex-wrap">
                                     <div class="col-12 col-md-8">
-                                        <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem; margin-bottom: 0;">
-                                            Boosty
-                                        </h3>
-                                        <p style="color: #64748b;" class="mb-0 mt-2 text-break">
+                                        <h3 class="requisites-card-title">Boosty</h3>
+                                        <p class="requisites-card-subtitle mt-2 text-break">
                                             Поддержка карт любых стран. Комиссия сервиса — 10%. Средства зачисляются
                                             после подтверждения.
                                         </p>
                                     </div>
                                     <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                                        <img src="{% static 'img/payments/boosty-logo.png' %}" alt="Boosty"
-                                             style="height: 80px; max-width: 100%; display: block;">
+                                        <img src="{% static 'img/payments/boosty-logo.png' %}" alt="Boosty" class="payment-logo">
                                     </div>
                                 </div>
-                                <a href="https://boosty.to/vinvag/donate" target="_blank"
-                                   class="btn btn-outline-primary">
+                                <a href="https://boosty.to/vinvag/donate" target="_blank" class="btn btn-outline-primary">
                                     <i class="fas fa-external-link-alt me-2"></i>Открыть Boosty
                                 </a>
                             </div>
@@ -164,16 +152,13 @@
                             <div>
                                 <div class="row align-items-center mb-3 flex-wrap">
                                     <div class="col-12 col-md-8">
-                                        <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem; margin-bottom: 0;">
-                                            Volet
-                                        </h3>
-                                        <p style="color: #64748b;" class="mb-0 mt-2 text-break">
+                                        <h3 class="requisites-card-title">Volet</h3>
+                                        <p class="requisites-card-subtitle mt-2 text-break">
                                             Международный сервис для переводов. Поддержка карт и электронных кошельков.
                                         </p>
                                     </div>
                                     <div class="col-12 col-md-4 d-flex justify-content-md-end justify-content-center mt-3 mt-md-0">
-                                        <img src="{% static 'img/payments/volet-logo.png' %}" alt="Volet"
-                                             style="height: 80px; max-width: 100%; display: block;">
+                                        <img src="{% static 'img/payments/volet-logo.png' %}" alt="Volet" class="payment-logo">
                                     </div>
                                 </div>
                                 <a href="http://volet.com" target="_blank" class="btn btn-outline-primary">
@@ -183,19 +168,14 @@
                         </div>
 
                         <div class="card-body">
-                            <div class="alert alert-warning"
-                                 style="background-color: #fff7ed; border-left: 4px solid #f97316;">
-                                <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem;" class="mb-3">
+                            <div class="alert alert-warning requisites-container" style="background-color: #fff7ed; border-left: 4px solid #f97316;">
+                                <h3 class="requisites-card-title mb-3">
                                     <i class="fas fa-exclamation-triangle me-2"></i>Важное примечание
                                 </h3>
-                                <p style="color: #64748b;" class="mb-2">Для международных платежей требуется
-                                    подтверждение оплаты:</p>
-                                <ol style="color: #64748b;" class="mb-0">
+                                <p class="requisites-company-info mb-2">Для международных платежей требуется подтверждение оплаты:</p>
+                                <ol class="requisites-company-info mb-0">
                                     <li>Сделайте скриншот подтверждения успешной оплаты</li>
-                                    <li>Отправьте его оператору <a href="https://t.me/VinVaG" target="_blank"
-                                                                   style="color: #0072ff; text-decoration: none;">@VinVaG</a>
-                                        в Telegram
-                                    </li>
+                                    <li>Отправьте его оператору <a href="https://t.me/VinVaG" target="_blank" class="telegram-bot-link">@VinVaG</a> в Telegram</li>
                                     <li>Укажите "оплата с сайта" в сообщении</li>
                                     <li>После проверки баланс будет пополнен вручную</li>
                                 </ol>
@@ -207,77 +187,3 @@
         </div>
     </section>
 {% endblock %}
-
-{% block extra_js %}
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.copy-btn').forEach(function (btn) {
-                btn.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    const targetId = btn.getAttribute('data-copy-target');
-                    const text = document.getElementById(targetId).textContent;
-                    navigator.clipboard.writeText(text).then(() => {
-                        const icon = btn.querySelector('i');
-                        const originalClass = icon.className;
-                        icon.className = 'fas fa-check text-success';
-                        setTimeout(() => {
-                            icon.className = originalClass;
-                        }, 2000);
-                    });
-                });
-            });
-        });
-    </script>
-{% endblock %}
-
-{% block extra_css %}
-    <style>
-        body {
-            font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        .card {
-            border-radius: 12px;
-            transition: none;
-        }
-
-        .card:hover {
-            transform: none;
-        }
-
-        .btn {
-            border-radius: 8px;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s ease;
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-        }
-
-        .btn-primary {
-            background-color: #0072ff;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background-color: #0066e6;
-            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
-        }
-
-        .btn-outline-primary {
-            color: #0072ff;
-            border-color: #0072ff;
-        }
-
-        .btn-outline-primary:hover {
-            background-color: #0072ff;
-            border-color: #0072ff;
-            color: white;
-        }
-
-        .alert {
-            border-radius: 8px;
-        }
-    </style>
-{% endblock %} 

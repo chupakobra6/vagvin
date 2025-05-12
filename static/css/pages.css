@@ -294,4 +294,564 @@ body {
     color: #1e293b;
     font-weight: 600;
     font-size: 1.1rem;
+}
+
+/* Examples page styles */
+.hero-section {
+    background-color: #f7f9fb;
+    margin-left: -15px;
+    margin-right: -15px;
+    width: calc(100% + 30px);
+    padding: 3rem 0;
+}
+
+.section-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+}
+
+.section-subtitle {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.section-description {
+    color: #64748b;
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background-color: #f1f5f9;
+    border-radius: 6px;
+    border-left: 3px solid #0072ff;
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.item-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem;
+    background-color: #f7f9fb;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    color: #1e293b;
+}
+
+.item-link:hover {
+    background-color: #e2e8f0;
+    transform: translateY(-2px);
+}
+
+.item-link i {
+    margin-right: 0.5rem;
+    color: #0072ff;
+}
+
+.telegram-cta {
+    background: linear-gradient(135deg, #0088cc, #0072ff);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 2rem;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.2);
+}
+
+.telegram-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: white;
+    color: #0072ff;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-top: 1rem;
+    transition: all 0.2s ease;
+}
+
+.telegram-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.telegram-cta-btn i {
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+}
+
+.section-icon {
+    color: #0072ff;
+    margin-right: 0.75rem;
+    font-size: 1.2rem;
+}
+
+/* Examples page additional styles */
+.examples-heading {
+    color: #1e293b; 
+    font-size: 2.5rem; 
+    letter-spacing: -0.5px;
+}
+
+.examples-subheading {
+    color: #64748b; 
+    font-size: 1.1rem;
+}
+
+.telegram-bot-link {
+    color: #0072ff; 
+    text-decoration: none;
+}
+
+.large-icon {
+    font-size: 2rem;
+}
+
+.telegram-cta-heading {
+    font-weight: 600;
+}
+
+/* About page additional styles */
+.about-page .card {
+    transition: none;
+}
+
+.about-page .card:hover {
+    transform: none;
+}
+
+/* Carousel customization */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 5%;
+    opacity: 0.7;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    padding: 10px;
+}
+
+.carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+}
+
+/* Contact box hover effects */
+.contact-box a.btn, 
+.bot-box a.btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.contact-box a.btn:hover, 
+.bot-box a.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 114, 255, 0.2);
+}
+
+/* Button hover states with contrast */
+.btn-primary-custom {
+    background-color: #0072ff !important;
+    border-color: #0072ff !important;
+}
+
+.btn-primary-custom:hover {
+    background-color: #005dd4 !important;
+    border-color: #005dd4 !important;
+    color: white !important;
+}
+
+.btn-outline-primary-custom {
+    border-color: #0072ff !important;
+    color: #0072ff !important;
+}
+
+.btn-outline-primary-custom:hover {
+    background-color: rgba(0, 114, 255, 0.1) !important;
+    color: #0072ff !important;
+}
+
+/* Contact box styling */
+.contact-icon-container, 
+.bot-icon-container {
+    min-width: 50px;
+    height: 50px;
+    background-color: #0072ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+
+.contact-icon, 
+.bot-icon {
+    font-size: 1.5rem;
+    color: white;
+}
+
+.contact-title, 
+.bot-title {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.contact-subtitle, 
+.bot-subtitle {
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+.carousel-arrow {
+    color: #1e293b;
+    font-size: 2rem;
+}
+
+.carousel-img {
+    cursor: pointer;
+    max-height: 600px;
+    object-fit: contain;
+}
+
+/* Legal pages common styles */
+.legal-page .card {
+    transition: none;
+}
+
+.legal-page .card:hover {
+    transform: none;
+}
+
+/* Legal document styles */
+.legal-text {
+    color: #64748b;
+}
+
+.legal-list {
+    color: #64748b;
+    margin-left: 20px;
+}
+
+.legal-list li {
+    margin-bottom: 0.5rem;
+}
+
+.legal-subtitle {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.legal-heading {
+    color: #1e293b;
+    font-size: 2.5rem;
+    letter-spacing: -0.5px;
+    font-weight: bold;
+}
+
+.legal-section-title {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.legal-footer {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.legal-footer-label {
+    font-weight: 500;
+}
+
+/* Requisites page styles */
+.requisites-container {
+    background-color: #f7f9fb;
+    border-radius: 8px;
+}
+
+.copy-btn:hover {
+    transform: translateY(-1px);
+}
+
+.requisites-card-title {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 0;
+}
+
+.requisites-card-subtitle {
+    color: #64748b;
+    margin-bottom: 0;
+    margin-top: 2px;
+}
+
+.requisites-company-info {
+    color: #64748b;
+}
+
+.payment-logo {
+    height: 80px;
+    max-width: 100%;
+    display: block;
+}
+
+/* Pages-specific CSS */
+
+/* Legal pages */
+.legal-page .hero {
+    background-color: #f1f5f9;
+}
+
+.legal-heading {
+    font-size: 2.5rem;
+    color: #1e293b;
+    letter-spacing: -0.5px;
+}
+
+.legal-subtitle {
+    color: #64748b;
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin: 1rem auto 0;
+}
+
+.legal-section-title {
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.legal-list {
+    margin-bottom: 2rem;
+}
+
+.legal-list li {
+    margin-bottom: 0.75rem;
+    color: #334155;
+}
+
+/* FAQ styles */
+.faq-container .card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.faq-card-header {
+    padding: 0;
+    background-color: #fff;
+    border: none;
+}
+
+.faq-btn {
+    width: 100%;
+    text-align: left;
+    padding: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    position: relative;
+    background-color: #fff;
+    border: none;
+}
+
+.faq-btn:hover {
+    color: #0072ff;
+}
+
+.faq-btn:focus {
+    box-shadow: none;
+}
+
+.faq-btn::after {
+    content: '\f107';
+    font-family: 'Font Awesome 5 Free';
+    position: absolute;
+    right: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+}
+
+.faq-btn:not(.collapsed)::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.faq-card-body {
+    padding: 0 1.25rem 1.25rem;
+    color: #64748b;
+}
+
+/* About page styles */
+.about-card {
+    height: 100%;
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.about-card:hover {
+    transform: translateY(-5px);
+}
+
+.about-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: #ecf5ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.about-icon i {
+    font-size: 1.75rem;
+    color: #0072ff;
+}
+
+.about-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.about-text {
+    color: #64748b;
+}
+
+/* Examples page styles */
+.example-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    height: 100%;
+    overflow: hidden;
+}
+
+.example-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+    border-color: #cbd5e1;
+}
+
+.example-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.example-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.example-text {
+    color: #64748b;
+}
+
+/* Home page styles */
+.hero-home {
+    background-color: #f1f5f9;
+    padding: 5rem 0;
+}
+
+.hero-home-title {
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+}
+
+.hero-home-subtitle {
+    font-size: 1.25rem;
+    color: #64748b;
+    margin-bottom: 2rem;
+    max-width: 700px;
+}
+
+.feature-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    background-color: #fff;
+    height: 100%;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07);
+    border-color: #cbd5e1;
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background-color: #ecf5ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+.feature-icon i {
+    font-size: 1.5rem;
+    color: #0072ff;
+}
+
+.feature-title {
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.75rem;
+}
+
+.feature-text {
+    color: #64748b;
+}
+
+/* Requisites page styles */
+.requisites-table th {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.requisites-table td {
+    color: #475569;
+}
+
+.requisites-table tr {
+    border-bottom: 1px solid #e2e8f0;
 } 

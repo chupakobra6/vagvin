@@ -85,6 +85,9 @@ body {
     color: #842029;
 }
 
+/* Reviews-specific styles */
+
+/* Review cards */
 .review-card {
     border: 1px solid #e2e8f0;
     border-radius: 12px;
@@ -141,6 +144,7 @@ body {
     margin-bottom: 0;
 }
 
+/* Pagination styling */
 .pagination-container {
     margin-top: 2rem;
     padding-top: 1rem;

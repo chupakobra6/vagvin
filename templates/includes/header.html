@@ -2,7 +2,7 @@
 <header>
     <nav class="navbar navbar-expand-lg navbar-light border-bottom">
         <div class="container py-2">
-            <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'pages:home' %}">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'pages:home' %}">
                 <img src="{% static 'img/favicon.svg' %}" alt="Vagvin Logo" width="32" height="32" class="me-2">
                 VAGVIN
             </a>
@@ -11,22 +11,22 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:home' %}">Главная</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:about' %}">Описание</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:faq' %}">Вопросы</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:requisites' %}">Реквизиты</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:examples' %}">Примеры</a></li>
-                    <li class="nav-item"><a class="nav-link mx-2" href="{% url 'pages:reviews' %}">Отзывы</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.view_name == 'pages:home' %}active{% endif %}" href="{% url 'pages:home' %}">Главная</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.view_name == 'pages:about' %}active{% endif %}" href="{% url 'pages:about' %}">Описание</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.view_name == 'pages:faq' %}active{% endif %}" href="{% url 'pages:faq' %}">Вопросы</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.view_name == 'pages:requisites' %}active{% endif %}" href="{% url 'pages:requisites' %}">Реквизиты</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.view_name == 'pages:examples' %}active{% endif %}" href="{% url 'pages:examples' %}">Примеры</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.resolver_match.view_name == 'pages:reviews' or request.resolver_match.view_name == 'reviews:list' %}active{% endif %}" href="{% url 'pages:reviews' %}">Отзывы</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
-                    <a href="https://t.me/Data_ViN_PR_bot" target="_blank" class="btn telegram-btn px-4 py-2 d-flex align-items-center">
+                    <a href="https://t.me/Data_ViN_PR_bot" target="_blank" class="btn telegram-btn">
                         <i class="fab fa-telegram-plane me-2"></i>Канал
                     </a>
                     {% if user.is_authenticated %}
                         <div class="dropdown">
-                            <button class="btn user-btn dropdown-toggle px-4 py-2 w-100" type="button" id="userDropdown"
+                            <button class="btn user-btn dropdown-toggle" type="button" id="userDropdown"
                                     data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user me-1"></i> {{ user.username }}
+                                <i class="fas fa-user me-2"></i> {{ user.username }}
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu" aria-labelledby="userDropdown">
                                 <li><a class="dropdown-item" href="{% url 'pages:dashboard' %}">
@@ -41,8 +41,8 @@
                             </ul>
                         </div>
                     {% else %}
-                        <a href="{% url 'accounts:login' %}" class="btn user-btn px-4 py-2">
-                            Войти в ЛК
+                        <a href="{% url 'accounts:login' %}" class="btn user-btn">
+                            <i class="fas fa-sign-in-alt me-2"></i>Войти в ЛК
                         </a>
                     {% endif %}
                 </div>

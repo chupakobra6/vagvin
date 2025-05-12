@@ -4,6 +4,14 @@
 
 {% block title %}Вопросы и ответы - Vagvin{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/pages.js' %}"></script>
+{% endblock %}
+
 {% block content %}
     <!-- FAQ Hero Section -->
     <section class="hero py-5 w-100">
@@ -153,12 +161,4 @@
             </div>
         </div>
     </section>
-{% endblock %}
-
-{% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
-{% endblock %}
-
-{% block extra_js %}
-    <script src="{% static 'js/pages.js' %}"></script>
 {% endblock %}

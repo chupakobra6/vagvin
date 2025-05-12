@@ -1,12 +1,24 @@
-/* Header styles */
+/* Header styles - SINGLE SOURCE OF TRUTH */
+/* All header styles consolidated here - DO NOT add header styles in other CSS files */
+
 header {
     font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    width: 100%;
 }
 
-/* Navbar styles */
+/* Global header reset to prevent interference from other CSS files */
+header * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Navbar styles - Core styling */
 .navbar.navbar-light {
     background-color: #f7f9fb;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    padding: 0.5rem 0;
+    width: 100%;
 }
 
 .navbar-brand {
@@ -14,41 +26,103 @@ header {
     font-size: 1.25rem;
     letter-spacing: -0.5px;
     font-weight: bold;
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
 }
 
+.navbar-brand img {
+    margin-right: 0.5rem;
+}
+
+/* Navigation links */
 .navbar .nav-link {
     color: #64748b;
     font-weight: 500;
     font-size: 0.925rem;
     transition: color 0.2s ease;
+    padding: 0.5rem 1rem;
+    position: relative;
 }
 
 .navbar .nav-link:hover {
     color: #0072ff !important;
 }
 
+.navbar .nav-link.active,
+.navbar-nav .active > .nav-link, 
+.navbar-nav .nav-link.active {
+    color: #0072ff;
+    font-weight: 600;
+}
+
+/* Ensure consistent spacing between navbar items */
+.navbar-nav .nav-item {
+    margin: 0 0.25rem;
+}
+
+/* Remove any conflicting styles */
+.navbar-nav .nav-link:not(:hover):not(.active) {
+    color: #64748b;
+}
+
+/* Navbar toggler for mobile */
+.navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.navbar-toggler:focus {
+    box-shadow: none;
+}
+
+/* Collapse container for mobile */
+.navbar-collapse {
+    justify-content: space-between;
+}
+
 /* Button styles */
 .navbar .btn {
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    transition: all 0.2s ease;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 6px;
+    box-shadow: none !important;
+}
+
+/* Override any transform effects on navbar buttons */
+.navbar .btn:hover, 
+.navbar .btn:focus, 
+.navbar .btn:active {
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 /* Telegram button */
-.telegram-btn {
+.navbar .telegram-btn {
     background-color: #0072ff;
     color: white;
     border-radius: 6px;
     font-weight: 500;
     font-size: 0.875rem;
     border: none;
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
 }
 
-.telegram-btn:hover {
+.navbar .telegram-btn:hover {
     background-color: #0065e6;
     color: white !important;
+    transform: none !important;
 }
 
-.telegram-btn i {
+.navbar .telegram-btn i {
     font-size: 1.1rem;
+    margin-right: 0.5rem;
 }
 
 /* User button */
@@ -60,12 +134,19 @@ header {
     font-weight: 500;
     font-size: 0.875rem;
     min-width: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .user-btn:hover {
     background-color: #0065e6;
     border-color: #0065e6;
     color: white;
+}
+
+.user-btn i {
+    margin-right: 0.5rem;
 }
 
 /* Dropdown styles */
@@ -75,6 +156,14 @@ header {
     color: #64748b;
     font-weight: 500;
     font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item i {
+    margin-right: 0.5rem;
+    width: 1rem;
+    text-align: center;
 }
 
 .dropdown-item:hover {
@@ -98,6 +187,8 @@ header {
     border-radius: 8px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
 }
 
 .dropdown {
@@ -107,13 +198,60 @@ header {
 
 .dropdown-toggle {
     min-width: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
+.dropdown-divider {
+    margin: 0.5rem 0;
+    border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive adjustments */
 @media (min-width: 992px) {
     .dropdown .dropdown-menu.user-dropdown-menu {
         min-width: 0;
         width: auto;
         left: 0;
         right: 0;
+    }
+    
+    .navbar .container {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        padding: 1rem 0;
+    }
+    
+    .navbar-nav {
+        margin-bottom: 1rem;
+    }
+    
+    .navbar-nav .nav-item {
+        margin: 0;
+    }
+    
+    .navbar .nav-link {
+        padding: 0.75rem 0;
+    }
+    
+    .navbar .d-flex {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .telegram-btn, .user-btn {
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dropdown {
+        width: 100%;
     }
 } 
