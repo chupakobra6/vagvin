@@ -1,21 +1,32 @@
 import logging
+import secrets
 import string
+from typing import Optional, List, Any
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
+from .models import User
+
 logger = logging.getLogger(__name__)
 
 
-def generate_password(length=14):
-    import secrets
+def generate_password(length: int = 14) -> str:
+    """Generate a secure random password"""
     characters = string.ascii_letters + string.digits
     return ''.join(secrets.choice(characters) for _ in range(length))
 
 
-def send_email(subject, to_email, html_content, additional_recipients=None, copy_admin=True):
+def send_email(
+    subject: str, 
+    to_email: str, 
+    html_content: str, 
+    additional_recipients: Optional[List[str]] = None, 
+    copy_admin: bool = True
+) -> bool:
+    """Send an email with both HTML and plain text content"""
     from_email = settings.DEFAULT_FROM_EMAIL
     try:
         plain_text = strip_tags(html_content)
@@ -43,12 +54,13 @@ def send_email(subject, to_email, html_content, additional_recipients=None, copy
         else:
             logger.error(f"Failed to send email '{subject}' to {recipients}")
             return False
-    except Exception as e:
-        logger.exception(f"Error sending email: {e}")
+    except Exception:
+        logger.exception(f"Error sending email '{subject}' to {to_email}")
         return False
 
 
-def get_registration_email_content(user, password):
+def get_registration_email_content(user: User, password: str) -> Optional[str]:
+    """Generate the HTML content for a registration email"""
     if not user or not password:
         logger.error("Missing user or password for registration email content")
         return None
@@ -63,12 +75,13 @@ def get_registration_email_content(user, password):
         }
         html_content = render_to_string('emails/registration.html', context)
         return html_content
-    except Exception as e:
-        logger.exception(f"Error generating registration email content: {e}")
+    except Exception:
+        logger.exception(f"Error generating registration email content for user {user.email}")
         return None
 
 
-def get_password_reset_email_content(user, new_password):
+def get_password_reset_email_content(user: User, new_password: str) -> Optional[str]:
+    """Generate the HTML content for a password reset email"""
     if not user or not new_password:
         logger.error("Missing user or new password for reset email content")
         return None
@@ -80,22 +93,32 @@ def get_password_reset_email_content(user, new_password):
         }
         html_content = render_to_string('emails/password_reset.html', context)
         return html_content
-    except Exception as e:
-        logger.exception(f"Error generating password reset email content: {e}")
+    except Exception:
+        logger.exception(f"Error generating password reset email content for user {user.email}")
         return None
 
 
-def send_registration_email(user, password):
+def send_registration_email(user: User, password: str) -> bool:
+    """Send a registration email to a new user"""
     subject = 'Добро пожаловать на сайт vagvin.ru!'
     html_content = get_registration_email_content(user, password)
+    if not html_content:
+        return False
+        
     if settings.DEBUG:
         logger.debug(f"Generated password for {user.email}: {password}")
+        
     return send_email(subject, user.email, html_content)
 
 
-def send_password_reset_email(user, new_password):
+def send_password_reset_email(user: User, new_password: str) -> bool:
+    """Send a password reset email to a user"""
     subject = 'Восстановление пароля на сайте vagvin.ru'
     html_content = get_password_reset_email_content(user, new_password)
+    if not html_content:
+        return False
+        
     if settings.DEBUG:
         logger.debug(f"Reset password for {user.email}: {new_password}")
+        
     return send_email(subject, user.email, html_content, copy_admin=False)

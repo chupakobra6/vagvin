@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional
+from typing import List, Any, Type
 
 from django.contrib.auth.models import AbstractUser
 from django.db import models
@@ -52,49 +52,6 @@ class User(AbstractUser, BaseModel):
         verbose_name_plural = "Пользователи"
         ordering = ['-created_at']
 
-    def get_additional_emails(self) -> List[str]:
-        """Get list of additional emails"""
-        if not self.additional_emails:
-            return []
-        return [email.strip() for email in self.additional_emails.split(',') if email.strip()]
-    
-    def set_additional_emails(self, emails: List[str]) -> None:
-        """Set additional emails from list"""
-        if not emails:
-            self.additional_emails = ""
-        else:
-            self.additional_emails = ','.join(emails)
-    
-    def add_additional_email(self, email: str) -> bool:
-        """Add additional email if not already exists"""
-        if not email:
-            return False
-            
-        emails = self.get_additional_emails()
-        email = email.strip()
-        
-        if email in emails or email == self.email:
-            return False
-            
-        emails.append(email)
-        self.set_additional_emails(emails)
-        return True
-    
-    def remove_additional_email(self, email: str) -> bool:
-        """Remove additional email if exists"""
-        if not email:
-            return False
-            
-        emails = self.get_additional_emails()
-        email = email.strip()
-        
-        if email not in emails:
-            return False
-            
-        emails.remove(email)
-        self.set_additional_emails(emails)
-        return True
-
     @property
     def referral_link(self) -> str:
         """Get referral link for invitations"""
@@ -110,7 +67,7 @@ class User(AbstractUser, BaseModel):
 
 
 @receiver(pre_save, sender=User)
-def ensure_referral_code(sender, instance, **kwargs):
+def ensure_referral_code(sender: Type[User], instance: User, **kwargs: Any) -> None:
     """Ensure user always has a referral code before saving"""
     if not instance.referral_code:
         while True:

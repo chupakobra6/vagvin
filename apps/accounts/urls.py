@@ -9,20 +9,18 @@ app_name = 'accounts'
 web_urlpatterns = [
     # Authentication
     path('register/', views.RegisterView.as_view(), name='register'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
+    path('login/', views.LoginView.as_view(), name='login'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
     path('forgot-password/', views.ForgotPasswordView.as_view(), name='forgot_password'),
 
     # Dashboard
-    path('dashboard/', views.dashboard, name='dashboard'),
+    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
 ]
 
 # API endpoints
 api_urlpatterns = [
-    path('api/add-email/', api.add_email, name='add_email'),
-    path('api/remove-email/', api.remove_email, name='remove_email'),
-    path('api/update-balance/', api.update_balance, name='update_balance'),
-    path('api/create-payment/', api.create_payment, name='create_payment'),
+    path('api/add-email/', api.AddEmailView.as_view(), name='add_email'),
+    path('api/remove-email/', api.RemoveEmailView.as_view(), name='remove_email'),
 ]
 
 # All URLs
