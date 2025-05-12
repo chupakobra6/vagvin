@@ -7,10 +7,8 @@ from django.urls import reverse
 
 from .models import Payment
 from .services import (
-    PaymentProcessor, 
+    PaymentProcessor,
     RobokassaPaymentProcessor,
-    YookassaPaymentProcessor,
-    HelekitPaymentProcessor,
     TestModePaymentProcessor,
     PaymentService
 )
@@ -150,7 +148,7 @@ class PaymentProcessorTest(TestCase):
     def test_create_payment(self) -> None:
         """Test payment creation."""
         payment = self.processor.create_payment(self.user, Decimal("100.00"))
-        
+
         self.assertEqual(payment.user, self.user)
         self.assertEqual(payment.provider, "test_provider")
         self.assertEqual(payment.amount, Decimal("100.00"))
@@ -173,7 +171,7 @@ class TestModePaymentProcessorTest(TestCase):
     def test_test_payment(self) -> None:
         """Test that test payments are auto-completed and marked successful."""
         payment, url = self.test_processor.create_payment_with_url(self.user, Decimal("100.00"))
-        
+
         self.assertEqual(payment.status, "success")
         self.assertTrue(payment.is_successful)
         self.assertTrue(url.startswith("/payments/test-success/"))
@@ -189,7 +187,7 @@ class PaymentServiceTest(TestCase):
             password="testpass123",
             balance=Decimal("1000.00")
         )
-        
+
         # Create some test payments
         Payment.objects.create(
             user=self.user,
@@ -199,7 +197,7 @@ class PaymentServiceTest(TestCase):
             invoice_id="test_invoice_1",
             status="success"
         )
-        
+
         Payment.objects.create(
             user=self.user,
             provider="yookassa",
@@ -208,7 +206,7 @@ class PaymentServiceTest(TestCase):
             invoice_id="test_invoice_2",
             status="success"
         )
-        
+
         Payment.objects.create(
             user=self.user,
             provider="heleket",
@@ -221,17 +219,17 @@ class PaymentServiceTest(TestCase):
     def test_update_balance(self) -> None:
         """Test updating user balance."""
         initial_balance = self.user.balance
-        
+
         # Test with a positive amount
         success, data = PaymentService.update_balance(self.user, Decimal("100.00"))
-        
+
         self.assertTrue(success)
         self.user.refresh_from_db()
         self.assertEqual(self.user.balance, initial_balance + Decimal("100.00"))
-        
+
         # Test with a negative amount
         success, data = PaymentService.update_balance(self.user, Decimal("-50.00"))
-        
+
         self.assertTrue(success)
         self.user.refresh_from_db()
         self.assertEqual(self.user.balance, initial_balance + Decimal("100.00") - Decimal("50.00"))
@@ -241,7 +239,7 @@ class PaymentServiceTest(TestCase):
         # Test amount within balance
         can_afford, _ = PaymentService.can_afford(self.user, Decimal("500.00"))
         self.assertTrue(can_afford)
-        
+
         # Test amount exceeding balance
         can_afford, _ = PaymentService.can_afford(self.user, Decimal("1500.00"))
         self.assertFalse(can_afford)
@@ -249,7 +247,7 @@ class PaymentServiceTest(TestCase):
     def test_get_user_payments_stats(self) -> None:
         """Test getting user payment statistics."""
         stats = PaymentService.get_user_payments_stats(self.user)
-        
+
         self.assertEqual(stats["payments_count"], 2)  # Only the successful payments
         self.assertEqual(stats["successful_payments"], 2)
         self.assertEqual(stats["pending_payments"], 1)
@@ -262,14 +260,14 @@ class PaymentViewsTest(TestCase):
     def setUp(self) -> None:
         self.client = Client()
         self.factory = RequestFactory()
-        
+
         self.user = User.objects.create_user(
             username="testuser",
             email="test@example.com",
             password="testpass123",
             balance=Decimal("1000.00")
         )
-        
+
         self.client.login(username="testuser", password="testpass123")
 
     @patch('apps.payments.services.RobokassaPaymentProcessor.create_payment_with_url')
@@ -285,14 +283,14 @@ class PaymentViewsTest(TestCase):
             status="pending"
         )
         mock_create_payment.return_value = (payment, "https://test-payment-url.com")
-        
+
         # Test the view
         url = reverse('payments:robokassa_initiate')
         data = {
             'amount': '100.00'
         }
         response = self.client.post(url, data=data, content_type='application/json')
-        
+
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertTrue(response_data['success'])
@@ -309,13 +307,13 @@ class PaymentViewsTest(TestCase):
             invoice_id="test_invoice_123",
             status="pending"
         )
-        
+
         # Test the view
         url = reverse('payments:payment_status', args=[payment.id])
         response = self.client.get(url)
-        
+
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertTrue(response_data['success'])
         self.assertEqual(response_data['status'], 'pending')
-        self.assertEqual(Decimal(response_data['amount']), Decimal('100.00')) 
+        self.assertEqual(Decimal(response_data['amount']), Decimal('100.00'))

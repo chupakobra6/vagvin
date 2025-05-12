@@ -42,7 +42,7 @@ class ReviewListView(ListView):
     def post(self, request, *args, **kwargs):
         """Handle review form submission through the service layer."""
         success, form = services.handle_review_submission(request)
-        
+
         if success:
             return redirect('reviews:list')
         else:
@@ -53,18 +53,18 @@ class ReviewListView(ListView):
 class ReviewWidgetView(TemplateView):
     """View for displaying a small widget of recent reviews."""
     template_name = 'reviews/list.html'
-    
+
     def get_context_data(self, **kwargs):
         """Add recent reviews to context."""
         context = super().get_context_data(**kwargs)
-        
+
         # Mark as widget display
         context['is_widget'] = True
-        
+
         # Get recent reviews
         context['recent_reviews'] = services.get_recent_reviews(limit=3)
-        
+
         # Add statistics
         context['stats'] = services.get_review_statistics()
-        
+
         return context

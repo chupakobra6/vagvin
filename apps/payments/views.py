@@ -1,27 +1,24 @@
 import json
 import logging
-from typing import Dict, Any
 from decimal import Decimal, ROUND_HALF_UP
+from typing import Dict, Any
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView
-from django.contrib import messages
-from django.urls import reverse
-from django.shortcuts import redirect
 
 from .models import Payment
 from .services import (
     get_payment_processor,
     create_robokassa_payment, verify_robokassa_callback,
     create_yookassa_payment, verify_yookassa_callback,
-    create_heleket_payment, verify_heleket_callback,
-    PaymentService
+    create_heleket_payment, verify_heleket_callback
 )
 
 logger = logging.getLogger(__name__)
@@ -79,7 +76,24 @@ class BaseCallbackView(View):
         if not self.ip_whitelist_setting:
             return True
 
-        whitelist = getattr(settings, self.ip_whitelist_setting, None)
+        # Direct access to specific settings without any reflection
+        whitelist = None
+        if self.ip_whitelist_setting == 'ALLOWED_ROBOKASSA_IPS':
+            try:
+                whitelist = settings.ALLOWED_ROBOKASSA_IPS
+            except AttributeError:
+                # Setting doesn't exist
+                return True
+        elif self.ip_whitelist_setting == 'ALLOWED_HELEKET_IPS':
+            try:
+                whitelist = settings.ALLOWED_HELEKET_IPS
+            except AttributeError:
+                # Setting doesn't exist
+                return True
+        else:
+            # Unknown whitelist setting
+            return True
+
         if not whitelist:
             return True
 
@@ -183,11 +197,21 @@ class PaymentStatusView(View):
     def get(self, request, payment_id):
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
-            
+
             # Format decimal amounts to 2 decimal places
-            amount = payment.amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if isinstance(payment.amount, Decimal) else payment.amount
-            total_amount = payment.total_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if isinstance(payment.total_amount, Decimal) else payment.total_amount
-            
+            amount = payment.amount
+            total_amount = payment.total_amount
+
+            try:
+                amount = amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            except AttributeError:
+                pass
+
+            try:
+                total_amount = total_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            except AttributeError:
+                pass
+
             return JsonResponse({
                 'success': True,
                 'status': payment.status,
@@ -212,19 +236,19 @@ class TestSuccessView(View):
     View for handling test mode payment success redirects.
     This simulates the return from a payment gateway in test mode.
     """
-    
+
     @method_decorator(login_required)
     def get(self, request):
         payment_id = request.GET.get('payment_id')
         if not payment_id:
             return JsonResponse({'error': 'Отсутствует ID платежа'}, status=400)
-            
+
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
-            
+
             # Redirect to the dashboard with a success message
             messages.success(request, f"Тестовый платеж на сумму {payment.amount} руб. успешно выполнен!")
             return redirect('accounts:dashboard')
-            
+
         except Payment.DoesNotExist:
             return JsonResponse({'error': 'Некорректный платеж'}, status=400)

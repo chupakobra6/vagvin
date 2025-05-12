@@ -24,7 +24,11 @@ def create_query_and_update_balance(user, vin, marka='', tip='basic', lang='ru',
         tuple: (query_instance, success_bool)
     """
     # Convert cost to Decimal if it's not already
-    if not isinstance(cost, Decimal):
+    try:
+        # Попытка выполнить операцию, специфичную для Decimal
+        cost + Decimal('0')
+    except TypeError:
+        # Если возникает ошибка TypeError, значит cost не Decimal
         cost = Decimal(str(cost))
     
     # Check if user has enough balance

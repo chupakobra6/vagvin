@@ -224,7 +224,9 @@ class ReviewViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'reviews/list.html')
         self.assertEqual(len(response.context['reviews']), 3)
-        self.assertIsInstance(response.context['form'], ReviewForm)
+        
+        # Проверяем тип формы без использования isinstance
+        self.assertEqual(response.context['form'].__class__, ReviewForm)
         self.assertIn('stats', response.context)
 
     def test_list_view_post(self) -> None:

@@ -6,6 +6,7 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/payments.css' %}">
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
 {% endblock %}
 
 {% block extra_js %}
@@ -14,12 +15,12 @@
 
 {% block content %}
     <!-- Hero Section -->
-    <section class="hero py-5 w-100">
+    <section class="hero py-5 w-100 legal-page">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="fw-bold">Способы оплаты</h1>
-                    <p>Выберите удобный для вас способ пополнения баланса</p>
+                    <h1 class="fw-bold legal-heading">Способы оплаты</h1>
+                    <p class="legal-subtitle">Выберите удобный для вас способ пополнения баланса</p>
                 </div>
             </div>
         </div>

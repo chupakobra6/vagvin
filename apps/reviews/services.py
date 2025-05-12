@@ -1,10 +1,10 @@
 import logging
 from typing import Dict, Any, Tuple, List, Optional
 
+from django.contrib import messages
 from django.core.paginator import Paginator, Page
 from django.db.models import QuerySet, Count, Avg
 from django.http import HttpRequest
-from django.contrib import messages
 
 from .forms import ReviewForm
 from .models import Review
@@ -82,7 +82,7 @@ def get_review_statistics() -> Dict[str, Any]:
             count=Count('id'),
             avg_rating=Avg('rating')
         )
-        
+
         return {
             'total_reviews': stats['count'] or 0,
             'average_rating': round(stats['avg_rating'] or 0, 1),
@@ -108,12 +108,12 @@ def get_rating_distribution() -> Dict[int, float]:
         total = Review.objects.filter(approved=True).count()
         if total == 0:
             return {i: 0 for i in range(1, 6)}
-            
+
         distribution = {}
         for i in range(1, 6):
             count = Review.objects.filter(approved=True, rating=i).count()
             distribution[i] = round((count / total) * 100, 1) if total > 0 else 0
-            
+
         return distribution
     except Exception:
         logger.exception("Failed to get rating distribution")
@@ -175,11 +175,11 @@ def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[Revie
             return False, form
     else:
         logger.warning(f"Review form validation failed: {form.errors}")
-        
+
         for field_name, error_list in form.errors.items():
             for error in error_list:
                 messages.error(request, error)
-                
+
         return False, form
 
 

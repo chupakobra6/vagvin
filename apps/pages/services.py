@@ -2,6 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def log_page_view(page_name: str) -> None:
     """
     Log when a page is viewed.
@@ -9,4 +10,4 @@ def log_page_view(page_name: str) -> None:
     Args:
         page_name: The name of the page being viewed
     """
-    logger.debug(f"Rendering {page_name} page") 
+    logger.debug(f"Rendering {page_name} page")
