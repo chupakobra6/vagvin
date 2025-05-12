@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 
 import pyperclip
 
@@ -15,7 +15,7 @@ DJANGO_WHITELIST_FILES = ['models.py', 'admin.py', 'serializers.py', 'urls.py', 
                           'tests.py', 'middleware.py', 'settings.py', 'factories.py', 'signals.py', 'services.py']
 
 # Web file extensions to include
-WEB_EXTENSIONS = ['.html', '.css', '.js', '.scss', '.jsx', '.ts', '.tsx']
+WEB_EXTENSIONS = ['.html', '.css', '.js']
 
 # Django-specific excluded paths
 DJANGO_EXCLUDED_PATHS = ['django\\contrib', 'django\\core', 'django\\db', 'django\\middleware', 'django\\utils',
@@ -51,7 +51,7 @@ def list_projects(directory):
 def list_django_apps(project_directory):
     """List all Django apps in the project."""
     apps_dir = os.path.join(project_directory, "apps")
-    
+
     # If the apps directory exists, list apps from there
     if os.path.exists(apps_dir) and os.path.isdir(apps_dir):
         apps = [d for d in os.listdir(apps_dir) if os.path.isdir(os.path.join(apps_dir, d))]
@@ -62,14 +62,14 @@ def list_django_apps(project_directory):
         apps = []
         for d in os.listdir(project_directory):
             app_dir = os.path.join(project_directory, d)
-            if (os.path.isdir(app_dir) and 
-                os.path.exists(os.path.join(app_dir, 'models.py')) or 
-                os.path.exists(os.path.join(app_dir, 'views.py'))):
+            if (os.path.isdir(app_dir) and
+                    os.path.exists(os.path.join(app_dir, 'models.py')) or
+                    os.path.exists(os.path.join(app_dir, 'views.py'))):
                 apps.append(d)
-    
+
     for idx, app in enumerate(apps):
         print(f"{idx + 1}. {app}")
-    
+
     return apps
 
 
@@ -118,7 +118,7 @@ def choose_file_types():
 def collect_files(directory, extensions, include_files, exclude_dirs, exclude_files, app_name=None):
     """Collect all files that match the criteria."""
     collected_files = []
-    
+
     # If app_name is specified, construct app directory path
     app_dir = None
     if app_name:
@@ -131,12 +131,12 @@ def collect_files(directory, extensions, include_files, exclude_dirs, exclude_fi
             possible_app_dir = os.path.join(directory, app_name)
             if os.path.exists(possible_app_dir) and os.path.isdir(possible_app_dir):
                 app_dir = possible_app_dir
-    
+
     for root, dirs, files in os.walk(directory, topdown=True):
         # Skip if app_name is specified and we're not in the app directory
         if app_name and app_dir and not root.startswith(app_dir):
             continue
-            
+
         # Filter out excluded directories
         dirs[:] = [d for d in dirs if not is_excluded(os.path.join(root, d), exclude_dirs, exclude_files)]
 
@@ -229,11 +229,11 @@ def main():
     # Ask if user wants to dump files from a specific app
     dump_specific_app = input("\nDump files from a specific Django app only? (y/n): ").lower()
     selected_app = None
-    
+
     if dump_specific_app.startswith('y'):
         print("\nAvailable Django apps:")
         apps = list_django_apps(project_directory)
-        
+
         if not apps:
             print("No Django apps found. Dumping entire project.")
         else:
@@ -264,8 +264,9 @@ def main():
         print(f"\nCollecting files from app '{selected_app}'...")
     else:
         print(f"\nCollecting files from project '{project_name}'...")
-        
-    project_files = collect_files(project_directory, extensions, include_files, EXCLUDE_DIRS, exclude_files, selected_app)
+
+    project_files = collect_files(project_directory, extensions, include_files, EXCLUDE_DIRS, exclude_files,
+                                  selected_app)
 
     if not project_files:
         print("No files found for dump. Check your settings and try again.")
@@ -286,7 +287,7 @@ def main():
             output_file.write(f"Project Structure Overview: {project_name} - App: {selected_app}\n")
         else:
             output_file.write(f"Project Structure Overview: {project_name}\n")
-            
+
         output_file.write("=" * 3 + "\n")
         write_project_structure(structure, output_file)
         output_file.write("\n" + "=" * 3 + "\n\n")

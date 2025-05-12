@@ -115,13 +115,15 @@ cython_debug/
 **/migrations/
 
 # Dump files
+django_project_dumper.py
 *_dump.txt
 vagvin_*_dump.txt
 
+# Logs
+/logs/
+
 # Test results
 /reports/
-.pytest_cache/
-htmlcov/
-coverage.xml
-.coverage
-.coverage.*
+
+# Refactoring manifest
+refactoring_manifest.md

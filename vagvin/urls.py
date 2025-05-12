@@ -9,11 +9,11 @@ urlpatterns = [
     # Main pages URLs (homepage and static pages)
     path('', include('apps.pages.urls')),
 
-    # Payment-related URLs
-    path('payments/', include('apps.payments.urls')),
-
     # User accounts (authentication, profile, etc.)
     path('accounts/', include('apps.accounts.urls')),
+
+    # Payment-related URLs
+    path('payments/', include('apps.payments.urls')),
 
     # Reports and query history URLs
     path('reports/', include('apps.reports.urls')),

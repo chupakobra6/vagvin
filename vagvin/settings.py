@@ -1,37 +1,36 @@
+import logging.config
 import os
-import sys
 from pathlib import Path
 
+from django.utils.log import DEFAULT_LOGGING
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# TODO: Валидировать наличие всех переменных окружения
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+
+# Site URL
+SITE_URL = os.environ.get('SITE_URL', 'https://vagvin.ru')
 
 # Application definition
-
 INSTALLED_APPS = [
-    # Django core libs
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Third-party libs
     'rest_framework',
-    # Local apps
     'apps.pages.apps.PagesConfig',
     'apps.payments.apps.PaymentsConfig',
     'apps.accounts.apps.AccountsConfig',
@@ -58,6 +57,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -68,9 +68,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'vagvin.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# Database configuration
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -79,8 +77,6 @@ DATABASES = {
 }
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -97,66 +93,49 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
+LANGUAGE_CODE = 'ru-ru'
+TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
-
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Site URL
-SITE_URL = os.getenv('SITE_URL', 'https://vagvin.ru')
 
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
-# Robokassa settings
-ROBOKASSA_LOGIN = os.getenv('ROBOKASSA_LOGIN', '')
-ROBOKASSA_PASSWORD1 = os.getenv('ROBOKASSA_PASSWORD1', '')
-ROBOKASSA_PASSWORD2 = os.getenv('ROBOKASSA_PASSWORD2', '')
-ALLOWED_ROBOKASSA_IPS = os.getenv('ALLOWED_ROBOKASSA_IPS', '').split(',') if os.getenv('ALLOWED_ROBOKASSA_IPS') else []
+# Cache configuration
+CACHES = {
+    "default": {
+        "BACKEND": os.environ.get('CACHE_BACKEND', "django.core.cache.backends.locmem.LocMemCache"),
+        "LOCATION": os.environ.get('CACHE_LOCATION', "vagvin-cache"),
+        "TIMEOUT": int(os.environ.get('CACHE_TTL', 86400)),
+    }
+}
 
-# YooKassa settings
-YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID', '')
-YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY', '')
-YOOKASSA_RETURN_URL = os.getenv('YOOKASSA_RETURN_URL', 'https://vagvin.ru/payments/status/')
-
-# Heleket settings
-HELEKET_API_URL = os.getenv('HELEKET_API_URL', 'https://api.heleket.com/v1/payment')
-HELEKET_MERCHANT_ID = os.getenv('HELEKET_MERCHANT_ID', '')
-HELEKET_API_KEY = os.getenv('HELEKET_API_KEY', '')
-HELEKET_RETURN_URL = os.getenv('HELEKET_RETURN_URL', 'https://vagvin.ru/payments/status/')
-HELEKET_SUCCESS_URL = os.getenv('HELEKET_SUCCESS_URL', 'https://vagvin.ru/payments/status/')
-HELEKET_CALLBACK_URL = os.getenv('HELEKET_CALLBACK_URL', 'https://vagvin.ru/payments/heleket/callback/')
+# Cache times (in seconds)
+CACHE_TIME_SHORT = int(os.environ.get('CACHE_TIME_SHORT', 3600))  # 1 hour
+CACHE_TIME_LONG = int(os.environ.get('CACHE_TIME_LONG', 86400))  # 24 hours
 
 # Email configuration
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False').lower() == 'true'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'VAGVIN <noreply@vagvin.ru>')
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', '')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() == 'true'
+EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False').lower() == 'true'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'VAGVIN <noreply@example.com>')
 
 # Admin Email
-ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', '')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', '')
 
-# Login URLs
+# Login URL and redirect settings
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'accounts:dashboard'
 LOGOUT_REDIRECT_URL = 'pages:home'
@@ -168,34 +147,47 @@ PASSWORD_RESET_TIMEOUT = 60 * 60 * 1  # 1 hour
 SESSION_COOKIE_AGE = 60 * 60  # 1 hour
 SESSION_SAVE_EVERY_REQUEST = True
 
+# API keys and external services
 # Avito/Autoteka settings
-AVITO_TOKEN_URL = os.getenv('AVITO_TOKEN_URL')
-AVITO_CLIENT_ID = os.getenv('AVITO_CLIENT_ID')
-AVITO_CLIENT_SECRET = os.getenv('AVITO_CLIENT_SECRET')
+AVITO_TOKEN_URL = os.environ.get('AVITO_TOKEN_URL', '')
+AVITO_CLIENT_ID = os.environ.get('AVITO_CLIENT_ID', '')
+AVITO_CLIENT_SECRET = os.environ.get('AVITO_CLIENT_SECRET', '')
 
 # Carstat settings
-CARSTAT_API_KEY = os.getenv('CARSTAT_API_KEY')
+CARSTAT_API_KEY = os.environ.get('CARSTAT_API_KEY', '')
 
 # VINHistory settings
-VINHISTORY_LOGIN = os.getenv('VINHISTORY_LOGIN')
-VINHISTORY_PASS = os.getenv('VINHISTORY_PASS')
+VINHISTORY_LOGIN = os.environ.get('VINHISTORY_LOGIN', '')
+VINHISTORY_PASS = os.environ.get('VINHISTORY_PASS', '')
 
-# Cache configuration
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
-        "LOCATION": "vagvin-cache",
-        "TIMEOUT": 86400,
-    }
-}
+# Payment systems
+# Robokassa settings
+ROBOKASSA_LOGIN = os.environ.get('ROBOKASSA_LOGIN', '')
+ROBOKASSA_PASSWORD1 = os.environ.get('ROBOKASSA_PASSWORD1', '')
+ROBOKASSA_PASSWORD2 = os.environ.get('ROBOKASSA_PASSWORD2', '')
+ALLOWED_ROBOKASSA_IPS = os.environ.get('ALLOWED_ROBOKASSA_IPS', '').split(',') if os.environ.get(
+    'ALLOWED_ROBOKASSA_IPS') else []
 
-# Logging configuration
+# YooKassa settings
+YOOKASSA_SHOP_ID = os.environ.get('YOOKASSA_SHOP_ID', '')
+YOOKASSA_SECRET_KEY = os.environ.get('YOOKASSA_SECRET_KEY', '')
+YOOKASSA_RETURN_URL = os.environ.get('YOOKASSA_RETURN_URL', 'https://vagvin.ru/payments/status/')
+
+# Heleket settings
+HELEKET_API_URL = os.environ.get('HELEKET_API_URL', 'https://api.heleket.com/v1/payment')
+HELEKET_MERCHANT_ID = os.environ.get('HELEKET_MERCHANT_ID', '')
+HELEKET_API_KEY = os.environ.get('HELEKET_API_KEY', '')
+HELEKET_RETURN_URL = os.environ.get('HELEKET_RETURN_URL', 'https://vagvin.ru/payments/status/')
+HELEKET_SUCCESS_URL = os.environ.get('HELEKET_SUCCESS_URL', 'https://vagvin.ru/payments/status/')
+HELEKET_CALLBACK_URL = os.environ.get('HELEKET_CALLBACK_URL', 'https://vagvin.ru/payments/heleket/callback/')
+
+# Set up logging configuration
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
             'style': '{',
         },
         'simple': {
@@ -207,7 +199,7 @@ LOGGING = {
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         },
         'file': {
             'level': 'INFO',
@@ -223,15 +215,19 @@ LOGGING = {
         }
     },
     'loggers': {
+        '': {  # Root logger
+            'handlers': ['console', 'file'],
+            'level': 'INFO',
+        },
         'django': {
             'handlers': ['console', 'file'],
             'level': 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'apps': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG' if DEBUG else 'INFO',
-            'propagate': True,
+            'propagate': False,
         },
         'apps.accounts': {
             'handlers': ['console', 'file'],
