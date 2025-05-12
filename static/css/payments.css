@@ -155,4 +155,132 @@
 /* Copy Button */
 .copy-btn {
     font-size: 0.85rem;
+}
+
+/* Dashboard page styling */
+.balance-info {
+    background-color: #f1f5f9;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.balance-title {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.balance-value {
+    color: #1e293b;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.balance-status {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.stat-card {
+    background-color: #f1f5f9;
+    border-radius: 12px;
+    height: 100%;
+}
+
+.stat-title {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-value {
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
+.payment-history-table th {
+    color: #64748b;
+    font-weight: 600;
+    border-bottom-width: 1px;
+}
+
+.payment-history-table td {
+    color: #1e293b;
+    border-bottom-color: #e2e8f0;
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.payment-status-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge-success {
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.badge-pending {
+    background-color: #fffbeb;
+    color: #b45309;
+}
+
+.badge-failed {
+    background-color: #fff1f2;
+    color: #be123c;
+}
+
+.empty-state {
+    color: #64748b;
+}
+
+.empty-state-title {
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.empty-state-icon {
+    color: #cbd5e1;
+}
+
+/* Payment logos */
+.payment-logo {
+    height: 80px;
+    max-width: 100%;
+    display: block;
+}
+
+/* Payment method titles */
+.payment-method-title {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.2rem;
+}
+
+/* Payment alert */
+.payment-alert {
+    margin-bottom: 1rem;
 } 

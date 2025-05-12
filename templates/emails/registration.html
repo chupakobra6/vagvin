@@ -1,66 +1,44 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация на сайте vagvin.ru</title>
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f9fafb;">
-<div style="max-width: 600px; margin: 0 auto; background-color: #fff;">
-    <!-- Header -->
-    <div style="background-color: #0072ff; color: white; padding: 20px; text-align: center;">
-        <h1 style="margin: 0; font-size: 24px;">Добро пожаловать на VAGVIN</h1>
+{% extends "emails/base_email.html" %}
+
+{% block title %}Регистрация на сайте Vagvin{% endblock %}
+
+{% block header %}Добро пожаловать на VAGVIN{% endblock %}
+
+{% block content %}
+    <p>Здравствуйте, <strong>{{ username }}</strong>!</p>
+    <p>Вы успешно зарегистрировались на нашем сайте.</p>
+
+    <div class="info-box">
+        <h2 style="margin-top: 0; color: #1e293b; font-size: 18px;">Ваши данные для входа:</h2>
+        <table class="data-table">
+            <tr>
+                <td>Логин:</td>
+                <td>{{ username }}</td>
+            </tr>
+            <tr>
+                <td>Пароль:</td>
+                <td>{{ password }}</td>
+            </tr>
+            <tr>
+                <td>Email:</td>
+                <td>{{ email }}</td>
+            </tr>
+        </table>
+        <p class="warning-text">Сохраните эти данные для входа в личный кабинет.</p>
     </div>
 
-    <!-- Content -->
-    <div style="padding: 30px;">
-        <p>Здравствуйте, <strong>{{ username }}</strong>!</p>
-        <p>Вы успешно зарегистрировались на нашем сайте.</p>
+    <p>Запрошенные отчеты на сайте будут приходить на указанный вами email.</p>
 
-        <div style="background-color: #f1f5f9; padding: 20px; border-radius: 8px; margin: 25px 0;">
-            <h2 style="margin-top: 0; color: #1e293b; font-size: 18px;">Ваши данные для входа:</h2>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
-                <tr>
-                    <td style="padding: 8px 0; font-weight: bold; width: 35%;">Логин:</td>
-                    <td style="padding: 8px 0;">{{ username }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; font-weight: bold;">Пароль:</td>
-                    <td style="padding: 8px 0;">{{ password }}</td>
-                </tr>
-                <tr>
-                    <td style="padding: 8px 0; font-weight: bold;">Email:</td>
-                    <td style="padding: 8px 0;">{{ email }}</td>
-                </tr>
-            </table>
-            <p style="margin-bottom: 0; color: #64748b; font-size: 14px;">Сохраните эти данные для входа в личный
-                кабинет.</p>
+    <div class="info-box">
+        <h2 style="margin-top: 0; color: #1e293b; font-size: 18px;">Реферальная программа</h2>
+        <p>Ваша реферальная ссылка:</p>
+        <div class="highlight">
+            <a href="{{ referral_link }}" class="email-footer a">{{ referral_link }}</a>
         </div>
-
-        <p>Запрошенные отчеты на сайте будут приходить на указанный вами email.</p>
-
-        <div style="margin: 30px 0; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-            <h2 style="color: #1e293b; font-size: 18px;">Реферальная программа</h2>
-            <p>Ваша реферальная ссылка:</p>
-            <div style="background-color: #f1f5f9; padding: 12px; border-radius: 6px; word-break: break-all;">
-                <a href="{{ referral_link }}" style="color: #0072ff; text-decoration: none;">{{ referral_link }}</a>
-            </div>
-            <p style="color: #64748b;">Получайте <strong>10%</strong> от платежей всех пользователей,
-                зарегистрировавшихся по Вашей ссылке.</p>
-        </div>
-
-        <div style="padding: 15px; background-color: #eff6ff; border-radius: 8px; margin-top: 25px;">
-            <p style="margin: 0; color: #1e40af;">Если у вас возникнут вопросы, вы всегда можете связаться с нами через
-                форму обратной связи на нашем сайте.</p>
-        </div>
+        <p style="color: #64748b;">Получайте <strong>10%</strong> от платежей всех пользователей, зарегистрировавшихся по Вашей ссылке.</p>
     </div>
 
-    <!-- Footer -->
-    <div style="background-color: #f1f5f9; padding: 20px; text-align: center; color: #64748b; font-size: 14px;">
-        <p style="margin: 0;">С уважением, Команда VAGVIN</p>
-        <p style="margin: 10px 0 0 0;"><a href="https://vagvin.ru" style="color: #0072ff; text-decoration: none;">www.vagvin.ru</a>
-        </p>
+    <div class="note-box">
+        <p class="note-text">Если у вас возникнут вопросы, вы всегда можете связаться с нами через форму обратной связи на нашем сайте.</p>
     </div>
-</div>
-</body>
-</html> 
+{% endblock %} 

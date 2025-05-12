@@ -1,0 +1,120 @@
+/* Header styles */
+header {
+    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Navbar styles */
+.navbar.navbar-light {
+    background-color: #f7f9fb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.navbar-brand {
+    color: #1e293b;
+    font-size: 1.25rem;
+    letter-spacing: -0.5px;
+    font-weight: bold;
+}
+
+.navbar .nav-link {
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.925rem;
+    transition: color 0.2s ease;
+}
+
+.navbar .nav-link:hover {
+    color: #0072ff !important;
+}
+
+/* Button styles */
+.navbar .btn {
+    transition: all 0.2s ease;
+}
+
+/* Telegram button */
+.telegram-btn {
+    background-color: #0072ff;
+    color: white;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border: none;
+}
+
+.telegram-btn:hover {
+    background-color: #0065e6 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+}
+
+.telegram-btn i {
+    font-size: 1.1rem;
+}
+
+/* User button */
+.user-btn {
+    background-color: white;
+    color: #0072ff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    min-width: 180px;
+}
+
+.user-btn:hover {
+    background-color: #f1f5f9 !important;
+    border-color: #0072ff !important;
+    color: #0072ff !important;
+}
+
+/* Dropdown styles */
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s ease;
+    color: #64748b;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.dropdown-item:hover {
+    background-color: #f1f5f9;
+}
+
+.dropdown-item:active {
+    background-color: #e2e8f0;
+    color: inherit;
+}
+
+.dropdown-item.danger {
+    color: #e11d48;
+}
+
+.user-dropdown-menu {
+    min-width: 180px;
+    width: 100%;
+    left: 0 !important;
+    right: 0 !important;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.dropdown {
+    min-width: 180px;
+    position: relative;
+}
+
+.dropdown-toggle {
+    min-width: 180px;
+}
+
+@media (min-width: 992px) {
+    .dropdown .dropdown-menu.user-dropdown-menu {
+        min-width: 0;
+        width: auto;
+        left: 0;
+        right: 0;
+    }
+} 

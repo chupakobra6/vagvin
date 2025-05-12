@@ -16,6 +16,7 @@ class Payment(BaseModel):
         ('robokassa', 'Robokassa'),
         ('yookassa', 'YooKassa'),
         ('heleket', 'Heleket'),
+        ('internal', 'Internal'),
     ]
 
     STATUS_CHOICES = [
@@ -122,3 +123,7 @@ class Payment(BaseModel):
     def commission_amount(self) -> Decimal:
         """Calculate the commission amount only"""
         return self.total_amount - self.amount
+
+    def get_payment_method_display(self) -> str:
+        """Get a user-friendly display of the payment method"""
+        return dict(self.PROVIDER_CHOICES).get(self.provider, self.provider)

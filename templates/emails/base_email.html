@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Vagvin - Проверка автомобилей{% endblock %}</title>
+    <link href="{% static 'css/emails.css' %}" rel="stylesheet">
+</head>
+<body class="email">
+    <div class="email-container">
+        <!-- Header -->
+        <div class="email-header">
+            <h1>{% block header %}VAGVIN{% endblock %}</h1>
+        </div>
+
+        <!-- Content -->
+        <div class="email-content">
+            {% block content %}{% endblock %}
+        </div>
+
+        <!-- Footer -->
+        <div class="email-footer">
+            <p>С уважением, Команда VAGVIN</p>
+            <p style="margin-top: 10px;"><a href="https://vagvin.ru">www.vagvin.ru</a></p>
+            {% block footer_extra %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html> 

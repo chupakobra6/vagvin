@@ -5,16 +5,22 @@ from typing import Dict, Any
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import TemplateView
+from django.contrib import messages
+from django.urls import reverse
+from django.shortcuts import redirect
 
 from .models import Payment
 from .services import (
     get_payment_processor,
     create_robokassa_payment, verify_robokassa_callback,
     create_yookassa_payment, verify_yookassa_callback,
-    create_heleket_payment, verify_heleket_callback
+    create_heleket_payment, verify_heleket_callback,
+    PaymentService
 )
 
 logger = logging.getLogger(__name__)
@@ -188,3 +194,31 @@ class PaymentStatusView(View):
                 'success': False,
                 'error': 'Платеж не найден'
             }, status=404)
+
+
+class PaymentRequisitesView(TemplateView):
+    """View for payment requisites page"""
+    template_name = 'payments/requisites.html'
+
+
+class TestSuccessView(View):
+    """
+    View for handling test mode payment success redirects.
+    This simulates the return from a payment gateway in test mode.
+    """
+    
+    @method_decorator(login_required)
+    def get(self, request):
+        payment_id = request.GET.get('payment_id')
+        if not payment_id:
+            return JsonResponse({'error': 'Отсутствует ID платежа'}, status=400)
+            
+        try:
+            payment = Payment.objects.get(id=payment_id, user=request.user)
+            
+            # Redirect to the dashboard with a success message
+            messages.success(request, f"Тестовый платеж на сумму {payment.amount} руб. успешно выполнен!")
+            return redirect('accounts:dashboard')
+            
+        except Payment.DoesNotExist:
+            return JsonResponse({'error': 'Некорректный платеж'}, status=400)

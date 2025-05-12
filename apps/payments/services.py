@@ -5,11 +5,13 @@ import logging
 import time
 import uuid
 from decimal import Decimal
-from typing import Tuple, Optional, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List
 from urllib.parse import urlencode
 
 import requests
 from django.conf import settings
+from django.db import transaction
+from django.db.models import F, Sum, Count
 
 from .models import Payment
 
@@ -51,6 +53,83 @@ class PaymentProcessor:
         payment.status = 'success'
         payment.save(update_fields=['status', 'updated_at'])
         return payment.update_user_balance()
+
+    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[Payment, str]:
+        """
+        Create payment and generate payment URL.
+        This method should be implemented by subclasses.
+        """
+        raise NotImplementedError("Subclasses must implement this method")
+
+
+class TestModePaymentProcessor(PaymentProcessor):
+    """
+    Test mode payment processor that automatically completes payments
+    and redirects to a success page without actually processing payment.
+    """
+    
+    def __init__(self, real_processor: PaymentProcessor):
+        """
+        Initialize with the real processor to mimic.
+        
+        Args:
+            real_processor: The actual payment processor to wrap
+        """
+        self.real_processor = real_processor
+        super().__init__(f"test_{real_processor.provider_name}", real_processor.commission_rate)
+    
+    def create_payment_url(self, payment: Payment, user) -> str:
+        """
+        Create a simulated payment URL that redirects to a success page immediately.
+        """
+        # Auto-mark the payment as successful and update user balance
+        self.mark_payment_successful(payment)
+        
+        # Build a test success URL that includes payment info
+        return f"/payments/test-success/?payment_id={payment.id}&amount={payment.amount}&provider={self.provider_name}"
+    
+    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[Payment, str]:
+        """
+        Create a payment and auto-complete it in test mode.
+        """
+        payment = self.create_payment(user, amount, total_amount)
+        payment_url = self.create_payment_url(payment, user)
+        return payment, payment_url
+    
+    def verify_callback(self, params: Dict[str, Any]) -> Tuple[Optional[Payment], bool]:
+        """
+        Always verify the callback as valid in test mode.
+        """
+        payment_id = params.get('payment_id')
+        if not payment_id:
+            return None, False
+            
+        try:
+            payment = Payment.objects.get(id=payment_id)
+            return payment, True
+        except Payment.DoesNotExist:
+            return None, False
+            
+    def mark_payment_successful(self, payment: Payment) -> bool:
+        """
+        Mark payment as successful and update user balance.
+        Overrides the parent method to ensure the balance is updated.
+        """
+        if payment.is_successful:
+            return True
+            
+        payment.status = 'success'
+        payment.save(update_fields=['status', 'updated_at'])
+        
+        # Update the user's balance with the payment amount
+        success = payment.update_user_balance()
+        
+        if success:
+            logger.info(f"Test payment {payment.id} marked as successful and balance updated")
+        else:
+            logger.error(f"Failed to update balance for test payment {payment.id}")
+            
+        return success
 
 
 class RobokassaPaymentProcessor(PaymentProcessor):
@@ -307,47 +386,195 @@ class HelekitPaymentProcessor(PaymentProcessor):
         return payment, False
 
 
+class PaymentService:
+    """Service for handling payment-related operations"""
+    
+    @classmethod
+    @transaction.atomic
+    def update_balance(cls, user, amount: Decimal) -> Tuple[bool, Dict[str, Any]]:
+        """
+        Update user balance with atomic operation
+        
+        Args:
+            user: User instance
+            amount: Amount to add (positive) or subtract (negative)
+            
+        Returns:
+            Tuple[bool, Dict]: (success, data)
+        """
+        if not user:
+            return False, {"message": "Пользователь не найден"}
+            
+        try:
+            if amount < 0:
+                result = user.__class__.objects.filter(pk=user.pk).update(
+                    balance=F('balance') + amount
+                )
+            else:
+                result = user.__class__.objects.filter(pk=user.pk).update(
+                    balance=F('balance') + amount
+                )
+                
+            if result != 1:
+                logger.error(f"Failed to update balance for user {user.username}")
+                return False, {"message": "Не удалось обновить баланс"}
+                
+            user.refresh_from_db()
+            
+            log_action = "increased" if amount > 0 else "decreased"
+            logger.info(f"Balance {log_action} for user {user.username}: {abs(amount)} = {user.balance}")
+            
+            return True, {
+                "new_balance": user.balance,
+                "amount": amount
+            }
+            
+        except Exception:
+            logger.exception(f"Error updating balance for user {user.username}")
+            return False, {"message": "Произошла ошибка при обновлении баланса"}
+
+    @classmethod
+    def can_afford(cls, user, amount: Decimal) -> Tuple[bool, str]:
+        """
+        Check if user can afford a payment
+        
+        Args:
+            user: User instance
+            amount: Amount to check
+            
+        Returns:
+            Tuple[bool, str]: (can_afford, message)
+        """
+        if not user:
+            return False, "Пользователь не найден"
+            
+        available = user.balance + user.overdraft
+        
+        if available >= amount:
+            return True, ""
+        else:
+            needed = amount - available
+            return False, f"Недостаточно средств. Вам не хватает {needed} руб. для совершения платежа."
+
+    @classmethod
+    @transaction.atomic
+    def process_payment(cls, user, amount: Decimal, description: str) -> Tuple[bool, Dict[str, Any]]:
+        """
+        Process a payment for a user
+        
+        Args:
+            user: User instance
+            amount: Amount to pay
+            description: Payment description
+            
+        Returns:
+            Tuple[bool, Dict]: (success, data)
+        """
+        if not user:
+            return False, {"message": "Пользователь не найден"}
+            
+        can_afford, message = cls.can_afford(user, amount)
+        if not can_afford:
+            return False, {"message": message}
+            
+        success, data = cls.update_balance(user, -amount)
+        if success:
+            Payment.objects.create(
+                user=user,
+                provider='internal',
+                amount=amount,
+                total_amount=amount,
+                invoice_id=f"internal_{uuid.uuid4().hex}",
+                status='success'
+            )
+            data["description"] = description
+            return True, data
+        else:
+            return False, data
+            
+    @classmethod
+    def get_user_payments_stats(cls, user) -> Dict[str, Any]:
+        """
+        Get payment statistics for a user
+        
+        Args:
+            user: User instance
+            
+        Returns:
+            Dict: Payment statistics
+        """
+        payments = Payment.objects.filter(user=user, status='success')
+        
+        # Calculate stats
+        stats = payments.aggregate(
+            total_amount=Sum('amount'),
+            payments_count=Count('id')
+        )
+        
+        # Get last payment
+        last_payment = payments.order_by('-created_at').first()
+        
+        return {
+            'payments': payments.order_by('-created_at')[:10],
+            'payments_count': stats.get('payments_count') or 0,
+            'total_amount': stats.get('total_amount') or 0,
+            'last_payment': last_payment,
+            'balance': user.balance,
+            'is_enough_balance': user.balance >= getattr(settings, 'MIN_BALANCE_REQUIRED', 100),
+            'min_balance': getattr(settings, 'MIN_BALANCE_REQUIRED', 100)
+        }
+
+
 # Factory to get the appropriate payment processor
 def get_payment_processor(provider: str) -> PaymentProcessor:
-    """Factory method to get the appropriate payment processor."""
-    processors = {
-        'robokassa': RobokassaPaymentProcessor(),
-        'yookassa': YookassaPaymentProcessor(),
-        'heleket': HelekitPaymentProcessor(),
-    }
-
-    if provider not in processors:
-        raise ValueError(f"Unsupported payment provider: {provider}")
-
-    return processors[provider]
+    """Factory function to get the appropriate payment processor."""
+    # In debug mode, use test mode payment processor that auto-completes payments
+    use_test_mode = settings.DEBUG
+    
+    processor = None
+    match provider:
+        case 'robokassa':
+            processor = RobokassaPaymentProcessor()
+        case 'yookassa':
+            processor = YookassaPaymentProcessor()
+        case 'heleket':
+            processor = HelekitPaymentProcessor()
+        case _:
+            raise ValueError(f"Unsupported payment provider: {provider}")
+    
+    if use_test_mode:
+        logger.info(f"Using TEST MODE for payment provider {provider}")
+        return TestModePaymentProcessor(processor)
+    
+    return processor
 
 
 # Convenience functions for backward compatibility
 def create_robokassa_payment(user, amount, total_amount=None):
-    processor = RobokassaPaymentProcessor()
+    processor = get_payment_processor('robokassa')
     return processor.create_payment_with_url(user, amount, total_amount)
 
 
 def verify_robokassa_callback(params):
-    processor = RobokassaPaymentProcessor()
+    processor = get_payment_processor('robokassa')
     return processor.verify_callback(params)
 
 
 def create_yookassa_payment(user, amount, total_amount=None):
-    processor = YookassaPaymentProcessor()
+    processor = get_payment_processor('yookassa')
     return processor.create_payment_with_url(user, amount, total_amount)
 
 
 def verify_yookassa_callback(data):
-    processor = YookassaPaymentProcessor()
+    processor = get_payment_processor('yookassa')
     return processor.verify_callback(data)
 
 
 def create_heleket_payment(user, amount, total_amount=None):
-    processor = HelekitPaymentProcessor()
+    processor = get_payment_processor('heleket')
     return processor.create_payment_with_url(user, amount, total_amount)
 
 
 def verify_heleket_callback(params):
-    processor = HelekitPaymentProcessor()
+    processor = get_payment_processor('heleket')
     return processor.verify_callback(params)

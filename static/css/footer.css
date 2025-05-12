@@ -1,0 +1,76 @@
+/* Footer styles */
+.footer {
+    background-color: #f7f9fb;
+    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.875rem;
+}
+
+.footer-heading {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #1e293b;
+}
+
+.footer-link {
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 400;
+}
+
+.footer-link:hover {
+    color: #0072ff;
+}
+
+.footer .text-info {
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.footer .text-info .label {
+    font-weight: 500;
+}
+
+.social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    color: #64748b;
+    transition: all 0.2s ease;
+    box-shadow: none;
+    text-decoration: none;
+    border: none;
+    overflow: hidden;
+    background-color: #f1f5f9;
+}
+
+.social-link i {
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.social-link:hover {
+    background-color: #0072ff !important;
+    color: white;
+}
+
+.social-link.car-icon:hover {
+    background-color: #dc2626 !important;
+}
+
+/* Footer bottom section */
+.footer .border-top {
+    border-color: #e2e8f0 !important;
+}
+
+.footer .copyright {
+    color: #64748b;
+    font-size: 0.875rem;
+    margin-bottom: 0;
+} 

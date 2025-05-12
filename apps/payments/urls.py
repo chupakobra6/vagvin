@@ -5,6 +5,9 @@ from . import views
 app_name = 'payments'
 
 urlpatterns = [
+    # Payment pages
+    path('requisites/', views.PaymentRequisitesView.as_view(), name='requisites'),
+    
     # Robokassa routes
     path('robokassa/initiate/', views.InitiateRobokassaPaymentView.as_view(), name='robokassa_initiate'),
     path('robokassa/callback/', views.RobokassaCallbackView.as_view(), name='robokassa_callback'),
@@ -19,4 +22,7 @@ urlpatterns = [
 
     # Payment status
     path('status/<int:payment_id>/', views.PaymentStatusView.as_view(), name='payment_status'),
+    
+    # Test mode routes
+    path('test-success/', views.TestSuccessView.as_view(), name='test_success'),
 ]
