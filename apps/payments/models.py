@@ -1,10 +1,13 @@
 from decimal import Decimal
+import logging
 
 from django.conf import settings
 from django.db import models
 from django.db.models import F
 
 from vagvin.models import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class Payment(BaseModel):
@@ -99,9 +102,7 @@ class Payment(BaseModel):
             self.user.refresh_from_db()
             return True
         except Exception:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.exception(f'Error updating balance for user {self.user.id}')
+            logger.exception("Error updating balance for user")
             return False
 
     @property

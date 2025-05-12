@@ -4,7 +4,7 @@ import json
 import logging
 import time
 import uuid
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Tuple, Optional, Dict, Any, List
 from urllib.parse import urlencode
 
@@ -127,7 +127,7 @@ class TestModePaymentProcessor(PaymentProcessor):
         if success:
             logger.info(f"Test payment {payment.id} marked as successful and balance updated")
         else:
-            logger.error(f"Failed to update balance for test payment {payment.id}")
+            logger.exception("Failed to update balance for test payment")
             
         return success
 
@@ -416,8 +416,12 @@ class PaymentService:
                 )
                 
             if result != 1:
-                logger.error(f"Failed to update balance for user {user.username}")
-                return False, {"message": "Не удалось обновить баланс"}
+                logger.exception("Failed to update balance for user")
+                return False, {
+                    'success': False,
+                    'message': "Не удалось обновить баланс",
+                    'error': True
+                }
                 
             user.refresh_from_db()
             
@@ -430,8 +434,12 @@ class PaymentService:
             }
             
         except Exception:
-            logger.exception(f"Error updating balance for user {user.username}")
-            return False, {"message": "Произошла ошибка при обновлении баланса"}
+            logger.exception("Error updating balance for user")
+            return False, {
+                'success': False,
+                'message': "Не удалось обновить баланс",
+                'error': True
+            }
 
     @classmethod
     def can_afford(cls, user, amount: Decimal) -> Tuple[bool, str]:
@@ -503,23 +511,37 @@ class PaymentService:
         Returns:
             Dict: Payment statistics
         """
-        payments = Payment.objects.filter(user=user, status='success')
+        all_payments = Payment.objects.filter(user=user)
+        successful_payments = all_payments.filter(status='success')
+        pending_payments = all_payments.filter(status='pending')
         
         # Calculate stats
-        stats = payments.aggregate(
+        stats = successful_payments.aggregate(
             total_amount=Sum('amount'),
             payments_count=Count('id')
         )
         
         # Get last payment
-        last_payment = payments.order_by('-created_at').first()
+        last_payment = successful_payments.order_by('-created_at').first()
+        
+        # Format decimal to 2 places to avoid precision issues
+        total_amount = stats.get('total_amount') or 0
+        if isinstance(total_amount, Decimal):
+            total_amount = total_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        
+        # Format user balance
+        user_balance = user.balance
+        if isinstance(user_balance, Decimal):
+            user_balance = user_balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         
         return {
-            'payments': payments.order_by('-created_at')[:10],
+            'payments': successful_payments.order_by('-created_at')[:10],
             'payments_count': stats.get('payments_count') or 0,
-            'total_amount': stats.get('total_amount') or 0,
+            'successful_payments': successful_payments.count(),
+            'pending_payments': pending_payments.count(),
+            'total_amount': total_amount,
             'last_payment': last_payment,
-            'balance': user.balance,
+            'balance': user_balance,
             'is_enough_balance': user.balance >= getattr(settings, 'MIN_BALANCE_REQUIRED', 100),
             'min_balance': getattr(settings, 'MIN_BALANCE_REQUIRED', 100)
         }

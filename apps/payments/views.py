@@ -1,6 +1,7 @@
 import json
 import logging
 from typing import Dict, Any
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -48,7 +49,7 @@ class BasePaymentView(View):
                 'payment_id': payment.id
             })
         except Exception:
-            logger.exception(f'Error creating {self.provider} payment')
+            logger.exception("Error creating payment")
             return JsonResponse({
                 'success': False,
                 'error': 'Произошла ошибка при создании платежа'
@@ -100,7 +101,7 @@ class BaseCallbackView(View):
             else:
                 return HttpResponse("Invalid signature or status", status=400)
         except Exception:
-            logger.exception(f'Error processing {self.provider} callback')
+            logger.exception("Error processing payment callback")
             return HttpResponse("Error", status=500)
 
     def post(self, request):
@@ -182,11 +183,16 @@ class PaymentStatusView(View):
     def get(self, request, payment_id):
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
+            
+            # Format decimal amounts to 2 decimal places
+            amount = payment.amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if isinstance(payment.amount, Decimal) else payment.amount
+            total_amount = payment.total_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if isinstance(payment.total_amount, Decimal) else payment.total_amount
+            
             return JsonResponse({
                 'success': True,
                 'status': payment.status,
-                'amount': float(payment.amount),
-                'total_amount': float(payment.total_amount),
+                'amount': float(amount),
+                'total_amount': float(total_amount),
                 'created_at': payment.created_at.isoformat()
             })
         except Payment.DoesNotExist:
