@@ -210,4 +210,61 @@ body {
 .empty-reviews-message {
     color: #64748b;
     font-size: 1.1rem;
+}
+
+/* Statistics Section */
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.progress-bar.bg-warning {
+    background-color: #f59e0b !important;
+}
+
+.rating-bar-row {
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+/* Widget Styles */
+.reviews-widget {
+    border-radius: 12px;
+}
+
+.widget-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.rating-summary {
+    display: flex;
+    align-items: center;
+}
+
+.rating-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-right: 0.5rem;
+}
+
+.rating-stars {
+    margin-right: 0.5rem;
+}
+
+.review-count {
+    font-size: 0.9rem;
+}
+
+.review-item {
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.review-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 } 

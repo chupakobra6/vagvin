@@ -1,8 +1,7 @@
 import logging
 
-from django.contrib import messages
 from django.shortcuts import redirect
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 
 from . import services
 from .forms import ReviewForm
@@ -26,40 +25,46 @@ class ReviewListView(ListView):
         """Add form and pagination data to context."""
         context = super().get_context_data(**kwargs)
 
+        # Add review form
         form = kwargs.get('form', ReviewForm())
         context['form'] = form
 
+        # Add pagination context
         if context['paginator'] and context['page_obj']:
             pagination_context = services.get_pagination_context(context['page_obj'])
             context.update(pagination_context)
 
+        # Add review statistics
+        context['stats'] = services.get_review_statistics()
+
         return context
 
     def post(self, request, *args, **kwargs):
-        """Handle review form submission."""
-        form = ReviewForm(request.POST)
-
-        if form.is_valid():
-            try:
-                services.create_review(
-                    name=form.cleaned_data['name'],
-                    email=form.cleaned_data['email'],
-                    rating=form.cleaned_data['rating'],
-                    text=form.cleaned_data['text']
-                )
-                messages.success(request, "Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.")
-                return redirect('reviews:list')
-            except Exception:
-                logger.exception("Error saving review")
-                messages.error(request, "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.")
-                self.object_list = self.get_queryset()
-                return self.render_to_response(self.get_context_data(form=form))
+        """Handle review form submission through the service layer."""
+        success, form = services.handle_review_submission(request)
+        
+        if success:
+            return redirect('reviews:list')
         else:
-            logger.warning("Review form validation failed")
-
-            for field_name, error_list in form.errors.items():
-                for error in error_list:
-                    messages.error(request, error)
-
             self.object_list = self.get_queryset()
             return self.render_to_response(self.get_context_data(form=form))
+
+
+class ReviewWidgetView(TemplateView):
+    """View for displaying a small widget of recent reviews."""
+    template_name = 'reviews/list.html'
+    
+    def get_context_data(self, **kwargs):
+        """Add recent reviews to context."""
+        context = super().get_context_data(**kwargs)
+        
+        # Mark as widget display
+        context['is_widget'] = True
+        
+        # Get recent reviews
+        context['recent_reviews'] = services.get_recent_reviews(limit=3)
+        
+        # Add statistics
+        context['stats'] = services.get_review_statistics()
+        
+        return context

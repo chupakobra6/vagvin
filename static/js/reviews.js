@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     initializeTooltips();
-    initializeReferralCopy();
-    initializeEmailManagement();
-    initializePaymentForms();
-    checkPaymentInitiated();
+    validateReviewForm();
 });
 
 /**
@@ -17,298 +14,85 @@ function initializeTooltips() {
 }
 
 /**
- * Initialize referral link copy functionality
+ * Validate review form submission
  */
-function initializeReferralCopy() {
-    const copyButton = document.querySelector('.btn-copy-referral');
-    if (copyButton) {
-        copyButton.addEventListener('click', function () {
-            const referralLink = this.dataset.referralLink;
-            navigator.clipboard.writeText(referralLink);
-            const originalIcon = this.innerHTML;
-            this.innerHTML = '<i class="fas fa-check text-success"></i>';
-            setTimeout(() => {
-                this.innerHTML = originalIcon;
-            }, 1000);
-        });
-    }
-}
-
-/**
- * Initialize email management functionality
- */
-function initializeEmailManagement() {
-    initializeAddEmail();
-    initializeRemoveEmail();
-}
-
-/**
- * Initialize add email functionality
- */
-function initializeAddEmail() {
-    const addEmailForm = document.getElementById('add-email-form');
-    if (addEmailForm) {
-        addEmailForm.addEventListener('submit', function (e) {
-            e.preventDefault();
+function validateReviewForm() {
+    const reviewForm = document.getElementById('review-form');
+    if (reviewForm) {
+        reviewForm.addEventListener('submit', function (e) {
+            const nameInput = document.getElementById('id_name');
             const emailInput = document.getElementById('id_email');
-            const formData = new FormData();
-            formData.append('email', emailInput.value);
+            const ratingInput = document.getElementById('id_rating');
+            const textInput = document.getElementById('id_text');
             
-            fetch(addEmailForm.dataset.url, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCsrfToken()
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    console.error('Error:', data.message || 'Произошла ошибка');
-                    showAlert(data.message || 'Произошла ошибка', 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('Произошла ошибка при отправке запроса', 'danger');
-            });
+            let isValid = true;
+            
+            // Validate name
+            if (!nameInput.value || nameInput.value.length < 2) {
+                markInvalid(nameInput, 'Имя должно содержать минимум 2 символа.');
+                isValid = false;
+            } else {
+                markValid(nameInput);
+            }
+            
+            // Validate email
+            if (!emailInput.value || !isValidEmail(emailInput.value)) {
+                markInvalid(emailInput, 'Пожалуйста, введите корректный email адрес.');
+                isValid = false;
+            } else {
+                markValid(emailInput);
+            }
+            
+            // Validate text
+            if (!textInput.value || textInput.value.length < 10) {
+                markInvalid(textInput, 'Текст отзыва должен содержать минимум 10 символов.');
+                isValid = false;
+            } else if (textInput.value.length > 1000) {
+                markInvalid(textInput, 'Текст отзыва не должен превышать 1000 символов.');
+                isValid = false;
+            } else {
+                markValid(textInput);
+            }
+            
+            if (!isValid) {
+                e.preventDefault();
+            }
         });
     }
 }
 
 /**
- * Initialize remove email functionality
+ * Mark form field as invalid with error message
  */
-function initializeRemoveEmail() {
-    const removeEmailButtons = document.querySelectorAll('.remove-email');
-    removeEmailButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const email = this.dataset.email;
-            const formData = new FormData();
-            formData.append('email', email);
-            
-            fetch(this.dataset.url, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-CSRFToken': getCsrfToken()
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    console.error('Error:', data.message || 'Произошла ошибка');
-                    showAlert(data.message || 'Произошла ошибка', 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('Произошла ошибка при отправке запроса', 'danger');
-            });
-        });
-    });
+function markInvalid(input, message) {
+    input.classList.add('is-invalid');
+    
+    // Find the existing feedback element or create a new one
+    let feedback = input.nextElementSibling;
+    if (!feedback || !feedback.classList.contains('invalid-feedback')) {
+        feedback = document.createElement('div');
+        feedback.className = 'invalid-feedback';
+        input.parentNode.insertBefore(feedback, input.nextSibling);
+    }
+    
+    feedback.textContent = message;
 }
 
 /**
- * Initialize payment forms
+ * Mark form field as valid
  */
-function initializePaymentForms() {
-    initializePaymentAmountButtons();
-    initializePaymentSubmit('robokassa-form');
-    initializePaymentSubmit('yookassa-form');
-    initializePaymentSubmit('helekit-form');
-}
-
-/**
- * Initialize payment amount buttons
- */
-function initializePaymentAmountButtons() {
-    const amountButtons = document.querySelectorAll('.amount-btn');
-    amountButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const targetId = this.dataset.target;
-            const amount = this.dataset.amount;
-            const inputField = document.getElementById(targetId);
-            if (inputField) {
-                inputField.value = amount;
-            }
-            
-            const parentForm = this.closest('form');
-            if (parentForm) {
-                parentForm.querySelectorAll('.amount-btn').forEach(btn => {
-                    btn.classList.remove('active', 'btn-primary');
-                    btn.classList.add('btn-outline-primary');
-                });
-                this.classList.remove('btn-outline-primary');
-                this.classList.add('btn-primary', 'active');
-            }
-        });
-    });
-}
-
-/**
- * Initialize payment form submission
- */
-function initializePaymentSubmit(formId) {
-    const form = document.getElementById(formId);
-    if (form) {
-        form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const amountInput = form.querySelector('input[type="number"]');
-            if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
-                showAlert('Пожалуйста, введите корректную сумму пополнения', 'warning');
-                return;
-            }
-            
-            const amount = parseFloat(amountInput.value);
-            
-            let commissionRate = 0.1;
-            if (form.id === 'helekit-form') {
-                commissionRate = 0.06;
-            }
-            const totalAmount = amount * (1 + commissionRate);
-            
-            const submitBtn = form.querySelector('button[type="submit"]');
-            const originalBtnText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Загрузка...';
-            
-            fetch(form.dataset.url, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCsrfToken()
-                },
-                body: JSON.stringify({
-                    amount: amount,
-                    total_amount: totalAmount
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.payment_url) {
-                    window.open(data.payment_url, '_blank');
-                    sessionStorage.setItem('payment_initiated', '1');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                } else {
-                    showAlert(data.error || 'Произошла ошибка при создании платежа', 'danger');
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalBtnText;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('Произошла ошибка при создании платежа', 'danger');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnText;
-            });
-        });
+function markValid(input) {
+    input.classList.remove('is-invalid');
+    const feedback = input.nextElementSibling;
+    if (feedback && feedback.classList.contains('invalid-feedback')) {
+        feedback.textContent = '';
     }
 }
 
 /**
- * Check if payment was initiated and reload page
+ * Validate email format
  */
-function checkPaymentInitiated() {
-    if (sessionStorage.getItem('payment_initiated')) {
-        sessionStorage.removeItem('payment_initiated');
-        window.location.reload();
-    }
-}
-
-/**
- * Show alert message
- */
-function showAlert(message, type) {
-    const alertsContainer = document.getElementById('alerts-container');
-    if (!alertsContainer) return;
-    
-    const alert = document.createElement('div');
-    alert.className = `alert alert-${type} alert-dismissible fade show`;
-    alert.role = 'alert';
-    alert.innerHTML = `
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    `;
-    
-    alertsContainer.appendChild(alert);
-    
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        alert.classList.remove('show');
-        setTimeout(() => alert.remove(), 150);
-    }, 5000);
-}
-
-/**
- * Get CSRF token from cookies
- */
-function getCsrfToken() {
-    return document.querySelector('[name=csrfmiddlewaretoken]').value;
-}
-
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadUserQueries();
-});
-
-/**
- * Load user queries history
- */
-function loadUserQueries() {
-    const queriesTable = document.getElementById('queries-table');
-    if (!queriesTable) return;
-
-    fetch(queriesTable.dataset.url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            queriesTable.innerHTML = '';
-
-            if (data.length === 0) {
-                queriesTable.innerHTML = '<tr><td colspan="5" class="text-center">У вас пока нет запросов</td></tr>';
-                return;
-            }
-
-            data.forEach(query => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${formatDate(query.created_at)}</td>
-                    <td>${query.vin || '-'}</td>
-                    <td>${query.marka || '-'}</td>
-                    <td>${query.tip || 'Стандартный'}</td>
-                    <td>${query.cost} ₽</td>
-                `;
-                queriesTable.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading queries:', error);
-            queriesTable.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Ошибка при загрузке истории запросов</td></tr>';
-        });
-}
-
-/**
- * Format date string to local format
- */
-function formatDate(dateString) {
-    if (!dateString) return '-';
-
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('ru-RU', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    }).format(date);
-}
+function isValidEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+} 

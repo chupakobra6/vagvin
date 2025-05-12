@@ -1,8 +1,10 @@
 import logging
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, List, Optional
 
 from django.core.paginator import Paginator, Page
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Count, Avg
+from django.http import HttpRequest
+from django.contrib import messages
 
 from .forms import ReviewForm
 from .models import Review
@@ -68,6 +70,56 @@ def create_review(*, name: str, email: str, rating: int, text: str) -> Review:
         raise
 
 
+def get_review_statistics() -> Dict[str, Any]:
+    """
+    Get review statistics.
+    
+    Returns:
+        Dict containing review statistics (count, average rating)
+    """
+    try:
+        stats = Review.objects.filter(approved=True).aggregate(
+            count=Count('id'),
+            avg_rating=Avg('rating')
+        )
+        
+        return {
+            'total_reviews': stats['count'] or 0,
+            'average_rating': round(stats['avg_rating'] or 0, 1),
+            'rating_percentages': get_rating_distribution()
+        }
+    except Exception:
+        logger.exception("Failed to get review statistics")
+        return {
+            'total_reviews': 0,
+            'average_rating': 0,
+            'rating_percentages': {}
+        }
+
+
+def get_rating_distribution() -> Dict[int, float]:
+    """
+    Get percentage distribution of ratings.
+    
+    Returns:
+        Dict with rating values as keys and percentage as values
+    """
+    try:
+        total = Review.objects.filter(approved=True).count()
+        if total == 0:
+            return {i: 0 for i in range(1, 6)}
+            
+        distribution = {}
+        for i in range(1, 6):
+            count = Review.objects.filter(approved=True, rating=i).count()
+            distribution[i] = round((count / total) * 100, 1) if total > 0 else 0
+            
+        return distribution
+    except Exception:
+        logger.exception("Failed to get rating distribution")
+        return {i: 0 for i in range(1, 6)}
+
+
 def get_pagination_context(page_obj: Page) -> Dict[str, Any]:
     """
     Generate pagination context for templates.
@@ -94,30 +146,55 @@ def get_pagination_context(page_obj: Page) -> Dict[str, Any]:
     }
 
 
-def validate_review_form(form_data: Dict[str, Any]) -> Tuple[bool, ReviewForm | None, Review | None]:
+def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[ReviewForm]]:
     """
-    Validate review form data.
+    Handle review form submission.
     
     Args:
-        form_data: POST data from the review form
+        request: HTTP request with POST data
         
     Returns:
-        Tuple containing: success status, form object (if invalid), created review (if valid)
+        Tuple containing success status and form (if invalid)
     """
-    form = ReviewForm(form_data)
+    form = ReviewForm(request.POST)
 
     if form.is_valid():
         try:
-            review = create_review(
+            create_review(
                 name=form.cleaned_data['name'],
                 email=form.cleaned_data['email'],
                 rating=form.cleaned_data['rating'],
                 text=form.cleaned_data['text']
             )
-            return True, None, review
+            messages.success(request, "Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.")
+            logger.info(f"Successfully submitted review from {form.cleaned_data['name']}")
+            return True, None
         except Exception:
-            logger.exception("Failed to save valid review form")
-            return False, form, None
+            logger.exception("Error saving review")
+            messages.error(request, "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.")
+            return False, form
+    else:
+        logger.warning(f"Review form validation failed: {form.errors}")
+        
+        for field_name, error_list in form.errors.items():
+            for error in error_list:
+                messages.error(request, error)
+                
+        return False, form
 
-    logger.warning(f"Review form validation failed: {form.errors}")
-    return False, form, None
+
+def get_recent_reviews(limit: int = 5) -> List[Review]:
+    """
+    Get most recent approved reviews.
+    
+    Args:
+        limit: Maximum number of reviews to return
+        
+    Returns:
+        List of recent review objects
+    """
+    try:
+        return Review.objects.filter(approved=True).order_by('-created_at')[:limit]
+    except Exception:
+        logger.exception("Failed to get recent reviews")
+        return []

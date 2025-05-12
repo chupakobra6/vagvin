@@ -153,31 +153,53 @@ class ReviewServicesTest(TestCase):
         self.assertTrue(context['has_next'])
         self.assertEqual(context['page_range'], [1, 2, 3])
 
-    def test_validate_review_form(self) -> None:
-        """Test form validation with valid and invalid data."""
-        valid_data = {
+    def test_handle_review_submission(self) -> None:
+        """Test handling review form submission with valid and invalid data."""
+        # Create a request object with POST data
+        request = self.client.request().wsgi_request
+        request.POST = {
             'name': 'Test User',
             'email': 'test@example.com',
             'rating': 5,
             'text': 'This is a valid review text'
         }
 
-        success, form, review = services.validate_review_form(valid_data)
+        # Test with valid data
+        success, form = services.handle_review_submission(request)
         self.assertTrue(success)
         self.assertIsNone(form)
-        self.assertIsNotNone(review)
+        
+        # Check that a new review was created
+        self.assertEqual(Review.objects.count(), 9)  # 8 from setUp + 1 new
 
-        invalid_data = {
+        # Test with invalid data
+        request.POST = {
             'name': 'Test User',
             'rating': 5,
             'text': 'This is a valid review text'
         }
-
-        success, form, review = services.validate_review_form(invalid_data)
+        
+        success, form = services.handle_review_submission(request)
         self.assertFalse(success)
         self.assertIsNotNone(form)
-        self.assertIsNone(review)
         self.assertIn('email', form.errors)
+
+    def test_get_review_statistics(self) -> None:
+        """Test getting review statistics."""
+        stats = services.get_review_statistics()
+        
+        self.assertEqual(stats['total_reviews'], 5)  # 5 approved reviews
+        self.assertEqual(stats['average_rating'], 5.0)  # All ratings are 5
+        self.assertEqual(len(stats['rating_percentages']), 5)  # One for each possible rating
+        self.assertEqual(stats['rating_percentages'][5], 100.0)  # All reviews have rating 5
+
+    def test_get_recent_reviews(self) -> None:
+        """Test getting recent reviews."""
+        reviews = services.get_recent_reviews(limit=2)
+        
+        self.assertEqual(len(reviews), 2)
+        for review in reviews:
+            self.assertTrue(review.approved)
 
 
 class ReviewViewsTest(TestCase):
@@ -203,17 +225,10 @@ class ReviewViewsTest(TestCase):
         self.assertTemplateUsed(response, 'reviews/list.html')
         self.assertEqual(len(response.context['reviews']), 3)
         self.assertIsInstance(response.context['form'], ReviewForm)
+        self.assertIn('stats', response.context)
 
-    def test_create_view_get(self) -> None:
-        """Test the ReviewCreateView with GET request."""
-        response = self.client.get(reverse('reviews:add'))
-
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'reviews/form.html')
-        self.assertIsInstance(response.context['form'], ReviewForm)
-
-    def test_create_view_post_valid(self) -> None:
-        """Test the ReviewCreateView with valid POST data."""
+    def test_list_view_post(self) -> None:
+        """Test the ReviewListView with POST request (submitting a review)."""
         data = {
             'name': 'Test User',
             'email': 'test@example.com',
@@ -221,9 +236,9 @@ class ReviewViewsTest(TestCase):
             'text': 'This is a test review that is long enough to pass validation'
         }
 
-        response = self.client.post(reverse('reviews:add'), data)
+        response = self.client.post(reverse('reviews:list'), data)
 
-        self.assertEqual(response.status_code, 302)  # Redirect after successful submission
+        self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('reviews:list'))
 
         messages = list(get_messages(response.wsgi_request))
@@ -231,19 +246,29 @@ class ReviewViewsTest(TestCase):
         self.assertIn("Спасибо!", str(messages[0]))
 
         self.assertEqual(Review.objects.count(), 4)
-        self.assertEqual(Review.objects.filter(approved=True).count(), 3)
+        self.assertEqual(Review.objects.filter(approved=False).count(), 1)
 
-    def test_create_view_post_invalid(self) -> None:
-        """Test the ReviewCreateView with invalid POST data."""
+    def test_list_view_post_invalid(self) -> None:
+        """Test the ReviewListView with invalid POST data."""
         data = {
             'name': 'Test User',
             'rating': 5
         }
 
-        response = self.client.post(reverse('reviews:add'), data)
+        response = self.client.post(reverse('reviews:list'), data)
 
-        self.assertEqual(response.status_code, 200)  # Form redisplayed
-        self.assertTemplateUsed(response, 'reviews/form.html')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'reviews/list.html')
         self.assertFalse(response.context['form'].is_valid())
 
         self.assertEqual(Review.objects.count(), 3)
+
+    def test_widget_view(self) -> None:
+        """Test the ReviewWidgetView."""
+        response = self.client.get(reverse('reviews:widget'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'reviews/widget.html')
+        self.assertIn('recent_reviews', response.context)
+        self.assertIn('stats', response.context)
+        self.assertEqual(len(response.context['recent_reviews']), 3)
