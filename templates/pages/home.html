@@ -4,14 +4,18 @@
 
 {% block title %}Главная - Vagvin{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+{% endblock %}
+
 {% block content %}
     <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card shadow-sm border-0">
+                <div class="card shadow-sm border-0 home-card">
                     <div class="card-body text-center py-5">
-                        <h1 class="mb-4" style="color: #1e293b; font-weight: 600;">Главная страница</h1>
-                        <p class="lead mb-4" style="color: #64748b;">
+                        <h1 class="mb-4">Главная страница</h1>
+                        <p class="lead mb-4">
                             Здесь скоро появится содержимое главной страницы.<br>
                             Следите за обновлениями!
                         </p>
@@ -26,14 +30,3 @@
     </div>
 {% endblock %}
 
-{% block extra_css %}
-    <style>
-        .card {
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-    </style>
-{% endblock %}

@@ -5,15 +5,12 @@
 
 {% block content %}
     <!-- About Hero Section -->
-    <section class="hero py-5 w-100"
-             style="background-color: #f7f9fb; margin-left: -15px; margin-right: -15px; width: calc(100% + 30px);">
+    <section class="hero py-5 w-100">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 mx-auto text-center">
-                    <h1 class="fw-bold" style="color: #1e293b; font-size: 2.5rem; letter-spacing: -0.5px;">Описание
-                        сервиса</h1>
-                    <p style="color: #64748b; font-size: 1.1rem;">Для автомобилей марки Audi, VW, Skoda, Seat, Mercedes,
-                        Porsche, BMW и др.</p>
+                    <h1 class="fw-bold">Описание сервиса</h1>
+                    <p>Для автомобилей марки Audi, VW, Skoda, Seat, Mercedes, Porsche, BMW и др.</p>
                 </div>
             </div>
         </div>
@@ -26,22 +23,14 @@
                 <div class="col-lg-10 mx-auto">
                     <div class="card border-0 shadow-sm p-4 mb-5">
                         <div class="card-body">
-                            <h2 class="mb-4" style="color: #1e293b; font-weight: 600; font-size: 1.5rem;">Наши
-                                услуги</h2>
+                            <h2 class="mb-4">Наши услуги</h2>
 
                             <div class="service-item mb-5">
                                 <div class="d-flex align-items-start mb-3">
-                                    <div class="service-number me-3 d-flex align-items-center justify-content-center"
-                                         style="min-width: 40px; height: 40px; background-color: #0072ff; border-radius: 50%; color: white; font-weight: 600;">
-                                        1
-                                    </div>
+                                    <div class="service-number me-3 step-number">1</div>
                                     <div>
-                                        <h3 style="color: #1e293b; font-weight: 600; font-size: 1.2rem;">Комплектация
-                                            автомобиля 📋</h3>
-                                        <p style="color: #64748b;">Это расшифровка всех данных автомобиля по VIN-номеру.
-                                            Содержит в среднем от <b>150 до 200 PR кодов</b>, каждый отвечает за
-                                            какую-либо опцию автомобиля. При выборе русского языка комплектации скрипт
-                                            производит дополнительный перевод всех PR кодов.</p>
+                                        <h3 class="faq-item-title">Комплектация автомобиля 📋</h3>
+                                        <p>Это расшифровка всех данных автомобиля по VIN-номеру. Содержит в среднем от <b>150 до 200 PR кодов</b>, каждый отвечает за какую-либо опцию автомобиля. При выборе русского языка комплектации скрипт производит дополнительный перевод всех PR кодов.</p>
                                     </div>
                                 </div>
                             </div>
@@ -424,6 +413,7 @@
             cursor: pointer;
         }
     </style>
+    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
 {% endblock %}
 
 {% block extra_js %}
@@ -468,4 +458,5 @@
             });
         });
     </script>
+    <script src="{% static 'js/pages.js' %}"></script>
 {% endblock %}

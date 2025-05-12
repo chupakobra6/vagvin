@@ -10,8 +10,8 @@ urlpatterns = [
     path('faq/', views.FaqView.as_view(), name='faq'),
     path('requisites/', views.RequisitesView.as_view(), name='requisites'),
     path('examples/', views.ExamplesRedirectView.as_view(), name='examples'),
-    # TODO: Add review redirect
-    # TODO: Add dashboard redirect
+    path('reviews/', views.ReviewsRedirectView.as_view(), name='reviews'),
+    path('dashboard/', views.DashboardRedirectView.as_view(), name='dashboard'),
     path('privacy-policy/', views.PrivacyPolicyView.as_view(), name='privacy_policy'),
     path('payment-rules/', views.PaymentRulesView.as_view(), name='payment_rules'),
 ]

@@ -6,20 +6,14 @@ urlpatterns = [
     # Admin site URL
     path('admin/', admin.site.urls),
 
-    # Main pages URLs (homepage and static pages)
-    path('', include('apps.pages.urls')),
-
-    # User accounts (authentication, profile, etc.)
+    # App-specific URL patterns come first
     path('accounts/', include('apps.accounts.urls')),
-
-    # Payment-related URLs
     path('payments/', include('apps.payments.urls')),
-
-    # Reports and query history URLs
-    path('reports/', include('apps.reports.urls')),
-
-    # Reviews URLs
+    path('reports/', include('apps.reports.urls')), 
     path('reviews/', include('apps.reviews.urls')),
+    
+    # Main pages URLs (homepage and static pages) - should be last to catch all other URLs
+    path('', include('apps.pages.urls')),
 
     # Redirects for backward compatibility
     path('login/', RedirectView.as_view(pattern_name='accounts:login', permanent=True)),

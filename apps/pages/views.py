@@ -3,6 +3,8 @@ import logging
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, View
 
+from .services import log_page_view
+
 logger = logging.getLogger(__name__)
 
 
@@ -11,7 +13,7 @@ class HomeView(TemplateView):
     template_name = 'pages/home.html'
 
     def get(self, request, *args, **kwargs):
-        logger.debug("Rendering home page")
+        log_page_view('home')
         return super().get(request, *args, **kwargs)
 
 
@@ -20,7 +22,7 @@ class AboutView(TemplateView):
     template_name = 'pages/about.html'
 
     def get(self, request, *args, **kwargs):
-        logger.debug("Rendering about page")
+        log_page_view('about')
         return super().get(request, *args, **kwargs)
 
 
@@ -29,7 +31,7 @@ class FaqView(TemplateView):
     template_name = 'pages/faq.html'
 
     def get(self, request, *args, **kwargs):
-        logger.debug("Rendering FAQ page")
+        log_page_view('FAQ')
         return super().get(request, *args, **kwargs)
 
 
@@ -38,7 +40,7 @@ class RequisitesView(TemplateView):
     template_name = 'pages/requisites.html'
 
     def get(self, request, *args, **kwargs):
-        logger.debug("Rendering requisites page")
+        log_page_view('requisites')
         return super().get(request, *args, **kwargs)
 
 
@@ -47,7 +49,7 @@ class PrivacyPolicyView(TemplateView):
     template_name = 'pages/privacy_policy.html'
 
     def get(self, request, *args, **kwargs):
-        logger.debug("Rendering privacy policy page")
+        log_page_view('privacy policy')
         return super().get(request, *args, **kwargs)
 
 
@@ -56,7 +58,7 @@ class PaymentRulesView(TemplateView):
     template_name = 'pages/payment_rules.html'
 
     def get(self, request, *args, **kwargs):
-        logger.debug("Rendering payment rules page")
+        log_page_view('payment rules')
         return super().get(request, *args, **kwargs)
 
 
@@ -66,3 +68,19 @@ class ExamplesRedirectView(View):
     def get(self, request, *args, **kwargs):
         logger.debug("Redirecting to reports examples page")
         return redirect('reports:examples')
+
+
+class ReviewsRedirectView(View):
+    """Redirect to the reviews listing page in the reviews app."""
+
+    def get(self, request, *args, **kwargs):
+        logger.debug("Redirecting to reviews listing page")
+        return redirect('reviews:list')
+
+
+class DashboardRedirectView(View):
+    """Redirect to the user dashboard in the accounts app."""
+
+    def get(self, request, *args, **kwargs):
+        logger.debug("Redirecting to user dashboard")
+        return redirect('accounts:dashboard')
