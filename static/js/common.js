@@ -4,9 +4,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Bootstrap tooltips
     initializeTooltips();
-    
-    // Setup auto-dismiss for alerts
-    setupAlertsDismiss();
 });
 
 /**
@@ -16,22 +13,6 @@ function initializeTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-}
-
-/**
- * Setup auto-dismiss for alerts
- */
-function setupAlertsDismiss() {
-    const alerts = document.querySelectorAll('.alert:not(.alert-persistent)');
-    
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            if (alert) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }
-        }, 5000);
     });
 }
 
@@ -54,14 +35,6 @@ function showAlert(message, type, containerId = 'alerts-container') {
     `;
     
     alertsContainer.appendChild(alert);
-    
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        if (alert) {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }
-    }, 5000);
 }
 
 /**

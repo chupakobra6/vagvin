@@ -31,6 +31,20 @@
     font-weight: 500;
 }
 
+/* Standard color for all footer text */
+.footer p, 
+.footer div,
+.footer span,
+.footer li,
+.footer a:not(.footer-link):not(.social-link) {
+    color: #64748b;
+}
+
+/* Legal info section */
+.footer .legal-info span {
+    font-weight: 500;
+}
+
 .social-link {
     display: flex;
     align-items: center;

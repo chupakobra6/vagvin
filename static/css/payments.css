@@ -45,11 +45,11 @@
 .btn {
     border-radius: 8px;
     padding: 0.5rem 1rem;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn:hover {
-    transform: translateY(-1px);
+    transform: none;
 }
 
 .btn-primary {
@@ -59,7 +59,7 @@
 
 .btn-primary:hover {
     background-color: #0066e6;
-    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+    box-shadow: none;
 }
 
 .btn-outline-primary {
@@ -79,7 +79,7 @@
     border: none;
     padding: 0.5rem 1rem;
     border-bottom: 2px solid transparent;
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .nav-tabs .nav-link:hover {
@@ -130,8 +130,10 @@
 }
 
 .payment-amount-btn.active {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+    transform: none;
+    box-shadow: none;
+    background-color: #0072ff;
+    color: white;
 }
 
 /* Hero Section */

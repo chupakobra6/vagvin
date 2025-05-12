@@ -29,7 +29,7 @@ header {
 
 /* Button styles */
 .navbar .btn {
-    transition: all 0.2s ease;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 /* Telegram button */
@@ -43,9 +43,8 @@ header {
 }
 
 .telegram-btn:hover {
-    background-color: #0065e6 !important;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+    background-color: #0065e6;
+    color: white !important;
 }
 
 .telegram-btn i {
@@ -54,9 +53,9 @@ header {
 
 /* User button */
 .user-btn {
-    background-color: white;
-    color: #0072ff;
-    border: 1px solid #e2e8f0;
+    background-color: #0072ff;
+    color: white;
+    border: 1px solid #0072ff;
     border-radius: 6px;
     font-weight: 500;
     font-size: 0.875rem;
@@ -64,9 +63,9 @@ header {
 }
 
 .user-btn:hover {
-    background-color: #f1f5f9 !important;
-    border-color: #0072ff !important;
-    color: #0072ff !important;
+    background-color: #0065e6;
+    border-color: #0065e6;
+    color: white;
 }
 
 /* Dropdown styles */

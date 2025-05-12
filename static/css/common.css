@@ -59,6 +59,27 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 500;
     padding: 0.5rem 1rem;
     border-radius: 8px;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Remove transform effects on all buttons */
+.btn:hover, 
+.btn:focus, 
+.btn:active,
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active,
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-primary:active,
+button:hover,
+button:focus,
+button:active {
+    transform: none !important;
+    box-shadow: none !important;
 }
 
 .btn-primary {

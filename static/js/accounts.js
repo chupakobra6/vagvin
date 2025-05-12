@@ -40,18 +40,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
-
-    // Auto-dismiss alerts after 5 seconds
-    const alerts = document.querySelectorAll('.alert:not(.alert-persistent)');
-    
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            alert.classList.add('fade');
-            setTimeout(() => {
-                alert.remove();
-            }, 500);
-        }, 5000);
-    });
 });
 
 /**
@@ -282,12 +270,6 @@ function showAlert(message, type) {
     `;
     
     alertsContainer.appendChild(alert);
-    
-    // Auto-dismiss after 5 seconds
-    setTimeout(() => {
-        alert.classList.remove('show');
-        setTimeout(() => alert.remove(), 150);
-    }, 5000);
 }
 
 /**
