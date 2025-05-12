@@ -11,11 +11,11 @@ logger = logging.getLogger(__name__)
 
 
 class BasePageView(TemplateView):
-    """Base view for static pages with shared functionality"""
+    """Base view for static pages with shared functionality."""
     page_name: str = "page"
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        """Log the page view and render the template"""
+        """Log the page view and render the template."""
         PageViewService.log_page_view(self.page_name)
         return super().get(request, *args, **kwargs)
 
@@ -57,12 +57,12 @@ class PaymentRulesView(BasePageView):
 
 
 class BaseRedirectView(View):
-    """Base view for redirect pages with shared functionality"""
+    """Base view for redirect pages with shared functionality."""
     redirect_to: str = ""
     redirect_name: str = "page"
     
     def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
-        """Log the redirect and perform the redirect"""
+        """Log the redirect and perform the redirect."""
         logger.debug(f"Redirecting to {self.redirect_name}")
         return redirect(self.redirect_to)
 
