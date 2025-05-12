@@ -1,86 +1,85 @@
 import logging
+from typing import Any, Dict
 
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, View
 
-from .services import log_page_view
+from .services import PageViewService
 
 logger = logging.getLogger(__name__)
 
 
-class HomeView(TemplateView):
+class BasePageView(TemplateView):
+    """Base view for static pages with shared functionality"""
+    page_name: str = "page"
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """Log the page view and render the template"""
+        PageViewService.log_page_view(self.page_name)
+        return super().get(request, *args, **kwargs)
+
+
+class HomeView(BasePageView):
     """Render the home page."""
     template_name = 'pages/home.html'
-
-    def get(self, request, *args, **kwargs):
-        log_page_view('home')
-        return super().get(request, *args, **kwargs)
+    page_name = 'home'
 
 
-class AboutView(TemplateView):
+class AboutView(BasePageView):
     """Render the about page."""
     template_name = 'pages/about.html'
-
-    def get(self, request, *args, **kwargs):
-        log_page_view('about')
-        return super().get(request, *args, **kwargs)
+    page_name = 'about'
 
 
-class FaqView(TemplateView):
+class FaqView(BasePageView):
     """Render the FAQ page."""
     template_name = 'pages/faq.html'
-
-    def get(self, request, *args, **kwargs):
-        log_page_view('FAQ')
-        return super().get(request, *args, **kwargs)
+    page_name = 'FAQ'
 
 
-class RequisitesView(TemplateView):
+class RequisitesView(BasePageView):
     """Render the requisites page."""
     template_name = 'pages/requisites.html'
-
-    def get(self, request, *args, **kwargs):
-        log_page_view('requisites')
-        return super().get(request, *args, **kwargs)
+    page_name = 'requisites'
 
 
-class PrivacyPolicyView(TemplateView):
+class PrivacyPolicyView(BasePageView):
     """Render the privacy policy page."""
     template_name = 'pages/privacy_policy.html'
-
-    def get(self, request, *args, **kwargs):
-        log_page_view('privacy policy')
-        return super().get(request, *args, **kwargs)
+    page_name = 'privacy policy'
 
 
-class PaymentRulesView(TemplateView):
+class PaymentRulesView(BasePageView):
     """Render the payment rules page."""
     template_name = 'pages/payment_rules.html'
-
-    def get(self, request, *args, **kwargs):
-        log_page_view('payment rules')
-        return super().get(request, *args, **kwargs)
+    page_name = 'payment rules'
 
 
-class ExamplesRedirectView(View):
+class BaseRedirectView(View):
+    """Base view for redirect pages with shared functionality"""
+    redirect_to: str = ""
+    redirect_name: str = "page"
+    
+    def get(self, request: HttpRequest, *args: Any, **kwargs: Any) -> HttpResponse:
+        """Log the redirect and perform the redirect"""
+        logger.debug(f"Redirecting to {self.redirect_name}")
+        return redirect(self.redirect_to)
+
+
+class ExamplesRedirectView(BaseRedirectView):
     """Redirect to the examples page in the reports app."""
-
-    def get(self, request, *args, **kwargs):
-        logger.debug("Redirecting to reports examples page")
-        return redirect('reports:examples')
+    redirect_to = 'reports:examples'
+    redirect_name = 'reports examples page'
 
 
-class ReviewsRedirectView(View):
+class ReviewsRedirectView(BaseRedirectView):
     """Redirect to the reviews listing page in the reviews app."""
-
-    def get(self, request, *args, **kwargs):
-        logger.debug("Redirecting to reviews listing page")
-        return redirect('reviews:list')
+    redirect_to = 'reviews:list'
+    redirect_name = 'reviews listing page'
 
 
-class DashboardRedirectView(View):
+class DashboardRedirectView(BaseRedirectView):
     """Redirect to the user dashboard in the accounts app."""
-
-    def get(self, request, *args, **kwargs):
-        logger.debug("Redirecting to user dashboard")
-        return redirect('accounts:dashboard')
+    redirect_to = 'accounts:dashboard'
+    redirect_name = 'user dashboard'
