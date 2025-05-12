@@ -37,13 +37,13 @@ class UserService:
             Tuple[bool, str, Optional[User]]: (success, message, user)
         """
         if not email:
-            return False, "Email is required", None
+            return False, "Требуется указать адрес электронной почты", None
             
         email = email.strip()
         username = email.split('@')[0]
         
         if User.objects.filter(username=username).exists():
-            return False, "User with this email already exists", None
+            return False, "Пользователь с таким адресом электронной почты уже существует", None
             
         try:
             user = User(username=username, email=email)
@@ -67,23 +67,23 @@ class UserService:
             
             if not email_sent:
                 logger.error(f"Failed to send registration email to {email}")
-                return False, "Failed to send login details email", None
+                return False, "Не удалось отправить письмо с данными для входа", None
                 
             user.set_password(password)
             user.save()
             logger.info(f"New user created: {username} ({email})")
             
             success_message = (
-                "Registration successful with referral link. Login details sent to your email."
+                "Регистрация с использованием реферальной ссылки успешно завершена. Данные для входа отправлены на вашу электронную почту."
                 if referral_code and user.referral 
-                else "Registration successful. Login details sent to your email."
+                else "Регистрация успешно завершена. Данные для входа отправлены на вашу электронную почту."
             )
             
             return True, success_message, user
             
         except Exception as e:
             logger.exception(f"Unexpected error during registration with email {email}")
-            return False, "An unexpected error occurred during registration", None
+            return False, "Произошла непредвиденная ошибка при регистрации", None
     
     @classmethod
     @transaction.atomic
@@ -95,7 +95,7 @@ class UserService:
             Tuple[bool, str]: (success, message)
         """
         if not email:
-            return False, "Email is required"
+            return False, "Требуется указать адрес электронной почты"
             
         try:
             now = timezone.now()
@@ -104,31 +104,31 @@ class UserService:
                 user = User.objects.get(email=email)
             except User.DoesNotExist:
                 logger.warning(f"User with email {email} not found during password reset")
-                return False, "User with this email not found"
+                return False, "Пользователь с таким адресом электронной почты не найден"
                 
             last_reset = user.last_password_reset
             if last_reset and (now - last_reset).total_seconds() < settings.PASSWORD_RESET_TIMEOUT:
                 minutes_ago = int((now - last_reset).total_seconds() // 60)
                 wait_time = settings.PASSWORD_RESET_TIMEOUT // 60 - minutes_ago
                 
-                return False, f"Password was recently reset. Please wait {wait_time} more minutes before requesting again."
+                return False, f"Пароль был недавно сброшен. Подождите ещё {wait_time} минут, прежде чем запрашивать снова."
             
             new_password = generate_password()
             email_sent = send_password_reset_email(user, new_password)
             
             if not email_sent:
                 logger.error(f"Failed to send password reset email to {email}")
-                return False, "Failed to send email. Please try again later or contact support."
+                return False, "Не удалось отправить письмо. Попробуйте позже или обратитесь в службу поддержки."
                 
             user.set_password(new_password)
             user.last_password_reset = now
             user.save()
             
-            return True, "New password has been generated and sent to your email"
+            return True, "Новый пароль был создан и отправлен на ваш адрес электронной почты"
             
         except Exception as e:
             logger.exception(f"Unexpected error during password reset with email {email}")
-            return False, "An unexpected error occurred during password reset"
+            return False, "Произошла непредвиденная ошибка при сбросе пароля"
     
     @classmethod
     def get_user_data(cls, user: User) -> Dict[str, Any]:
@@ -161,16 +161,16 @@ class UserService:
             Tuple[bool, str, List[str]]: (success, message, emails_list)
         """
         if not user or not email:
-            return False, "User and email are required", []
+            return False, "Требуются данные пользователя и email", []
             
         emails = user.additional_emails.split(',') if user.additional_emails else []
         emails = [e for e in emails if e]
         
         if email in emails or email == user.email:
-            return False, "This email is already added", emails
+            return False, "Этот email уже добавлен", emails
             
         if len(emails) >= 5:
-            return False, "You cannot add more than 5 additional emails", emails
+            return False, "Вы не можете добавить более 5 дополнительных email-адресов", emails
             
         try:
             emails.append(email)
@@ -178,10 +178,10 @@ class UserService:
             user.save(update_fields=['additional_emails'])
             logger.info(f"Added additional email {email} for user {user.username}")
             
-            return True, "Email added successfully", emails
+            return True, "Email успешно добавлен", emails
         except Exception as e:
             logger.exception(f"Error adding email {email} for user {user.username}")
-            return False, "An error occurred while adding the email", emails
+            return False, "Произошла ошибка при добавлении email", emails
     
     @classmethod
     @transaction.atomic
@@ -193,13 +193,13 @@ class UserService:
             Tuple[bool, str, List[str]]: (success, message, emails_list)
         """
         if not user or not email:
-            return False, "User and email are required", []
+            return False, "Требуются данные пользователя и email", []
             
         emails = user.additional_emails.split(',') if user.additional_emails else []
         emails = [e for e in emails if e]
         
         if email not in emails:
-            return False, "Email not found", emails
+            return False, "Email не найден", emails
             
         try:
             emails.remove(email)
@@ -207,7 +207,7 @@ class UserService:
             user.save(update_fields=['additional_emails'])
             logger.info(f"Removed additional email {email} for user {user.username}")
             
-            return True, "Email removed successfully", emails
+            return True, "Email успешно удален", emails
         except Exception as e:
             logger.exception(f"Error removing email {email} for user {user.username}")
-            return False, "An error occurred while removing the email", emails 
+            return False, "Произошла ошибка при удалении email", emails 

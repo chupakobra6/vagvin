@@ -25,7 +25,15 @@ class RegistrationForm(BaseStyledForm, forms.Form):
     """Registration form for new users"""
     email = forms.EmailField(
         label='Email',
-        widget=forms.EmailInput(attrs={'placeholder': 'Введите ваш email'})
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Введите ваш email',
+            'class': 'form-control',
+            'autocomplete': 'email'
+        }),
+        error_messages={
+            'required': 'Пожалуйста, введите ваш email',
+            'invalid': 'Пожалуйста, введите корректный email'
+        }
     )
 
     def clean_email(self):
@@ -40,12 +48,33 @@ class LoginForm(BaseStyledForm, AuthenticationForm):
     """Login form for user authentication"""
     username = forms.CharField(
         label='Email',
-        widget=forms.TextInput(attrs={'placeholder': 'Введите ваш email'})
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Введите ваш email',
+            'class': 'form-control',
+            'autocomplete': 'email'
+        }),
+        error_messages={
+            'required': 'Пожалуйста, введите ваш email'
+        }
     )
+    
     password = forms.CharField(
         label='Пароль',
-        widget=forms.PasswordInput(attrs={'placeholder': 'Введите ваш пароль'})
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Введите ваш пароль',
+            'class': 'form-control',
+            'autocomplete': 'current-password',
+            'id': 'id_password'
+        }),
+        error_messages={
+            'required': 'Пожалуйста, введите ваш пароль'
+        }
     )
+
+    error_messages = {
+        'invalid_login': 'Пожалуйста, введите правильные email и пароль. Обратите внимание, что оба поля чувствительны к регистру.',
+        'inactive': 'Этот аккаунт неактивен.'
+    }
 
     def clean(self):
         """Custom clean to handle email login"""
@@ -60,7 +89,15 @@ class ForgotPasswordForm(BaseStyledForm, forms.Form):
     """Form for password reset requests"""
     email = forms.EmailField(
         label='Email',
-        widget=forms.EmailInput(attrs={'placeholder': 'Введите ваш email'})
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Введите ваш email',
+            'class': 'form-control',
+            'autocomplete': 'email'
+        }),
+        error_messages={
+            'required': 'Пожалуйста, введите ваш email',
+            'invalid': 'Пожалуйста, введите корректный email'
+        }
     )
 
     def clean_email(self):
@@ -72,5 +109,12 @@ class AdditionalEmailForm(BaseStyledForm, forms.Form):
     """Form for adding additional emails"""
     email = forms.EmailField(
         label='Email',
-        widget=forms.EmailInput(attrs={'placeholder': 'Введите дополнительный email'})
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Введите дополнительный email',
+            'class': 'form-control'
+        }),
+        error_messages={
+            'required': 'Пожалуйста, введите email',
+            'invalid': 'Пожалуйста, введите корректный email'
+        }
     )

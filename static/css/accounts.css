@@ -84,6 +84,13 @@ body {
     font-size: 1.5rem;
 }
 
+.section-heading {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+}
+
 .table td.fw-bold {
     color: #334155;
 }
@@ -159,4 +166,290 @@ body {
     justify-content: center;
     gap: 1rem;
     margin-top: 1.5rem;
+}
+
+/* Payment Statistics Styling */
+.payment-stats {
+    margin-bottom: 1.5rem;
+}
+
+.stat-card {
+    background-color: #f8fafc;
+    border-radius: 12px;
+    height: 100%;
+    padding: 1rem;
+    border-left: 4px solid #0072ff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.stat-title {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.stat-value {
+    color: #1e293b;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.stat-info {
+    color: #64748b;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.payment-status-badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+.badge-success {
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.badge-pending {
+    background-color: #fffbeb;
+    color: #b45309;
+}
+
+.badge-failed {
+    background-color: #fff1f2;
+    color: #be123c;
+}
+
+/* Payment History Table */
+.payment-history-table th {
+    color: #64748b;
+    font-weight: 600;
+    border-bottom-width: 1px;
+}
+
+.payment-history-table td {
+    color: #1e293b;
+    border-bottom-color: #e2e8f0;
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+}
+
+.empty-state {
+    color: #64748b;
+}
+
+.empty-state-title {
+    color: #1e293b;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-description {
+    color: #64748b;
+    margin-bottom: 1rem;
+}
+
+.empty-state-icon {
+    color: #cbd5e1;
+}
+
+/* Dashboard Stats */
+.dashboard-stat {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    height: 100%;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.dashboard-stat .stat-title {
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+}
+
+.dashboard-stat .stat-value {
+    color: #0f172a;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+/* Authentication pages specific styles */
+.auth-container {
+    max-width: 450px;
+    margin: 0 auto;
+}
+
+.auth-card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    padding: 2rem;
+}
+
+.auth-logo {
+    max-width: 120px;
+    margin-bottom: 1.5rem;
+}
+
+.auth-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: 1.25rem;
+}
+
+.auth-form .form-label {
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 0.5rem;
+}
+
+.auth-form .form-control {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background-color: #f8fafc;
+}
+
+.auth-form .form-control:focus {
+    background-color: #ffffff;
+    border-color: #0072ff;
+    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+}
+
+.auth-form .btn-primary {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    background-color: #0072ff;
+    border: none;
+}
+
+.auth-form .btn-primary:hover {
+    background-color: #0058cc;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+}
+
+.auth-divider {
+    display: flex;
+    align-items: center;
+    margin: 1.5rem 0;
+    color: #94a3b8;
+}
+
+.auth-divider:before,
+.auth-divider:after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background-color: #e2e8f0;
+}
+
+.auth-divider span {
+    padding: 0 1rem;
+}
+
+.auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.auth-links a {
+    color: #0072ff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+/* Password field styling fix */
+.password-field-wrapper {
+    position: relative;
+}
+
+.password-field-wrapper .form-control {
+    padding-right: 40px; /* Ensure there's enough space for the eye icon */
+}
+
+.password-field-wrapper .form-control.is-valid,
+.password-field-wrapper .form-control.is-invalid {
+    background-position: right calc(0.375em + 0.75rem + 24px) center;
+    padding-right: 70px; /* Extra space for both validation icon and eye icon */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    z-index: 5; /* Ensure it's above the validation icons */
+}
+
+.password-toggle:hover {
+    color: #64748b;
+}
+
+.info-box {
+    background-color: #f1f5f9;
+    border-left: 4px solid #0072ff;
+    padding: 1rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.info-box h4 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+}
+
+.info-box p {
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .auth-card {
+        padding: 1.5rem;
+    }
+    
+    .auth-title {
+        font-size: 1.5rem;
+    }
 } 

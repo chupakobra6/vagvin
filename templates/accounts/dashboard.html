@@ -5,11 +5,11 @@
 {% block title %}Личный кабинет - Vagvin{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/accounts/../../static/css/accounts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
 {% endblock %}
 
 {% block extra_js %}
-    <script src="{% static 'js/accounts/../../static/js/accounts.js' %}"></script>
+    <script src="{% static 'js/accounts.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -182,6 +182,36 @@
                         <div class="card-body">
                             <h2 class="mb-4">Пополнение баланса</h2>
 
+                            <!-- Payment Statistics -->
+                            <div class="row mb-4">
+                                <div class="col-md-4 mb-3">
+                                    <div class="dashboard-stat">
+                                        <div class="stat-title">Всего пополнений</div>
+                                        <div class="stat-value">{{ payments_count }}</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="dashboard-stat">
+                                        <div class="stat-title">Сумма пополнений</div>
+                                        <div class="stat-value">{{ total_amount }} ₽</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4 mb-3">
+                                    <div class="dashboard-stat">
+                                        <div class="stat-title">Последнее пополнение</div>
+                                        <div class="stat-value">{{ last_payment.amount|default:"0" }} ₽</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="text-center mb-4">
+                                <a href="{% url 'payments:requisites' %}" class="btn btn-primary">
+                                    <i class="fas fa-money-bill-wave me-2"></i>Другие способы оплаты
+                                </a>
+                            </div>
+
                             <ul class="nav nav-tabs mb-4" id="paymentTabs" role="tablist">
                                 <li class="nav-item" role="presentation">
                                     <button class="nav-link active" id="robokassa-tab" data-bs-toggle="tab"
@@ -325,14 +355,15 @@
                 </div>
             </div>
 
-            <!-- History Section -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card shadow-sm p-4">
+            <!-- History Sections -->
+            <div class="row mt-5">
+                <!-- Vehicle Reports History -->
+                <div class="col-lg-10 mx-auto mb-5">
+                    <div class="card shadow-sm">
                         <div class="card-body">
-                            <h2 class="mb-4">История запросов</h2>
+                            <h2 class="section-heading mb-4">История запросов</h2>
                             <div class="table-responsive">
-                                <table class="table table-hover">
+                                <table class="table payment-history-table">
                                     <thead>
                                     <tr>
                                         <th>Дата</th>
@@ -354,6 +385,57 @@
                                     </tbody>
                                 </table>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment History -->
+                <div class="col-lg-10 mx-auto">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h2 class="section-heading mb-4">История пополнений</h2>
+                            
+                            {% if payments %}
+                                <div class="table-responsive">
+                                    <table class="table payment-history-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Дата</th>
+                                                <th>Сумма</th>
+                                                <th>Статус</th>
+                                                <th>Способ оплаты</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for payment in payments %}
+                                                <tr>
+                                                    <td>{{ payment.created_at|date:"d.m.Y H:i" }}</td>
+                                                    <td>{{ payment.amount }} руб.</td>
+                                                    <td>
+                                                        <span class="payment-status-badge 
+                                                            {% if payment.status == 'success' %}badge-success
+                                                            {% elif payment.status == 'pending' %}badge-pending
+                                                            {% else %}badge-failed{% endif %}">
+                                                            {% if payment.status == 'success' %}Успешно
+                                                            {% elif payment.status == 'pending' %}В обработке
+                                                            {% else %}Отклонено{% endif %}
+                                                        </span>
+                                                    </td>
+                                                    <td>{{ payment.get_payment_method_display }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="empty-state p-4 text-center">
+                                    <div class="empty-state-icon mb-3">
+                                        <i class="fas fa-receipt fa-3x text-muted"></i>
+                                    </div>
+                                    <h3 class="empty-state-title">Нет истории платежей</h3>
+                                    <p class="empty-state-description">Пополните баланс, чтобы увидеть историю платежей</p>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

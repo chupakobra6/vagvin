@@ -94,5 +94,22 @@ class ForgotPasswordView(FormView):
 @login_required
 def dashboard(request: HttpRequest) -> HttpResponse:
     """View for user dashboard"""
+    from apps.payments.services import PaymentService
+    
+    # Initialize context
+    context = {}
+    
+    # Get user data first (it should take precedence)
     user_data = UserService.get_user_data(request.user)
-    return render(request, 'accounts/dashboard.html', {'user_data': user_data})
+    context['user_data'] = user_data
+    
+    # Get payment stats, but don't override existing user_data fields
+    user_payment_stats = PaymentService.get_user_payments_stats(request.user)
+    
+    # Remove any keys that might conflict with user_data
+    user_payment_stats.pop('balance', None)
+    
+    # Update context with payment stats
+    context.update(user_payment_stats)
+    
+    return render(request, 'accounts/dashboard.html', context)

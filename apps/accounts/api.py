@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 
 from .forms import AdditionalEmailForm
 from .services import UserService
-from .payments import PaymentService
+from apps.payments.services import PaymentService
 
 logger = logging.getLogger(__name__)
 

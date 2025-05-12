@@ -4,6 +4,54 @@ document.addEventListener('DOMContentLoaded', function () {
     initializeEmailManagement();
     initializePaymentForms();
     checkPaymentInitiated();
+    loadUserQueries();
+
+    // Form validation enhancement
+    const formElements = document.querySelectorAll('form input:not([type="password"]), form select, form textarea');
+    
+    formElements.forEach(element => {
+        element.addEventListener('blur', function() {
+            if (this.value.trim() !== '') {
+                this.classList.add('is-valid');
+            } else if (this.required) {
+                this.classList.add('is-invalid');
+            }
+        });
+        
+        element.addEventListener('focus', function() {
+            this.classList.remove('is-invalid');
+            this.classList.remove('is-valid');
+        });
+    });
+
+    // Password visibility toggle
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    
+    passwordToggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const passwordField = document.querySelector(this.dataset.target);
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordField.type = 'password';
+                this.innerHTML = '<i class="fas fa-eye"></i>';
+            }
+        });
+    });
+
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert:not(.alert-persistent)');
+    
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.classList.add('fade');
+            setTimeout(() => {
+                alert.remove();
+            }, 500);
+        }, 5000);
+    });
 });
 
 /**
@@ -117,26 +165,18 @@ function initializeRemoveEmail() {
  * Initialize payment forms
  */
 function initializePaymentForms() {
-    initializePaymentAmountButtons();
-    initializePaymentSubmit('robokassa-form');
-    initializePaymentSubmit('yookassa-form');
-    initializePaymentSubmit('helekit-form');
-}
-
-/**
- * Initialize payment amount buttons
- */
-function initializePaymentAmountButtons() {
+    // Set up amount buttons
     const amountButtons = document.querySelectorAll('.amount-btn');
     amountButtons.forEach(button => {
-        button.addEventListener('click', function () {
+        button.addEventListener('click', function() {
             const targetId = this.dataset.target;
             const amount = this.dataset.amount;
             const inputField = document.getElementById(targetId);
+            
             if (inputField) {
                 inputField.value = amount;
             }
-            
+
             const parentForm = this.closest('form');
             if (parentForm) {
                 parentForm.querySelectorAll('.amount-btn').forEach(btn => {
@@ -148,6 +188,11 @@ function initializePaymentAmountButtons() {
             }
         });
     });
+    
+    // Set up payment forms
+    initializePaymentSubmit('robokassa-form');
+    initializePaymentSubmit('yookassa-form');
+    initializePaymentSubmit('helekit-form');
 }
 
 /**
@@ -252,11 +297,6 @@ function getCsrfToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    loadUserQueries();
-});
-
 /**
  * Load user queries history
  */
@@ -267,7 +307,7 @@ function loadUserQueries() {
     fetch(queriesTable.dataset.url)
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Ошибка сетевого соединения');
             }
             return response.json();
         })
@@ -275,7 +315,19 @@ function loadUserQueries() {
             queriesTable.innerHTML = '';
 
             if (data.length === 0) {
-                queriesTable.innerHTML = '<tr><td colspan="5" class="text-center">У вас пока нет запросов</td></tr>';
+                queriesTable.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">
+                            <div class="empty-state p-4 text-center">
+                                <div class="empty-state-icon mb-3">
+                                    <i class="fas fa-search fa-3x text-muted"></i>
+                                </div>
+                                <h3 class="empty-state-title">Нет истории запросов</h3>
+                                <p class="empty-state-description">Здесь будет отображаться история ваших запросов</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
                 return;
             }
 
