@@ -1,0 +1,162 @@
+body {
+    font-family: 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.form-control {
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-control:focus {
+    border-color: #0072ff;
+    box-shadow: 0 0 0 3px rgba(0, 114, 255, 0.1);
+}
+
+.btn-primary {
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 114, 255, 0.15);
+}
+
+.alert {
+    border-radius: 8px;
+    border-left: 4px solid;
+}
+
+.alert-danger {
+    border-left-color: #e11d48;
+    background-color: #fff1f2;
+    color: #be123c;
+}
+
+.alert-success {
+    border-left-color: #10b981;
+    background-color: #ecfdf5;
+    color: #047857;
+}
+
+.alert-warning {
+    border-left-color: #f59e0b;
+    background-color: #fffbeb;
+    color: #b45309;
+}
+
+.alert-info {
+    border-left-color: #0072ff;
+    background-color: #f1f5f9;
+    color: #1e293b;
+}
+
+.hero {
+    background-color: #f7f9fb;
+    margin-left: -15px;
+    margin-right: -15px;
+    width: calc(100% + 30px);
+}
+
+.hero h1 {
+    color: #1e293b;
+    font-size: 2.5rem;
+    letter-spacing: -0.5px;
+    font-weight: bold;
+}
+
+.hero p {
+    color: #64748b;
+    font-size: 1.1rem;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+}
+
+.card-body h2 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.5rem;
+}
+
+.table td.fw-bold {
+    color: #334155;
+}
+
+.badge {
+    font-weight: 500;
+    padding: 0.35em 0.65em;
+}
+
+.badge.bg-success {
+    background-color: #10b981 !important;
+}
+
+.input-group .form-control {
+    border-radius: 8px 0 0 8px;
+}
+
+.input-group .btn {
+    border-radius: 0 8px 8px 0;
+}
+
+.tab-content {
+    padding: 1.5rem 0;
+}
+
+.nav-tabs .nav-link {
+    color: #64748b;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-bottom: 2px solid transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: #0072ff;
+    border-color: transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #0072ff;
+    background-color: transparent;
+    border-color: #0072ff;
+}
+
+.amount-btn {
+    min-width: 85px;
+}
+
+.quick-amounts {
+    margin-top: 1rem;
+}
+
+.info-box {
+    background-color: #f1f5f9;
+    border-left: 4px solid #0072ff;
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+.info-box h4 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.info-box p {
+    color: #64748b;
+    margin-bottom: 0.5rem;
+}
+
+.support-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+} 
