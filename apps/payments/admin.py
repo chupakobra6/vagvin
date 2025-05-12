@@ -25,11 +25,12 @@ class PaymentAdmin(admin.ModelAdmin):
             'fields': ('created_at', 'updated_at')
         }),
     )
-    
+
     def user_link(self, obj):
         """Link to user admin"""
         url = f"/admin/auth/user/{obj.user.id}/change/"
         return format_html('<a href="{}">{}</a>', url, obj.user)
+
     user_link.short_description = 'Пользователь'
     user_link.admin_order_field = 'user'
 
@@ -46,14 +47,16 @@ class PaymentAdmin(admin.ModelAdmin):
             'background-color: {}; color: white;">{}</span>',
             color, obj.get_status_display()
         )
+
     status_badge.short_description = 'Статус'
     status_badge.admin_order_field = 'status'
-    
+
     def commission_amount(self, obj):
         """Calculate commission amount"""
         return obj.commission_amount
+
     commission_amount.short_description = 'Комиссия'
-    
+
     def has_delete_permission(self, request, obj=None):
         """Disable deletion of completed payments"""
         if obj and obj.status == 'success':

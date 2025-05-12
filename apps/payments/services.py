@@ -18,26 +18,26 @@ logger = logging.getLogger(__name__)
 
 class PaymentProcessor:
     """Base class for payment processing services"""
-    
+
     def __init__(self, provider_name: str, commission_rate: float):
         self.provider_name = provider_name
         self.commission_rate = commission_rate
-    
+
     def generate_invoice_id(self) -> str:
         """Generate a unique invoice ID for the payment."""
         return f"{self.provider_name}_{uuid.uuid4().hex}"
-    
+
     def calculate_total_amount(self, amount: Decimal) -> Decimal:
         """Calculate total amount with commission."""
         return round(float(amount) * (1 + self.commission_rate), 2)
-    
+
     def create_payment(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Payment:
         """Create a payment record in the database."""
         invoice_id = self.generate_invoice_id()
-        
+
         if total_amount is None:
             total_amount = self.calculate_total_amount(amount)
-        
+
         return Payment.objects.create(
             user=user,
             provider=self.provider_name,
@@ -45,7 +45,7 @@ class PaymentProcessor:
             total_amount=total_amount,
             invoice_id=invoice_id,
         )
-    
+
     def mark_payment_successful(self, payment: Payment) -> bool:
         """Mark payment as successful and update user balance."""
         payment.status = 'success'
@@ -55,21 +55,21 @@ class PaymentProcessor:
 
 class RobokassaPaymentProcessor(PaymentProcessor):
     """Robokassa payment processing service"""
-    
+
     def __init__(self):
         super().__init__('robokassa', 0.1)
-    
+
     @staticmethod
     def calculate_signature(*args) -> str:
         """Calculate MD5 signature for Robokassa."""
         return hashlib.md5(':'.join(str(arg) for arg in args).encode()).hexdigest()
-    
+
     def create_payment_url(self, payment: Payment, user) -> str:
         """Create payment URL for Robokassa."""
         merchant_login = settings.ROBOKASSA_LOGIN
         merchant_password1 = settings.ROBOKASSA_PASSWORD1
         inv_id = int(time.time())
-        
+
         receipt = {
             "sno": "usn_income",
             "items": [{
@@ -82,7 +82,7 @@ class RobokassaPaymentProcessor(PaymentProcessor):
             }]
         }
         receipt_json = json.dumps(receipt, ensure_ascii=False)
-        
+
         signature = self.calculate_signature(
             merchant_login,
             payment.total_amount,
@@ -92,7 +92,7 @@ class RobokassaPaymentProcessor(PaymentProcessor):
             f"Shp_invoice_id={payment.invoice_id}",
             f"Shp_user_id={user.id}"
         )
-        
+
         params = {
             'MerchantLogin': merchant_login,
             'OutSum': payment.total_amount,
@@ -105,32 +105,33 @@ class RobokassaPaymentProcessor(PaymentProcessor):
             'Culture': 'ru',
             'incCurr': 'BankCard'
         }
-        
+
         return f"https://auth.robokassa.ru/Merchant/Index.aspx?{urlencode(params)}"
-    
-    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[Payment, str]:
+
+    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[
+        Payment, str]:
         """Create payment and generate payment URL."""
         payment = self.create_payment(user, amount, total_amount)
         payment_url = self.create_payment_url(payment, user)
         return payment, payment_url
-    
+
     def verify_callback(self, params: Dict[str, Any]) -> Tuple[Optional[Payment], bool]:
         """Verify Robokassa callback parameters."""
         invoice_id = params.get('Shp_invoice_id')
         if not invoice_id:
             return None, False
-        
+
         try:
             payment = Payment.objects.get(invoice_id=invoice_id, provider=self.provider_name, status='pending')
         except Payment.DoesNotExist:
             return None, False
-        
+
         out_sum = params.get('OutSum')
         inv_id = params.get('InvId')
         signature = params.get('SignatureValue')
-        
+
         merchant_password2 = settings.ROBOKASSA_PASSWORD2
-        
+
         expected_signature = self.calculate_signature(
             out_sum,
             inv_id,
@@ -138,25 +139,25 @@ class RobokassaPaymentProcessor(PaymentProcessor):
             f"Shp_invoice_id={invoice_id}",
             f"Shp_user_id={payment.user.id}"
         )
-        
+
         if expected_signature.lower() != signature.lower():
             return payment, False
-        
+
         self.mark_payment_successful(payment)
         return payment, True
 
 
 class YookassaPaymentProcessor(PaymentProcessor):
     """YooKassa payment processing service"""
-    
+
     def __init__(self):
         super().__init__('yookassa', 0.1)
-    
+
     def create_payment_url(self, payment: Payment, user) -> str:
         """Create payment URL for YooKassa."""
         shop_id = settings.YOOKASSA_SHOP_ID
         secret_key = settings.YOOKASSA_SECRET_KEY
-        
+
         payload = {
             "amount": {
                 "value": str(payment.total_amount),
@@ -191,7 +192,7 @@ class YookassaPaymentProcessor(PaymentProcessor):
                 ]
             }
         }
-        
+
         response = requests.post(
             "https://api.yookassa.ru/v3/payments",
             auth=(shop_id, secret_key),
@@ -201,50 +202,51 @@ class YookassaPaymentProcessor(PaymentProcessor):
             },
             json=payload
         )
-        
+
         response.raise_for_status()
         response_data = response.json()
-        
+
         return response_data['confirmation']['confirmation_url']
-    
-    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[Payment, str]:
+
+    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[
+        Payment, str]:
         """Create payment and generate payment URL."""
         payment = self.create_payment(user, amount, total_amount)
         payment_url = self.create_payment_url(payment, user)
         return payment, payment_url
-    
+
     def verify_callback(self, data: Dict[str, Any]) -> Tuple[Optional[Payment], bool]:
         """Verify YooKassa callback data."""
         idempotence_key = data.get('object', {}).get('metadata', {}).get('idempotence_key', '')
-        
+
         if not idempotence_key.startswith('yookassa_'):
             return None, False
-        
+
         try:
             payment = Payment.objects.get(invoice_id=idempotence_key, provider=self.provider_name, status='pending')
         except Payment.DoesNotExist:
             return None, False
-        
+
         payment_status = data.get('object', {}).get('status')
-        
+
         if payment_status == 'succeeded':
             self.mark_payment_successful(payment)
             return payment, True
-        
+
         return payment, False
 
 
 class HelekitPaymentProcessor(PaymentProcessor):
     """Helekit payment processing service"""
-    
+
     def __init__(self):
         super().__init__('heleket', 0.06)
-    
+
     def create_payment_url(self, payment: Payment, user) -> str:
         """Create payment URL for Helekit."""
         merchant_id = settings.HELEKET_MERCHANT_ID
         api_key = settings.HELEKET_API_KEY
-        
+
         payment_data = {
             "amount": str(payment.total_amount),
             "currency": "RUB",
@@ -257,11 +259,11 @@ class HelekitPaymentProcessor(PaymentProcessor):
             "accuracy_payment_percent": 1,
             "additional_data": str(user.id)
         }
-        
+
         json_data = json.dumps(payment_data)
         base64_data = base64.b64encode(json_data.encode()).decode()
         sign = hashlib.md5((base64_data + api_key).encode()).hexdigest()
-        
+
         response = requests.post(
             settings.HELEKET_API_URL,
             headers={
@@ -271,36 +273,37 @@ class HelekitPaymentProcessor(PaymentProcessor):
             },
             data=json_data
         )
-        
+
         response.raise_for_status()
         result = response.json()
-        
+
         return result['result']['url']
-    
-    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[Payment, str]:
+
+    def create_payment_with_url(self, user, amount: Decimal, total_amount: Optional[Decimal] = None) -> Tuple[
+        Payment, str]:
         """Create payment and generate payment URL."""
         payment = self.create_payment(user, amount, total_amount)
         payment_url = self.create_payment_url(payment, user)
         return payment, payment_url
-    
+
     def verify_callback(self, params: Dict[str, Any]) -> Tuple[Optional[Payment], bool]:
         """Verify Helekit callback parameters."""
         order_id = params.get('order_id')
-        
+
         if not order_id or not order_id.startswith('heleket_'):
             return None, False
-        
+
         try:
             payment = Payment.objects.get(invoice_id=order_id, provider=self.provider_name, status='pending')
         except Payment.DoesNotExist:
             return None, False
-        
+
         payment_status = params.get('status')
-        
+
         if payment_status in ['paid', 'paid_over', 'wrong_amount']:
             self.mark_payment_successful(payment)
             return payment, True
-        
+
         return payment, False
 
 
@@ -312,10 +315,10 @@ def get_payment_processor(provider: str) -> PaymentProcessor:
         'yookassa': YookassaPaymentProcessor(),
         'heleket': HelekitPaymentProcessor(),
     }
-    
+
     if provider not in processors:
         raise ValueError(f"Unsupported payment provider: {provider}")
-    
+
     return processors[provider]
 
 

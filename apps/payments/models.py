@@ -1,5 +1,4 @@
 from decimal import Decimal
-from typing import Optional
 
 from django.conf import settings
 from django.db import models
@@ -26,35 +25,35 @@ class Payment(BaseModel):
     ]
 
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         verbose_name='Пользователь',
         related_name='payments'
     )
     provider = models.CharField(
-        max_length=20, 
-        choices=PROVIDER_CHOICES, 
+        max_length=20,
+        choices=PROVIDER_CHOICES,
         verbose_name='Платежная система'
     )
     amount = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
+        max_digits=10,
+        decimal_places=2,
         verbose_name='Сумма'
     )
     total_amount = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2, 
+        max_digits=10,
+        decimal_places=2,
         verbose_name='Сумма с комиссией'
     )
     invoice_id = models.CharField(
-        max_length=100, 
-        unique=True, 
+        max_length=100,
+        unique=True,
         verbose_name='Идентификатор платежа'
     )
     status = models.CharField(
-        max_length=10, 
-        choices=STATUS_CHOICES, 
-        default='pending', 
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='pending',
         verbose_name='Статус'
     )
 
@@ -76,17 +75,17 @@ class Payment(BaseModel):
             self.total_amount = round(float(self.amount) * (1 + rate), 2)
             self.save(update_fields=['total_amount'])
         return self.total_amount
-    
+
     def mark_as_successful(self) -> None:
         """Mark payment as successful"""
         self.status = 'success'
         self.save(update_fields=['status', 'updated_at'])
-    
+
     def mark_as_failed(self) -> None:
         """Mark payment as failed"""
         self.status = 'failed'
         self.save(update_fields=['status', 'updated_at'])
-    
+
     def update_user_balance(self) -> bool:
         """
         Update user's balance with payment amount.
@@ -95,7 +94,7 @@ class Payment(BaseModel):
         try:
             self.user.balance = F('balance') + self.amount
             self.user.save(update_fields=['balance'])
-            
+
             self.user.refresh_from_db()
             return True
         except Exception:
@@ -103,22 +102,22 @@ class Payment(BaseModel):
             logger = logging.getLogger(__name__)
             logger.exception(f'Error updating balance for user {self.user.id}')
             return False
-    
+
     @property
     def is_pending(self) -> bool:
         """Check if payment is pending"""
         return self.status == 'pending'
-    
+
     @property
     def is_successful(self) -> bool:
         """Check if payment is successful"""
         return self.status == 'success'
-    
+
     @property
     def is_failed(self) -> bool:
         """Check if payment is failed"""
         return self.status == 'failed'
-    
+
     @property
     def commission_amount(self) -> Decimal:
         """Calculate the commission amount only"""

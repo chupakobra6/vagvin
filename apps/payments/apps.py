@@ -10,4 +10,3 @@ class PaymentsConfig(AppConfig):
         """
         Import signal handlers when the app is ready
         """
-        from . import signals
