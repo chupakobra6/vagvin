@@ -11,13 +11,13 @@ from rest_framework import status
 
 from .models import Query
 from .serializers import QuerySerializer
-from .utils import create_query_and_update_balance
+from .utils import QueryService
 from .services import (
     AutotekaService,
     CarfaxService,
     VinhistoryService,
     AuctionService,
-    extract_avito_id,
+    AvitoService,
     ExamplesService
 )
 
@@ -60,7 +60,7 @@ def create_query(request):
     if not vin:
         return Response({'error': 'VIN номер обязателен'}, status=status.HTTP_400_BAD_REQUEST)
     
-    query, success = create_query_and_update_balance(
+    query, success = QueryService.create_query_and_update_balance(
         user=request.user,
         vin=vin,
         marka=marka,
@@ -107,7 +107,7 @@ class AutotekaCheckView(View):
             input_type = 'regNumber'
             input_value = data.get('regNumber')
         elif data.get('avitoUrl'):
-            avito_id = extract_avito_id(data.get('avitoUrl'))
+            avito_id = AvitoService.extract_id(data.get('avitoUrl'))
             if avito_id:
                 input_type = 'itemId'
                 input_value = avito_id

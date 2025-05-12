@@ -18,39 +18,51 @@ CACHE_TIME_SHORT = 3600  # 1 hour
 CACHE_TIME_LONG = 86400  # 24 hours
 
 
-def generate_cache_key(prefix: str, *args: Any) -> str:
-    """Generate a unique cache key."""
-    key_parts = [str(arg) for arg in args]
-    return f"{prefix}:" + ":".join(key_parts)
+class CacheService:
+    """Service for handling cache operations"""
+    
+    @classmethod
+    def generate_key(cls, prefix: str, *args: Any) -> str:
+        """Generate a unique cache key."""
+        key_parts = [str(arg) for arg in args]
+        return f"{prefix}:" + ":".join(key_parts)
 
 
-def log_check_request(check_type: str, identifier: str) -> str:
-    """Log vehicle check requests for analytics"""
-    message = f"{datetime.now().strftime('%d-%m-%y %H:%M:%S')} User requested {check_type} check for {identifier}"
-    logger.info(message)
-    return message
+class LoggingService:
+    """Service for handling specialized logging operations"""
+    
+    @classmethod
+    def log_check_request(cls, check_type: str, identifier: str) -> str:
+        """Log vehicle check requests for analytics"""
+        message = f"{datetime.now().strftime('%d-%m-%y %H:%M:%S')} User requested {check_type} check for {identifier}"
+        logger.info(message)
+        return message
 
 
-def extract_avito_id(url: str) -> str:
-    """Extract item ID from Avito URL"""
-    try:
-        parsed = urlparse(url)
-        if "avito.ru" not in parsed.netloc:
+class AvitoService:
+    """Service for handling Avito-related operations"""
+    
+    @classmethod
+    def extract_id(cls, url: str) -> str:
+        """Extract item ID from Avito URL"""
+        try:
+            parsed = urlparse(url)
+            if "avito.ru" not in parsed.netloc:
+                return ""
+            
+            # For URLs like https://www.avito.ru/.../_123456789
+            if "_" in parsed.path:
+                return parsed.path.split("_")[-1]
+            
+            # Try to extract from query parameters
+            query_params = parse_qs(parsed.query)
+            if "id" in query_params:
+                return query_params["id"][0]
+            
             return ""
-        
-        # For URLs like https://www.avito.ru/.../_123456789
-        if "_" in parsed.path:
-            return parsed.path.split("_")[-1]
-        
-        # Try to extract from query parameters
-        query_params = parse_qs(parsed.query)
-        if "id" in query_params:
-            return query_params["id"][0]
-        
-        return ""
-    except Exception:
-        logger.exception(f"Error extracting Avito ID from URL")
-        return ""
+        except Exception:
+            logger.exception(f"Error extracting Avito ID from URL")
+            return ""
 
 
 class AvitoAuthService:
@@ -155,13 +167,13 @@ class AutotekaService:
         else:
             cache_key_val = input_value
 
-        cache_key = generate_cache_key("autoteka", input_type, cache_key_val)
+        cache_key = CacheService.generate_key("autoteka", input_type, cache_key_val)
         cached_result = cache.get(cache_key)
         if cached_result:
             logger.info(f"Retrieved Autoteka data from cache for {input_type}:{cache_key_val}")
             return cached_result
 
-        log_check_request("Autoteka", f"{input_type} {cache_key_val}")
+        LoggingService.log_check_request("Autoteka", f"{input_type} {cache_key_val}")
 
         # Get API token
         access_token = AvitoAuthService.get_token()
@@ -370,13 +382,13 @@ class CarfaxService:
             logger.error("Carstat API key not configured properly. Check CARSTAT_API_KEY in settings.")
             return {"error": "Ошибка настройки API ключа Carstat. Пожалуйста, обратитесь к администратору."}
 
-        cache_key = generate_cache_key("carfax_autocheck", vin_upper)
+        cache_key = CacheService.generate_key("carfax_autocheck", vin_upper)
         cached_result = cache.get(cache_key)
         if cached_result:
             logger.info(f"Retrieved Carfax/Autocheck data from cache for {vin_upper}")
             return cached_result
 
-        log_check_request("Carfax/Autocheck", vin_upper)
+        LoggingService.log_check_request("Carfax/Autocheck", vin_upper)
         url = f'https://carstat.dev/api/reports/check-records/{vin_upper}'
         headers = {'accept': '*/*', 'x-api-key': settings.CARSTAT_API_KEY}
 
@@ -450,13 +462,13 @@ class VinhistoryService:
             logger.warning(f"Invalid VIN length for Vinhistory check: {len(vin_upper)}")
             return {"error": "VIN должен состоять из 17 символов"}
 
-        cache_key = generate_cache_key("vinhistory", vin_upper)
+        cache_key = CacheService.generate_key("vinhistory", vin_upper)
         cached_result = cache.get(cache_key)
         if cached_result:
             logger.info(f"Retrieved Vinhistory data from cache for VIN: {vin_upper}")
             return cached_result
 
-        log_check_request("Vinhistory", vin_upper)
+        LoggingService.log_check_request("Vinhistory", vin_upper)
 
         if not settings.VINHISTORY_LOGIN or not settings.VINHISTORY_PASS:
             logger.error("VINHistory credentials not configured properly.")
@@ -552,13 +564,13 @@ class AuctionService:
             logger.error("Carstat API key not configured properly. Check CARSTAT_API_KEY in settings.")
             return {"error": "Ошибка настройки API ключа Carstat. Пожалуйста, обратитесь к администратору."}
 
-        cache_key = generate_cache_key("auction", vin_upper)
+        cache_key = CacheService.generate_key("auction", vin_upper)
         cached_result = cache.get(cache_key)
         if cached_result:
             logger.info(f"Retrieved auction data (Carstat) from cache for {vin_upper}")
             return cached_result
 
-        log_check_request("Auction (Carstat)", vin_upper)
+        LoggingService.log_check_request("Auction (Carstat)", vin_upper)
         url = f'https://carstat.dev/api/local-exists/{vin_upper}'
         headers = {'accept': '*/*', 'x-api-key': settings.CARSTAT_API_KEY}
 
@@ -730,3 +742,8 @@ class ExamplesService:
             cls.get_service_campaigns_section(),
             cls.get_vehicle_checks_section()
         ] 
+
+# Legacy function aliases for backward compatibility - to be removed after all references are updated
+generate_cache_key = CacheService.generate_key
+log_check_request = LoggingService.log_check_request
+extract_avito_id = AvitoService.extract_id 

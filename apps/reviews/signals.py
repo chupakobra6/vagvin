@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.template.loader import render_to_string
 
-from apps.accounts.utils import send_email
+from apps.accounts.utils import EmailService
 from .models import Review
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def notify_admin_new_review(instance: Review, created: bool, **kwargs) -> None:
         html_content = render_to_string('emails/review_notification.html', context)
         subject = "Новый отзыв на сайте Vagvin"
 
-        send_email(
+        EmailService.send_email(
             subject=subject,
             to_email=settings.ADMIN_EMAIL,
             html_content=html_content,
