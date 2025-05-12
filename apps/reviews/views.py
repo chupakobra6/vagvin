@@ -25,22 +25,20 @@ class ReviewListView(ListView):
     def get_context_data(self, **kwargs):
         """Add form and pagination data to context."""
         context = super().get_context_data(**kwargs)
-        
-        # Use form from POST data if available (e.g., after failed validation)
+
         form = kwargs.get('form', ReviewForm())
         context['form'] = form
 
-        # Add pagination data to context
         if context['paginator'] and context['page_obj']:
             pagination_context = services.get_pagination_context(context['page_obj'])
             context.update(pagination_context)
 
         return context
-        
+
     def post(self, request, *args, **kwargs):
         """Handle review form submission."""
         form = ReviewForm(request.POST)
-        
+
         if form.is_valid():
             try:
                 services.create_review(
@@ -54,17 +52,14 @@ class ReviewListView(ListView):
             except Exception:
                 logger.exception("Error saving review")
                 messages.error(request, "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.")
-                # Setup for rendering
                 self.object_list = self.get_queryset()
                 return self.render_to_response(self.get_context_data(form=form))
         else:
             logger.warning("Review form validation failed")
-            
-            # Add error messages without field prefixes
+
             for field_name, error_list in form.errors.items():
                 for error in error_list:
                     messages.error(request, error)
-            
-            # Setup for rendering
+
             self.object_list = self.get_queryset()
             return self.render_to_response(self.get_context_data(form=form))

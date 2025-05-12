@@ -8,4 +8,5 @@ class ReviewsConfig(AppConfig):
 
     def ready(self):
         """Import signals when the app is ready."""
+        # noinspection PyUnresolvedReferences
         import apps.reviews.signals

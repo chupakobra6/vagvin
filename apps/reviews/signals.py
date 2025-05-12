@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Review)
 def notify_admin_new_review(instance: Review, created: bool, **kwargs) -> None:
     """
-    Send email notification to the admin when a new review is created.
+    Send an email notification to the admin when a new review is created.
     
     Args:
         instance: The Review instance that was saved

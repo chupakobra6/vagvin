@@ -61,7 +61,7 @@ class ReviewFormTest(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('email', form.errors)
         self.assertIn('text', form.errors)
-        
+
     def test_text_validation(self) -> None:
         """Test text field validation for minimum length."""
         data = {
@@ -71,10 +71,10 @@ class ReviewFormTest(TestCase):
             'text': 'Short'  # Too short
         }
         form = ReviewForm(data=data)
-        
+
         self.assertFalse(form.is_valid())
         self.assertIn('text', form.errors)
-        
+
     def test_name_validation(self) -> None:
         """Test name field validation for minimum length."""
         data = {
@@ -84,7 +84,7 @@ class ReviewFormTest(TestCase):
             'text': 'This is a proper review text.'
         }
         form = ReviewForm(data=data)
-        
+
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
 
@@ -93,7 +93,6 @@ class ReviewServicesTest(TestCase):
     """Tests for the review services."""
 
     def setUp(self) -> None:
-        # Create approved reviews
         for i in range(5):
             Review.objects.create(
                 name=f"User {i}",
@@ -103,7 +102,6 @@ class ReviewServicesTest(TestCase):
                 approved=True
             )
 
-        # Create unapproved reviews
         for i in range(3):
             Review.objects.create(
                 name=f"Pending User {i}",
@@ -116,7 +114,7 @@ class ReviewServicesTest(TestCase):
     def test_get_approved_reviews_queryset(self) -> None:
         """Test that the approved reviews queryset is filtered correctly."""
         queryset = services.get_approved_reviews_queryset()
-        
+
         self.assertEqual(queryset.count(), 5)
         for review in queryset:
             self.assertTrue(review.approved)
@@ -124,59 +122,57 @@ class ReviewServicesTest(TestCase):
     def test_get_approved_reviews(self) -> None:
         """Test that approved reviews are paginated correctly."""
         page_obj, total_pages = services.get_approved_reviews(page=1, per_page=3)
-        
+
         self.assertEqual(len(page_obj), 3)  # 3 per page
-        self.assertEqual(total_pages, 2)    # 5 total / 3 per page = 2 pages
-        
+        self.assertEqual(total_pages, 2)  # 5 total / 3 per page = 2 pages
+
     def test_create_review(self) -> None:
         """Test review creation."""
         review = services.create_review(
-            name='New User', 
+            name='New User',
             email='new@example.com',
             rating=4,
             text='New test review'
         )
-        
+
         self.assertEqual(review.name, 'New User')
         self.assertEqual(review.email, 'new@example.com')
         self.assertEqual(review.rating, 4)
         self.assertEqual(review.text, 'New test review')
         self.assertFalse(review.approved)
         self.assertEqual(Review.objects.count(), 9)  # 5 approved + 3 unapproved + 1 new
-        
+
     def test_get_pagination_context(self) -> None:
         """Test generation of pagination context."""
         page_obj, _ = services.get_approved_reviews(page=1, per_page=2)
         context = services.get_pagination_context(page_obj)
-        
+
         self.assertEqual(context['current_page'], 1)
         self.assertEqual(context['total_pages'], 3)  # 5 items / 2 per page
         self.assertFalse(context['has_previous'])
         self.assertTrue(context['has_next'])
         self.assertEqual(context['page_range'], [1, 2, 3])
-        
+
     def test_validate_review_form(self) -> None:
         """Test form validation with valid and invalid data."""
-        # Valid data
         valid_data = {
             'name': 'Test User',
             'email': 'test@example.com',
             'rating': 5,
             'text': 'This is a valid review text'
         }
-        
+
         success, form, review = services.validate_review_form(valid_data)
         self.assertTrue(success)
         self.assertIsNone(form)
         self.assertIsNotNone(review)
-        
-        # Invalid data (missing email)
+
         invalid_data = {
             'name': 'Test User',
             'rating': 5,
             'text': 'This is a valid review text'
         }
-        
+
         success, form, review = services.validate_review_form(invalid_data)
         self.assertFalse(success)
         self.assertIsNotNone(form)
@@ -190,7 +186,6 @@ class ReviewViewsTest(TestCase):
     def setUp(self) -> None:
         self.client = Client()
 
-        # Create approved reviews
         for i in range(3):
             Review.objects.create(
                 name=f"User {i}",
@@ -231,12 +226,10 @@ class ReviewViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)  # Redirect after successful submission
         self.assertRedirects(response, reverse('reviews:list'))
 
-        # Check that a message was added
         messages = list(get_messages(response.wsgi_request))
         self.assertEqual(len(messages), 1)
         self.assertIn("Спасибо!", str(messages[0]))
 
-        # Check that a new review was created but not approved
         self.assertEqual(Review.objects.count(), 4)
         self.assertEqual(Review.objects.filter(approved=True).count(), 3)
 
@@ -244,7 +237,6 @@ class ReviewViewsTest(TestCase):
         """Test the ReviewCreateView with invalid POST data."""
         data = {
             'name': 'Test User',
-            # Missing email and text
             'rating': 5
         }
 
@@ -254,5 +246,4 @@ class ReviewViewsTest(TestCase):
         self.assertTemplateUsed(response, 'reviews/form.html')
         self.assertFalse(response.context['form'].is_valid())
 
-        # Check that no new review was created
         self.assertEqual(Review.objects.count(), 3)

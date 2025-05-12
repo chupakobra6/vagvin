@@ -4,8 +4,8 @@ from typing import Dict, Any, Tuple
 from django.core.paginator import Paginator, Page
 from django.db.models import QuerySet
 
-from .models import Review
 from .forms import ReviewForm
+from .models import Review
 
 logger = logging.getLogger(__name__)
 
@@ -29,14 +29,14 @@ def get_approved_reviews(*, page: int = 1, per_page: int = 10) -> Tuple[Page, in
         per_page: Number of reviews per page
         
     Returns:
-        Tuple containing page object and total number of pages
+        Tuple containing a page object and total number of pages
     """
     logger.info(f"Getting approved reviews for page {page} with {per_page} items per page")
     reviews = get_approved_reviews_queryset()
-    
+
     paginator = Paginator(reviews, per_page)
     page_obj = paginator.get_page(page)
-    
+
     return page_obj, paginator.num_pages
 
 
@@ -78,14 +78,13 @@ def get_pagination_context(page_obj: Page) -> Dict[str, Any]:
     Returns:
         Dict containing pagination context variables
     """
-    # Calculate page range for pagination navigation
     page_range = []
     for i in range(
-        max(1, page_obj.number - 2), 
-        min(page_obj.paginator.num_pages + 1, page_obj.number + 3)
+            max(1, page_obj.number - 2),
+            min(page_obj.paginator.num_pages + 1, page_obj.number + 3)
     ):
         page_range.append(i)
-    
+
     return {
         'current_page': page_obj.number,
         'total_pages': page_obj.paginator.num_pages,
@@ -106,7 +105,7 @@ def validate_review_form(form_data: Dict[str, Any]) -> Tuple[bool, ReviewForm | 
         Tuple containing: success status, form object (if invalid), created review (if valid)
     """
     form = ReviewForm(form_data)
-    
+
     if form.is_valid():
         try:
             review = create_review(
@@ -119,6 +118,6 @@ def validate_review_form(form_data: Dict[str, Any]) -> Tuple[bool, ReviewForm | 
         except Exception:
             logger.exception("Failed to save valid review form")
             return False, form, None
-    
+
     logger.warning(f"Review form validation failed: {form.errors}")
     return False, form, None

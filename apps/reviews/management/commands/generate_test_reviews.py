@@ -35,13 +35,12 @@ class Command(BaseCommand):
         
         fake = Faker('ru_RU')
         
-        # Sample admin responses
         admin_responses = [
             "Спасибо за ваш отзыв! Мы рады, что вам понравился наш сервис.",
             "Благодарим за обратную связь! Ваше мнение очень важно для нас.",
             "Спасибо за высокую оценку! Мы стараемся сделать наш сервис еще лучше.",
             "Благодарим за отзыв и высокую оценку нашей работы!",
-            None, None, None  # to have some reviews without admin responses
+            None, None, None
         ]
         
         reviews_created = 0
@@ -49,15 +48,12 @@ class Command(BaseCommand):
         self.stdout.write(self.style.MIGRATE_HEADING(f'Generating {count} test reviews...'))
         
         for _ in range(count):
-            rating = random.randint(3, 5)  # Bias towards positive reviews
+            rating = random.randint(3, 5)
             
-            # 70% of reviews are approved if approved_only is False
             is_approved = True if approved_only else random.random() < 0.7
             
-            # Only include admin response for some approved reviews
             admin_response = random.choice(admin_responses) if is_approved and random.random() < 0.6 else None
             
-            # Generate review content
             review = Review(
                 name=fake.name(),
                 email=fake.email(),
@@ -70,7 +66,6 @@ class Command(BaseCommand):
             review.save()
             reviews_created += 1
             
-            # Log progress every 10 reviews
             if reviews_created % 10 == 0:
                 self.stdout.write(f'Created {reviews_created} reviews...')
         
