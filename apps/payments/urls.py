@@ -17,8 +17,8 @@ urlpatterns = [
     path('yookassa/callback/', views.YooKassaCallbackView.as_view(), name='yookassa_callback'),
 
     # Heleket routes
-    path('heleket/initiate/', views.InitiateHelekitPaymentView.as_view(), name='heleket_initiate'),
-    path('heleket/callback/', views.HelekitCallbackView.as_view(), name='heleket_callback'),
+    path('heleket/initiate/', views.InitiateHeleketPaymentView.as_view(), name='heleket_initiate'),
+    path('heleket/callback/', views.HeleketCallbackView.as_view(), name='heleket_callback'),
 
     # Payment status
     path('status/<int:payment_id>/', views.PaymentStatusView.as_view(), name='payment_status'),

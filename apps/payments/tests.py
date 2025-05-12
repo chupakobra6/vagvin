@@ -58,7 +58,7 @@ class PaymentModelTest(TestCase):
         self.assertEqual(str(payment), f"{self.user} → robokassa 100.00 руб. (Ожидает оплаты)")
 
     def test_payment_methods(self) -> None:
-        """Test payment model methods."""
+        """Test payment model methods through PaymentService."""
         payment = Payment.objects.create(
             user=self.user,
             provider="robokassa",
@@ -69,18 +69,18 @@ class PaymentModelTest(TestCase):
         )
 
         # Test apply_commission
-        payment.apply_commission(rate=0.10)
+        PaymentService.apply_commission(payment, rate=0.10)
         self.assertEqual(payment.total_amount, Decimal("110.00"))
 
         # Test status methods
-        self.assertTrue(payment.is_pending)
-        self.assertFalse(payment.is_successful)
-        self.assertFalse(payment.is_failed)
+        self.assertTrue(PaymentService.is_pending(payment))
+        self.assertFalse(PaymentService.is_successful(payment))
+        self.assertFalse(PaymentService.is_failed(payment))
 
         # Test mark_as_successful
-        payment.mark_as_successful()
+        PaymentService.mark_as_successful(payment)
         self.assertEqual(payment.status, "success")
-        self.assertTrue(payment.is_successful)
+        self.assertTrue(PaymentService.is_successful(payment))
 
         # Create a new payment to test mark_as_failed
         payment2 = Payment.objects.create(
@@ -92,9 +92,9 @@ class PaymentModelTest(TestCase):
             status="pending"
         )
 
-        payment2.mark_as_failed()
+        PaymentService.mark_as_failed(payment2)
         self.assertEqual(payment2.status, "failed")
-        self.assertTrue(payment2.is_failed)
+        self.assertTrue(PaymentService.is_failed(payment2))
 
     def test_commission_amount(self) -> None:
         """Test commission amount calculation."""
@@ -120,7 +120,7 @@ class PaymentModelTest(TestCase):
             status="pending"
         )
 
-        self.assertEqual(payment.get_payment_method_display(), "Robokassa")
+        self.assertEqual(PaymentService.get_payment_method_display(payment), "Robokassa")
 
 
 class PaymentProcessorTest(TestCase):
@@ -173,7 +173,7 @@ class TestModePaymentProcessorTest(TestCase):
         payment, url = self.test_processor.create_payment_with_url(self.user, Decimal("100.00"))
 
         self.assertEqual(payment.status, "success")
-        self.assertTrue(payment.is_successful)
+        self.assertTrue(PaymentService.is_successful(payment))
         self.assertTrue(url.startswith("/payments/test-success/"))
 
 
@@ -248,10 +248,9 @@ class PaymentServiceTest(TestCase):
         """Test getting user payment statistics."""
         stats = PaymentService.get_user_payments_stats(self.user)
 
-        self.assertEqual(stats["payments_count"], 2)  # Only the successful payments
-        self.assertEqual(stats["successful_payments"], 2)
-        self.assertEqual(stats["pending_payments"], 1)
-        self.assertEqual(stats["total_amount"], Decimal("300.00"))
+        self.assertEqual(stats["successful_count"], 2)
+        self.assertEqual(stats["pending_count"], 1)
+        self.assertEqual(stats["successful_total"], Decimal("300.00"))
 
 
 class PaymentViewsTest(TestCase):

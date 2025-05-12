@@ -140,7 +140,7 @@ class ReviewServicesTest(TestCase):
         self.assertEqual(review.rating, 4)
         self.assertEqual(review.text, 'New test review')
         self.assertFalse(review.approved)
-        self.assertEqual(Review.objects.count(), 9)  # 5 approved + 3 unapproved + 1 new
+        self.assertEqual(Review.objects.count(), 9)
 
     def test_get_pagination_context(self) -> None:
         """Test generation of pagination context."""
@@ -148,14 +148,13 @@ class ReviewServicesTest(TestCase):
         context = services.get_pagination_context(page_obj)
 
         self.assertEqual(context['current_page'], 1)
-        self.assertEqual(context['total_pages'], 3)  # 5 items / 2 per page
+        self.assertEqual(context['total_pages'], 3)
         self.assertFalse(context['has_previous'])
         self.assertTrue(context['has_next'])
         self.assertEqual(context['page_range'], [1, 2, 3])
 
     def test_handle_review_submission(self) -> None:
         """Test handling review form submission with valid and invalid data."""
-        # Create a request object with POST data
         request = self.client.request().wsgi_request
         request.POST = {
             'name': 'Test User',
@@ -164,15 +163,12 @@ class ReviewServicesTest(TestCase):
             'text': 'This is a valid review text'
         }
 
-        # Test with valid data
         success, form = services.handle_review_submission(request)
         self.assertTrue(success)
         self.assertIsNone(form)
         
-        # Check that a new review was created
-        self.assertEqual(Review.objects.count(), 9)  # 8 from setUp + 1 new
+        self.assertEqual(Review.objects.count(), 9)
 
-        # Test with invalid data
         request.POST = {
             'name': 'Test User',
             'rating': 5,
@@ -188,10 +184,10 @@ class ReviewServicesTest(TestCase):
         """Test getting review statistics."""
         stats = services.get_review_statistics()
         
-        self.assertEqual(stats['total_reviews'], 5)  # 5 approved reviews
-        self.assertEqual(stats['average_rating'], 5.0)  # All ratings are 5
-        self.assertEqual(len(stats['rating_percentages']), 5)  # One for each possible rating
-        self.assertEqual(stats['rating_percentages'][5], 100.0)  # All reviews have rating 5
+        self.assertEqual(stats['total_reviews'], 5)
+        self.assertEqual(stats['average_rating'], 5.0)
+        self.assertEqual(len(stats['rating_percentages']), 5)
+        self.assertEqual(stats['rating_percentages'][5], 100.0)
 
     def test_get_recent_reviews(self) -> None:
         """Test getting recent reviews."""
@@ -225,7 +221,6 @@ class ReviewViewsTest(TestCase):
         self.assertTemplateUsed(response, 'reviews/list.html')
         self.assertEqual(len(response.context['reviews']), 3)
         
-        # Проверяем тип формы без использования isinstance
         self.assertEqual(response.context['form'].__class__, ReviewForm)
         self.assertIn('stats', response.context)
 

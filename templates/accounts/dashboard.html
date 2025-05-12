@@ -228,8 +228,8 @@
                                     </button>
                                 </li>
                                 <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="helekit-tab" data-bs-toggle="tab"
-                                            data-bs-target="#helekit" type="button" role="tab" aria-controls="helekit"
+                                    <button class="nav-link" id="heleket-tab" data-bs-toggle="tab"
+                                            data-bs-target="#heleket" type="button" role="tab" aria-controls="heleket"
                                             aria-selected="false">
                                         <i class="fas fa-coins me-2"></i>Crypto
                                     </button>
@@ -313,20 +313,20 @@
                                     </form>
                                 </div>
 
-                                <!-- Helekit (Crypto) Form -->
-                                <div class="tab-pane fade" id="helekit" role="tabpanel" aria-labelledby="helekit-tab">
+                                <!-- heleket (Crypto) Form -->
+                                <div class="tab-pane fade" id="heleket" role="tabpanel" aria-labelledby="heleket-tab">
                                     <div class="alert alert-info mb-4">
                                         <p class="mb-0">Оплата криптовалютой. Поддерживаются
                                             основные криптовалюты (BTC, ETH, USDT и др.). Система автоматически добавит
                                             комиссию 6% к указанной вами сумме.</p>
                                     </div>
-                                    <form id="helekit-form" data-url="{% url 'payments:heleket_initiate' %}">
+                                    <form id="heleket-form" data-url="{% url 'payments:heleket_initiate' %}">
                                         {% csrf_token %}
                                         <div class="mb-3">
-                                            <label for="helekit-amount" class="form-label fw-bold">Сумма пополнения
+                                            <label for="heleket-amount" class="form-label fw-bold">Сумма пополнения
                                                 (руб.)</label>
                                             <div class="input-group">
-                                                <input type="number" class="form-control" id="helekit-amount" min="500"
+                                                <input type="number" class="form-control" id="heleket-amount" min="500"
                                                        step="100" placeholder="Например, 1000" required>
                                                 <button type="submit" class="btn btn-primary">Пополнить
                                                 </button>
@@ -335,16 +335,16 @@
                                         </div>
                                         <div class="quick-amounts d-flex flex-wrap gap-2 mt-3">
                                             <button type="button" class="btn btn-outline-primary amount-btn"
-                                                    data-target="helekit-amount" data-amount="500">500 ₽
+                                                    data-target="heleket-amount" data-amount="500">500 ₽
                                             </button>
                                             <button type="button" class="btn btn-outline-primary amount-btn"
-                                                    data-target="helekit-amount" data-amount="1000">1 000 ₽
+                                                    data-target="heleket-amount" data-amount="1000">1 000 ₽
                                             </button>
                                             <button type="button" class="btn btn-outline-primary amount-btn"
-                                                    data-target="helekit-amount" data-amount="2000">2 000 ₽
+                                                    data-target="heleket-amount" data-amount="2000">2 000 ₽
                                             </button>
                                             <button type="button" class="btn btn-outline-primary amount-btn"
-                                                    data-target="helekit-amount" data-amount="5000">5 000 ₽
+                                                    data-target="heleket-amount" data-amount="5000">5 000 ₽
                                             </button>
                                         </div>
                                     </form>

@@ -9,15 +9,18 @@ from django.db import transaction
 from faker import Faker
 
 from apps.payments.models import Payment
+from apps.payments.services import PaymentService
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
 
 class Command(BaseCommand):
+    """Generate test payment data for development purposes."""
     help = 'Generates test payment data for development purposes'
 
     def add_arguments(self, parser):
+        """Add command line arguments."""
         parser.add_argument(
             '--count',
             type=int,
@@ -48,6 +51,7 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args: Any, **options: Any) -> Optional[str]:
+        """Execute the command to generate test payments."""
         count = options['count']
         username = options['user']
         success_rate = options['success_rate']
@@ -121,12 +125,10 @@ class Command(BaseCommand):
                 status=status
             )
 
-            # If successful payment, update user's balance
+            # If successful payment, update user's balance using the service
             if status == 'success':
-                try:
-                    user.balance = Decimal(user.balance) + amount
-                    user.save(update_fields=['balance'])
-                except Exception:
+                success, _ = PaymentService.update_balance(user, amount)
+                if not success:
                     logger.exception("Failed to update balance for user")
 
             payments_created += 1

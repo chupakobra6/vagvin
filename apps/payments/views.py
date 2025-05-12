@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class BasePaymentView(View):
-    """Base view for initiating payments with any payment processor"""
+    """Base view for initiating payments with any payment processor."""
     provider = None
 
     @method_decorator(login_required)
@@ -53,17 +53,17 @@ class BasePaymentView(View):
             }, status=500)
 
     def _parse_request_data(self, request) -> Dict[str, Any]:
-        """Parse request data from either JSON or POST"""
+        """Parse request data from either JSON or POST."""
         return json.loads(request.body) if request.body else request.POST
 
     def _create_payment(self, user, amount, total_amount):
-        """Should be implemented by subclasses to create a payment"""
+        """Should be implemented by subclasses to create a payment."""
         processor = get_payment_processor(self.provider)
         return processor.create_payment_with_url(user, amount, total_amount)
 
 
 class BaseCallbackView(View):
-    """Base view for payment callbacks from payment providers"""
+    """Base view for payment callbacks from payment providers."""
     provider = None
     ip_whitelist_setting = None
 
@@ -72,27 +72,24 @@ class BaseCallbackView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def check_ip_whitelist(self, request) -> bool:
-        """Check if the request IP is in the whitelist, if a whitelist is configured"""
+        """Check if the request IP is in the whitelist, if a whitelist is configured."""
         if not self.ip_whitelist_setting:
             return True
 
-        # Direct access to specific settings without any reflection
         whitelist = None
-        if self.ip_whitelist_setting == 'ALLOWED_ROBOKASSA_IPS':
-            try:
-                whitelist = settings.ALLOWED_ROBOKASSA_IPS
-            except AttributeError:
-                # Setting doesn't exist
+        match self.ip_whitelist_setting:
+            case 'ALLOWED_ROBOKASSA_IPS':
+                try:
+                    whitelist = settings.ALLOWED_ROBOKASSA_IPS
+                except AttributeError:
+                    return True
+            case 'ALLOWED_HELEKET_IPS':
+                try:
+                    whitelist = settings.ALLOWED_HELEKET_IPS
+                except AttributeError:
+                    return True
+            case _:
                 return True
-        elif self.ip_whitelist_setting == 'ALLOWED_HELEKET_IPS':
-            try:
-                whitelist = settings.ALLOWED_HELEKET_IPS
-            except AttributeError:
-                # Setting doesn't exist
-                return True
-        else:
-            # Unknown whitelist setting
-            return True
 
         if not whitelist:
             return True
@@ -119,20 +116,21 @@ class BaseCallbackView(View):
             return HttpResponse("Error", status=500)
 
     def post(self, request):
-        """Default implementation for POST, can be overridden by subclasses"""
+        """Default implementation for POST, can be overridden by subclasses."""
         return self.get(request)
 
     def _verify_callback(self, params):
-        """Should be implemented by subclasses to verify the callback"""
+        """Should be implemented by subclasses to verify the callback."""
         processor = get_payment_processor(self.provider)
         return processor.verify_callback(params)
 
     def _success_response(self, payment):
-        """Generate success response for the payment provider"""
+        """Generate success response for the payment provider."""
         return HttpResponse(f"OK{payment.id}")
 
 
 class InitiateRobokassaPaymentView(BasePaymentView):
+    """View for initiating payments through Robokassa."""
     provider = 'robokassa'
 
     def _create_payment(self, user, amount, total_amount):
@@ -140,6 +138,7 @@ class InitiateRobokassaPaymentView(BasePaymentView):
 
 
 class RobokassaCallbackView(BaseCallbackView):
+    """View for handling callbacks from Robokassa."""
     provider = 'robokassa'
     ip_whitelist_setting = 'ALLOWED_ROBOKASSA_IPS'
 
@@ -148,6 +147,7 @@ class RobokassaCallbackView(BaseCallbackView):
 
 
 class InitiateYooKassaPaymentView(BasePaymentView):
+    """View for initiating payments through YooKassa."""
     provider = 'yookassa'
 
     def _create_payment(self, user, amount, total_amount):
@@ -155,6 +155,7 @@ class InitiateYooKassaPaymentView(BasePaymentView):
 
 
 class YooKassaCallbackView(BaseCallbackView):
+    """View for handling callbacks from YooKassa."""
     provider = 'yookassa'
 
     def post(self, request):
@@ -177,14 +178,16 @@ class YooKassaCallbackView(BaseCallbackView):
             return HttpResponse("Error", status=500)
 
 
-class InitiateHelekitPaymentView(BasePaymentView):
+class InitiateHeleketPaymentView(BasePaymentView):
+    """View for initiating payments through Heleket."""
     provider = 'heleket'
 
     def _create_payment(self, user, amount, total_amount):
         return create_heleket_payment(user, amount, total_amount)
 
 
-class HelekitCallbackView(BaseCallbackView):
+class HeleketCallbackView(BaseCallbackView):
+    """View for handling callbacks from Heleket."""
     provider = 'heleket'
     ip_whitelist_setting = 'ALLOWED_HELEKET_IPS'
 
@@ -193,12 +196,13 @@ class HelekitCallbackView(BaseCallbackView):
 
 
 class PaymentStatusView(View):
+    """View for checking payment status."""
+    
     @method_decorator(login_required)
     def get(self, request, payment_id):
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
 
-            # Format decimal amounts to 2 decimal places
             amount = payment.amount
             total_amount = payment.total_amount
 
@@ -227,15 +231,12 @@ class PaymentStatusView(View):
 
 
 class PaymentRequisitesView(TemplateView):
-    """View for payment requisites page"""
+    """View for payment requisites page."""
     template_name = 'payments/requisites.html'
 
 
 class TestSuccessView(View):
-    """
-    View for handling test mode payment success redirects.
-    This simulates the return from a payment gateway in test mode.
-    """
+    """View for handling test mode payment success redirects."""
 
     @method_decorator(login_required)
     def get(self, request):
@@ -246,7 +247,6 @@ class TestSuccessView(View):
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
 
-            # Redirect to the dashboard with a success message
             messages.success(request, f"Тестовый платеж на сумму {payment.amount} руб. успешно выполнен!")
             return redirect('accounts:dashboard')
 

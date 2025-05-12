@@ -180,7 +180,7 @@ function initializePaymentForms() {
     // Set up payment forms
     initializePaymentSubmit('robokassa-form');
     initializePaymentSubmit('yookassa-form');
-    initializePaymentSubmit('helekit-form');
+    initializePaymentSubmit('heleket-form');
 }
 
 /**
@@ -200,7 +200,7 @@ function initializePaymentSubmit(formId) {
             const amount = parseFloat(amountInput.value);
             
             let commissionRate = 0.1;
-            if (form.id === 'helekit-form') {
+            if (form.id === 'heleket-form') {
                 commissionRate = 0.06;
             }
             const totalAmount = amount * (1 + commissionRate);
