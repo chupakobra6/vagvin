@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView, View, TemplateView
 
+from apps.payments.models import Payment
 from apps.payments.services import PaymentService
 from .forms import RegistrationForm, ForgotPasswordForm, LoginForm
 from .services import UserService
@@ -98,8 +99,24 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         user_data = UserService.get_user_data(self.request.user)
         context['user_data'] = user_data
         
-        user_payment_stats = PaymentService.get_user_payments_stats(self.request.user)
-        user_payment_stats.pop('balance', None)
+        payment_stats = PaymentService.get_user_payments_stats(self.request.user)
         
-        context.update(user_payment_stats)
+        context['payments_count'] = payment_stats.get('successful_count', 0)
+        
+        # Format total amount to 2 decimal places
+        total_amount = payment_stats.get('successful_total', 0)
+        if total_amount:
+            from decimal import Decimal, ROUND_HALF_UP
+            total_amount = Decimal(str(total_amount)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        context['total_amount'] = total_amount
+        
+        payments = Payment.objects.filter(
+            user=self.request.user
+        ).order_by('-created_at')
+        
+        last_payment = payments.filter(status='success').first()
+        context['last_payment'] = last_payment
+        
+        context['payments'] = payments[:10]
+        
         return context

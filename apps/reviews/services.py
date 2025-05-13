@@ -13,26 +13,12 @@ logger = logging.getLogger(__name__)
 
 
 def get_approved_reviews_queryset() -> QuerySet:
-    """
-    Get the queryset of approved reviews ordered by creation date.
-    
-    Returns:
-        QuerySet: Filtered queryset of approved reviews
-    """
+    """Get the queryset of approved reviews ordered by creation date."""
     return Review.objects.filter(approved=True).order_by('-created_at')
 
 
 def get_approved_reviews(*, page: int = 1, per_page: int = 10) -> Tuple[Page, int]:
-    """
-    Get paginated approved reviews.
-    
-    Args:
-        page: Current page number
-        per_page: Number of reviews per page
-        
-    Returns:
-        Tuple containing a page object and total number of pages
-    """
+    """Get paginated approved reviews."""
     logger.info(f"Getting approved reviews for page {page} with {per_page} items per page")
     reviews = get_approved_reviews_queryset()
 
@@ -43,18 +29,7 @@ def get_approved_reviews(*, page: int = 1, per_page: int = 10) -> Tuple[Page, in
 
 
 def create_review(*, name: str, email: str, rating: int, text: str) -> Review:
-    """
-    Create a new review.
-    
-    Args:
-        name: Reviewer's name
-        email: Reviewer's email
-        rating: Review rating (1-5)
-        text: Review text content
-        
-    Returns:
-        Review: The created review instance
-    """
+    """Create a new review."""
     try:
         review = Review.objects.create(
             name=name,
@@ -71,12 +46,7 @@ def create_review(*, name: str, email: str, rating: int, text: str) -> Review:
 
 
 def get_review_statistics() -> Dict[str, Any]:
-    """
-    Get review statistics.
-    
-    Returns:
-        Dict containing review statistics (count, average rating)
-    """
+    """Get review statistics."""
     try:
         stats = Review.objects.filter(approved=True).aggregate(
             count=Count('id'),
@@ -98,12 +68,7 @@ def get_review_statistics() -> Dict[str, Any]:
 
 
 def get_rating_distribution() -> Dict[int, float]:
-    """
-    Get percentage distribution of ratings.
-    
-    Returns:
-        Dict with rating values as keys and percentage as values
-    """
+    """Get percentage distribution of ratings."""
     try:
         total = Review.objects.filter(approved=True).count()
         if total == 0:
@@ -121,15 +86,7 @@ def get_rating_distribution() -> Dict[int, float]:
 
 
 def get_pagination_context(page_obj: Page) -> Dict[str, Any]:
-    """
-    Generate pagination context for templates.
-    
-    Args:
-        page_obj: Django Page object
-        
-    Returns:
-        Dict containing pagination context variables
-    """
+    """Generate pagination context for templates."""
     page_range = []
     for i in range(
             max(1, page_obj.number - 2),
@@ -147,15 +104,7 @@ def get_pagination_context(page_obj: Page) -> Dict[str, Any]:
 
 
 def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[ReviewForm]]:
-    """
-    Handle review form submission.
-    
-    Args:
-        request: HTTP request with POST data
-        
-    Returns:
-        Tuple containing success status and form (if invalid)
-    """
+    """Handle review form submission."""
     form = ReviewForm(request.POST)
 
     if form.is_valid():
@@ -170,7 +119,7 @@ def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[Revie
             logger.info(f"Successfully submitted review from {form.cleaned_data['name']}")
             return True, None
         except Exception:
-            logger.exception("Error saving review")
+            logger.exception("Failed to save review")
             messages.error(request, "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.")
             return False, form
     else:
@@ -184,15 +133,7 @@ def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[Revie
 
 
 def get_recent_reviews(limit: int = 5) -> List[Review]:
-    """
-    Get most recent approved reviews.
-    
-    Args:
-        limit: Maximum number of reviews to return
-        
-    Returns:
-        List of recent review objects
-    """
+    """Get most recent approved reviews."""
     try:
         return Review.objects.filter(approved=True).order_by('-created_at')[:limit]
     except Exception:

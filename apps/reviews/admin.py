@@ -39,15 +39,15 @@ class ReviewAdmin(admin.ModelAdmin):
         """Display star rating with stars."""
         return f"{obj.rating} {'★' * obj.rating}{'☆' * (5 - obj.rating)}"
 
-    display_rating.short_description = 'Оценка'  # type: ignore
-    display_rating.admin_order_field = 'rating'  # type: ignore
+    display_rating.short_description = 'Оценка' 
+    display_rating.admin_order_field = 'rating' 
 
     def has_response(self, obj: Review) -> bool:
         """Check if review has admin response."""
         return bool(obj.admin_response and obj.admin_response.strip())
 
-    has_response.boolean = True  # type: ignore
-    has_response.short_description = 'Ответ'  # type: ignore
+    has_response.boolean = True 
+    has_response.short_description = 'Ответ' 
 
     def approve_reviews(self, request: HttpRequest, queryset: QuerySet) -> None:
         """Approve selected reviews."""
@@ -55,7 +55,7 @@ class ReviewAdmin(admin.ModelAdmin):
         logger.info(f"Admin {request.user} approved {updated} reviews")
         self.message_user(request, f"{updated} отзывов было одобрено.")
 
-    approve_reviews.short_description = "Одобрить выбранные отзывы"  # type: ignore
+    approve_reviews.short_description = "Одобрить выбранные отзывы" 
 
     def unapprove_reviews(self, request: HttpRequest, queryset: QuerySet) -> None:
         """Unapprove selected reviews."""
@@ -63,4 +63,4 @@ class ReviewAdmin(admin.ModelAdmin):
         logger.info(f"Admin {request.user} unapproved {updated} reviews")
         self.message_user(request, f"{updated} отзывов было скрыто.")
 
-    unapprove_reviews.short_description = "Скрыть выбранные отзывы"  # type: ignore
+    unapprove_reviews.short_description = "Скрыть выбранные отзывы" 

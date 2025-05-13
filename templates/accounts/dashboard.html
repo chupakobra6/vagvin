@@ -201,7 +201,7 @@
                                 <div class="col-md-4 mb-3">
                                     <div class="dashboard-stat">
                                         <div class="stat-title">Последнее пополнение</div>
-                                        <div class="stat-value">{{ last_payment.amount|default:"0" }} ₽</div>
+                                        <div class="stat-value">{% if last_payment %}{{ last_payment.amount|floatformat:2 }}{% else %}0.00{% endif %} ₽</div>
                                     </div>
                                 </div>
                             </div>
@@ -410,7 +410,7 @@
                                             {% for payment in payments %}
                                                 <tr>
                                                     <td>{{ payment.created_at|date:"d.m.Y H:i" }}</td>
-                                                    <td>{{ payment.amount }} руб.</td>
+                                                    <td>{{ payment.amount|floatformat:2 }} руб.</td>
                                                     <td>
                                                         <span class="payment-status-badge 
                                                             {% if payment.status == 'success' %}badge-success
@@ -421,7 +421,7 @@
                                                             {% else %}Отклонено{% endif %}
                                                         </span>
                                                     </td>
-                                                    <td>{{ payment.get_payment_method_display }}</td>
+                                                    <td>{{ payment.provider|title }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>

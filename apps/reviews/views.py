@@ -1,5 +1,7 @@
 import logging
+from typing import Dict, Any, Optional
 
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.views.generic import ListView, TemplateView
 
@@ -21,25 +23,22 @@ class ReviewListView(ListView):
         """Return only approved reviews ordered by creation date."""
         return services.get_approved_reviews_queryset()
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add form and pagination data to context."""
         context = super().get_context_data(**kwargs)
 
-        # Add review form
         form = kwargs.get('form', ReviewForm())
         context['form'] = form
 
-        # Add pagination context
         if context['paginator'] and context['page_obj']:
             pagination_context = services.get_pagination_context(context['page_obj'])
             context.update(pagination_context)
 
-        # Add review statistics
         context['stats'] = services.get_review_statistics()
 
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
         """Handle review form submission through the service layer."""
         success, form = services.handle_review_submission(request)
 
@@ -54,17 +53,14 @@ class ReviewWidgetView(TemplateView):
     """View for displaying a small widget of recent reviews."""
     template_name = 'reviews/list.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> Dict[str, Any]:
         """Add recent reviews to context."""
         context = super().get_context_data(**kwargs)
 
-        # Mark as widget display
         context['is_widget'] = True
 
-        # Get recent reviews
         context['recent_reviews'] = services.get_recent_reviews(limit=3)
 
-        # Add statistics
         context['stats'] = services.get_review_statistics()
 
         return context

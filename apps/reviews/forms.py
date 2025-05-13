@@ -29,10 +29,8 @@ class ReviewForm(forms.ModelForm):
             })
         }
 
-    def __init__(self, *args, **kwargs):
-        """
-        Initialize the form and add error classes to fields with errors.
-        """
+    def __init__(self, *args, **kwargs) -> None:
+        """Initialize the form and add error classes to fields with errors."""
         super().__init__(*args, **kwargs)
         if self.is_bound:
             for field in self.errors:
