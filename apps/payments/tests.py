@@ -63,26 +63,22 @@ class PaymentModelTest(TestCase):
             user=self.user,
             provider="robokassa",
             amount=Decimal("100.00"),
-            total_amount=Decimal("0.00"),  # Will be calculated
+            total_amount=Decimal("0.00"),
             invoice_id="test_invoice_123",
             status="pending"
         )
 
-        # Test apply_commission
         PaymentService.apply_commission(payment, rate=0.10)
         self.assertEqual(payment.total_amount, Decimal("110.00"))
 
-        # Test status methods
         self.assertTrue(PaymentService.is_pending(payment))
         self.assertFalse(PaymentService.is_successful(payment))
         self.assertFalse(PaymentService.is_failed(payment))
 
-        # Test mark_as_successful
         PaymentService.mark_as_successful(payment)
         self.assertEqual(payment.status, "success")
         self.assertTrue(PaymentService.is_successful(payment))
 
-        # Create a new payment to test mark_as_failed
         payment2 = Payment.objects.create(
             user=self.user,
             provider="robokassa",
@@ -138,7 +134,7 @@ class PaymentProcessorTest(TestCase):
         """Test invoice ID generation."""
         invoice_id = self.processor.generate_invoice_id()
         self.assertTrue(invoice_id.startswith("test_provider_"))
-        self.assertEqual(len(invoice_id), len("test_provider_") + 32)  # provider + UUID hex
+        self.assertEqual(len(invoice_id), len("test_provider_") + 32)
 
     def test_calculate_total_amount(self) -> None:
         """Test total amount calculation with commission."""
@@ -188,7 +184,6 @@ class PaymentServiceTest(TestCase):
             balance=Decimal("1000.00")
         )
 
-        # Create some test payments
         Payment.objects.create(
             user=self.user,
             provider="robokassa",
@@ -220,14 +215,12 @@ class PaymentServiceTest(TestCase):
         """Test updating user balance."""
         initial_balance = self.user.balance
 
-        # Test with a positive amount
         success, data = PaymentService.update_balance(self.user, Decimal("100.00"))
 
         self.assertTrue(success)
         self.user.refresh_from_db()
         self.assertEqual(self.user.balance, initial_balance + Decimal("100.00"))
 
-        # Test with a negative amount
         success, data = PaymentService.update_balance(self.user, Decimal("-50.00"))
 
         self.assertTrue(success)
@@ -236,11 +229,9 @@ class PaymentServiceTest(TestCase):
 
     def test_can_afford(self) -> None:
         """Test checking if user can afford a payment."""
-        # Test amount within balance
         can_afford, _ = PaymentService.can_afford(self.user, Decimal("500.00"))
         self.assertTrue(can_afford)
 
-        # Test amount exceeding balance
         can_afford, _ = PaymentService.can_afford(self.user, Decimal("1500.00"))
         self.assertFalse(can_afford)
 
@@ -272,7 +263,6 @@ class PaymentViewsTest(TestCase):
     @patch('apps.payments.services.RobokassaPaymentProcessor.create_payment_with_url')
     def test_initiate_payment_view(self, mock_create_payment) -> None:
         """Test initiating a payment."""
-        # Mock the payment creation
         payment = Payment.objects.create(
             user=self.user,
             provider="robokassa",
@@ -283,7 +273,6 @@ class PaymentViewsTest(TestCase):
         )
         mock_create_payment.return_value = (payment, "https://test-payment-url.com")
 
-        # Test the view
         url = reverse('payments:robokassa_initiate')
         data = {
             'amount': '100.00'
@@ -297,7 +286,6 @@ class PaymentViewsTest(TestCase):
 
     def test_payment_status_view(self) -> None:
         """Test checking payment status."""
-        # Create a payment for the user
         payment = Payment.objects.create(
             user=self.user,
             provider="robokassa",
@@ -307,7 +295,6 @@ class PaymentViewsTest(TestCase):
             status="pending"
         )
 
-        # Test the view
         url = reverse('payments:payment_status', args=[payment.id])
         response = self.client.get(url)
 

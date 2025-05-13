@@ -68,7 +68,7 @@ class ReviewFormTest(TestCase):
             'name': 'Test User',
             'email': 'test@example.com',
             'rating': 5,
-            'text': 'Short'  # Too short
+            'text': 'Short'
         }
         form = ReviewForm(data=data)
 
@@ -78,7 +78,7 @@ class ReviewFormTest(TestCase):
     def test_name_validation(self) -> None:
         """Test name field validation for minimum length."""
         data = {
-            'name': 'T',  # Too short
+            'name': 'T',
             'email': 'test@example.com',
             'rating': 5,
             'text': 'This is a proper review text.'
@@ -123,8 +123,8 @@ class ReviewServicesTest(TestCase):
         """Test that approved reviews are paginated correctly."""
         page_obj, total_pages = services.get_approved_reviews(page=1, per_page=3)
 
-        self.assertEqual(len(page_obj), 3)  # 3 per page
-        self.assertEqual(total_pages, 2)  # 5 total / 3 per page = 2 pages
+        self.assertEqual(len(page_obj), 3)
+        self.assertEqual(total_pages, 2)
 
     def test_create_review(self) -> None:
         """Test review creation."""

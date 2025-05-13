@@ -59,7 +59,6 @@ class Command(BaseCommand):
 
         fake = Faker('ru_RU')
 
-        # Get or create user(s)
         if username:
             try:
                 users = [User.objects.get(username=username)]
@@ -73,7 +72,6 @@ class Command(BaseCommand):
                 )
                 users = [user]
         else:
-            # Get existing users or create some if needed
             users = list(User.objects.all()[:5])
             if not users:
                 self.stdout.write('No users found. Creating test users.')
@@ -86,13 +84,11 @@ class Command(BaseCommand):
                     )
                     users.append(user)
 
-        # Define payment providers
         if provider_choice == 'all':
             providers = ['robokassa', 'yookassa', 'heleket', 'internal']
         else:
             providers = [provider_choice]
 
-        # Generate payments
         payments_created = 0
 
         self.stdout.write(self.style.MIGRATE_HEADING(f'Generating {count} test payments...'))
@@ -100,13 +96,11 @@ class Command(BaseCommand):
         for _ in range(count):
             user = random.choice(users)
 
-            # Generate random payment data
             provider = random.choice(providers)
             amount = Decimal(str(round(random.uniform(10, 1000), 2)))
             commission_rate = random.choice([0.05, 0.07, 0.1, 0.12])
             total_amount = round(float(amount) * (1 + commission_rate), 2)
 
-            # Generate status based on success rate
             status = random.choices(
                 ['success', 'failed', 'pending'],
                 weights=[success_rate, (1 - success_rate) / 2, (1 - success_rate) / 2],
@@ -115,7 +109,6 @@ class Command(BaseCommand):
 
             invoice_id = f"{provider}_{fake.uuid4()}"
 
-            # Create the payment
             payment = Payment.objects.create(
                 user=user,
                 provider=provider,
@@ -125,7 +118,6 @@ class Command(BaseCommand):
                 status=status
             )
 
-            # If successful payment, update user's balance using the service
             if status == 'success':
                 success, _ = PaymentService.update_balance(user, amount)
                 if not success:

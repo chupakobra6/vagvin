@@ -3,9 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
     validateReviewForm();
 });
 
-/**
- * Initialize tooltips
- */
 function initializeTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -13,9 +10,6 @@ function initializeTooltips() {
     });
 }
 
-/**
- * Validate review form submission
- */
 function validateReviewForm() {
     const reviewForm = document.getElementById('review-form');
     if (reviewForm) {
@@ -27,7 +21,6 @@ function validateReviewForm() {
             
             let isValid = true;
             
-            // Validate name
             if (!nameInput.value || nameInput.value.length < 2) {
                 markInvalid(nameInput, 'Имя должно содержать минимум 2 символа.');
                 isValid = false;
@@ -35,7 +28,6 @@ function validateReviewForm() {
                 markValid(nameInput);
             }
             
-            // Validate email
             if (!emailInput.value || !isValidEmail(emailInput.value)) {
                 markInvalid(emailInput, 'Пожалуйста, введите корректный email адрес.');
                 isValid = false;
@@ -43,7 +35,6 @@ function validateReviewForm() {
                 markValid(emailInput);
             }
             
-            // Validate text
             if (!textInput.value || textInput.value.length < 10) {
                 markInvalid(textInput, 'Текст отзыва должен содержать минимум 10 символов.');
                 isValid = false;
@@ -61,13 +52,9 @@ function validateReviewForm() {
     }
 }
 
-/**
- * Mark form field as invalid with error message
- */
 function markInvalid(input, message) {
     input.classList.add('is-invalid');
     
-    // Find the existing feedback element or create a new one
     let feedback = input.nextElementSibling;
     if (!feedback || !feedback.classList.contains('invalid-feedback')) {
         feedback = document.createElement('div');
@@ -78,9 +65,6 @@ function markInvalid(input, message) {
     feedback.textContent = message;
 }
 
-/**
- * Mark form field as valid
- */
 function markValid(input) {
     input.classList.remove('is-invalid');
     const feedback = input.nextElementSibling;
@@ -89,9 +73,6 @@ function markValid(input) {
     }
 }
 
-/**
- * Validate email format
- */
 function isValidEmail(email) {
     const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(String(email).toLowerCase());

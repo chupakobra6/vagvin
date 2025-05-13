@@ -1,6 +1,3 @@
-/**
- * Payment functionality JavaScript
- */
 document.addEventListener('DOMContentLoaded', function() {
     const amountButtons = document.querySelectorAll('.payment-amount-btn');
     amountButtons.forEach(button => {

@@ -6,7 +6,6 @@ document.addEventListener('DOMContentLoaded', function () {
     checkPaymentInitiated();
     loadUserQueries();
 
-    // Form validation enhancement
     const formElements = document.querySelectorAll('form input:not([type="password"]), form select, form textarea');
     
     formElements.forEach(element => {
@@ -24,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Password visibility toggle
     const passwordToggles = document.querySelectorAll('.password-toggle');
     
     passwordToggles.forEach(toggle => {
@@ -42,9 +40,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-/**
- * Initialize tooltips
- */
 function initializeTooltips() {
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -52,9 +47,6 @@ function initializeTooltips() {
     });
 }
 
-/**
- * Initialize referral link copy functionality
- */
 function initializeReferralCopy() {
     const copyButton = document.querySelector('.btn-copy-referral');
     if (copyButton) {
@@ -70,17 +62,11 @@ function initializeReferralCopy() {
     }
 }
 
-/**
- * Initialize email management functionality
- */
 function initializeEmailManagement() {
     initializeAddEmail();
     initializeRemoveEmail();
 }
 
-/**
- * Initialize add email functionality
- */
 function initializeAddEmail() {
     const addEmailForm = document.getElementById('add-email-form');
     if (addEmailForm) {
@@ -114,9 +100,6 @@ function initializeAddEmail() {
     }
 }
 
-/**
- * Initialize remove email functionality
- */
 function initializeRemoveEmail() {
     const removeEmailButtons = document.querySelectorAll('.remove-email');
     removeEmailButtons.forEach(button => {
@@ -149,11 +132,7 @@ function initializeRemoveEmail() {
     });
 }
 
-/**
- * Initialize payment forms
- */
 function initializePaymentForms() {
-    // Set up amount buttons
     const amountButtons = document.querySelectorAll('.amount-btn');
     amountButtons.forEach(button => {
         button.addEventListener('click', function() {
@@ -183,9 +162,6 @@ function initializePaymentForms() {
     initializePaymentSubmit('heleket-form');
 }
 
-/**
- * Initialize payment form submission
- */
 function initializePaymentSubmit(formId) {
     const form = document.getElementById(formId);
     if (form) {
@@ -244,9 +220,6 @@ function initializePaymentSubmit(formId) {
     }
 }
 
-/**
- * Check if payment was initiated and reload page
- */
 function checkPaymentInitiated() {
     if (sessionStorage.getItem('payment_initiated')) {
         sessionStorage.removeItem('payment_initiated');
@@ -254,9 +227,6 @@ function checkPaymentInitiated() {
     }
 }
 
-/**
- * Show alert message
- */
 function showAlert(message, type) {
     const alertsContainer = document.getElementById('alerts-container');
     if (!alertsContainer) return;
@@ -272,16 +242,10 @@ function showAlert(message, type) {
     alertsContainer.appendChild(alert);
 }
 
-/**
- * Get CSRF token from cookies
- */
 function getCsrfToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
 }
 
-/**
- * Load user queries history
- */
 function loadUserQueries() {
     const queriesTable = document.getElementById('queries-table');
     if (!queriesTable) return;
@@ -331,9 +295,6 @@ function loadUserQueries() {
         });
 }
 
-/**
- * Format date string to local format
- */
 function formatDate(dateString) {
     if (!dateString) return '-';
 

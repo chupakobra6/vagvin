@@ -103,7 +103,6 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         
         context['payments_count'] = payment_stats.get('successful_count', 0)
         
-        # Format total amount to 2 decimal places
         total_amount = payment_stats.get('successful_total', 0)
         if total_amount:
             from decimal import Decimal, ROUND_HALF_UP
