@@ -114,9 +114,6 @@ cython_debug/
 # Virtual environment
 /.venv/
 
-# Django migrations
-**/migrations/
-
 # Dump files
 django_project_dumper.py
 *_dump.txt
