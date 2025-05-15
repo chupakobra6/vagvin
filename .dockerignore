@@ -1,0 +1,43 @@
+.git
+.gitignore
+.env
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+.idea/
+.vscode/
+docker-compose*.yml
+Dockerfile*
+db.sqlite3
+logs/
+reports/
+staticfiles/
+media/
+*.md
+node_modules/ 
+
+# IDEs
+/.idea/
+/.cursor/
+
+# Virtual environment
+/.venv/
+
+# Dump files
+django_project_dumper.py
+*_dump.txt
+vagvin_*_dump.txt
+
+# Logs
+/logs/
+
+# Test results
+/reports/
+
+# Refactoring manifest
+refactoring_manifest.md

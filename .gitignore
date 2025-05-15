@@ -107,9 +107,12 @@ dmypy.json
 .pytype/
 cython_debug/
 
+# IDEs
+/.idea/
+/.cursor/
+
 # Virtual environment
 /.venv/
-/.idea/
 
 # Django migrations
 **/migrations/
@@ -124,6 +127,9 @@ vagvin_*_dump.txt
 
 # Test results
 /reports/
+
+# Static files
+/staticfiles/
 
 # Refactoring manifest
 refactoring_manifest.md
