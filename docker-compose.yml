@@ -4,8 +4,8 @@ services:
     restart: always
     volumes:
       - .:/app
-      - static_volume:/app/staticfiles
-      - media_volume:/app/media
+      - ./staticfiles:/app/staticfiles
+      - ./media:/app/media
     env_file:
       - .env
     ports:
@@ -26,6 +26,4 @@ services:
       - "5432:5432"
 
 volumes:
-  postgres_data:
-  static_volume:
-  media_volume: 
+  postgres_data: 
