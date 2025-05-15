@@ -43,6 +43,14 @@ mkdir -p staticfiles
 
 # Apply migrations
 echo "Applying database migrations..."
+python manage.py migrate contenttypes
+python manage.py migrate auth
+python manage.py migrate accounts
+python manage.py migrate admin
+python manage.py migrate sessions
+python manage.py migrate payments
+python manage.py migrate reports
+python manage.py migrate reviews
 python manage.py migrate
 
 # Collect static files
