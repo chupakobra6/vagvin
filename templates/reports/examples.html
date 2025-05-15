@@ -6,6 +6,11 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'css/reports.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/reports.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -26,24 +31,23 @@
         <div class="row">
             <div class="col-lg-10 mx-auto">
                 <!-- Telegram Bot Info -->
-                <div class="card section-card mb-4">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="fab fa-telegram section-icon large-icon"></i>
-                            <h2 class="section-title mb-0">Актуальная информация в боте</h2>
-                        </div>
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <div class="card-body p-3">
+                        <h2 class="mb-3 section-title">
+                            <i class="fab fa-telegram me-2"></i>Актуальная информация в боте
+                        </h2>
                         <p class="section-subtitle">Наиболее полная и актуальная информация доступна в нашем телеграм-боте <a href="https://t.me/{{ telegram_bot }}" target="_blank" class="telegram-bot-link">@{{ telegram_bot }}</a>. Ниже представлены некоторые примеры отчетов.</p>
                     </div>
                 </div>
                 
-                <!-- Sections with examples -->
+                <!-- Examples sections -->
                 {% for section in sections %}
-                <div class="card section-card">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <i class="{{ section.icon }} section-icon"></i>
-                            <h2 class="section-title mb-0">{{ section.title }}</h2>
-                        </div>
+                {% if forloop.counter <= 3 %}
+                <div class="card border-0 shadow-sm p-4 mb-4">
+                    <div class="card-body p-3">
+                        <h2 class="mb-3 section-title">
+                            <i class="{{ section.icon }} me-2"></i>{{ section.title }}
+                        </h2>
                         
                         {% if section.subtitle %}
                         <p class="section-subtitle">{{ section.subtitle }}</p>
@@ -65,33 +69,107 @@
                             {% endfor %}
                         </div>
                         {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                
+                <!-- Check Forms -->
+                <div class="example-section">
+                    <h2 class="example-title">Проверка автомобиля по различным базам</h2>
+                    
+                    <!-- Autoteka Check -->
+                    <div class="check-form">
+                        <h3><i class="fas fa-search me-2"></i> Проверить Автотеку</h3>
+                        <input type="text" id="autoteka_input" class="check-input" placeholder="Введите VIN, Госномер или ссылку на объявление Avito">
+                        <button id="autoteka_button" class="check-button" onclick="checkAutoteka()">Проверить наличие данных</button>
+                        <div id="autoteka_loader" class="loader"></div>
+                        <div class="progress-container" id="autoteka_progress_container">
+                            <progress id="autoteka_progress" value="0" max="100"></progress>
+                            <span id="autoteka_progress_text">0%</span>
+                        </div>
+                        <div id="autoteka_result" class="check-result"></div>
+                    </div>
+                    
+                    <!-- Carfax/Autocheck Check -->
+                    <div class="check-form">
+                        <h3><i class="fas fa-car me-2"></i> Проверить Carfax / Autocheck</h3>
+                        <input type="text" id="carfax_input" class="check-input" placeholder="Введите VIN">
+                        <button id="carfax_button" class="check-button" onclick="checkCarfax()">Проверить наличие данных</button>
+                        <div id="carfax_loader" class="loader"></div>
+                        <div class="progress-container" id="carfax_progress_container">
+                            <progress id="carfax_progress" value="0" max="100"></progress>
+                            <span id="carfax_progress_text">0%</span>
+                        </div>
+                        <div id="carfax_result" class="check-result"></div>
+                    </div>
+                    
+                    <!-- Vinhistory Check -->
+                    <div class="check-form">
+                        <h3><i class="fas fa-history me-2"></i> Проверить Vinhistory</h3>
+                        <input type="text" id="vinhistory_input" class="check-input" placeholder="Введите VIN">
+                        <button id="vinhistory_button" class="check-button" onclick="checkVinhistory()">Проверить наличие данных</button>
+                        <div id="vinhistory_loader" class="loader"></div>
+                        <div class="progress-container" id="vinhistory_progress_container">
+                            <progress id="vinhistory_progress" value="0" max="100"></progress>
+                            <span id="vinhistory_progress_text">0%</span>
+                        </div>
+                        <div id="vinhistory_result" class="check-result"></div>
+                    </div>
+                    
+                    <!-- Auction Check -->
+                    <div class="check-form">
+                        <h3><i class="fas fa-gavel me-2"></i> Проверить Аукционные лоты</h3>
+                        <input type="text" id="auction_input" class="check-input" placeholder="Введите VIN">
+                        <button id="auction_button" class="check-button" onclick="checkAuction()">Проверить наличие данных</button>
+                        <div id="auction_loader" class="loader"></div>
+                        <div class="progress-container" id="auction_progress_container">
+                            <progress id="auction_progress" value="0" max="100"></progress>
+                            <span id="auction_progress_text">0%</span>
+                        </div>
+                        <div id="auction_result" class="check-result"></div>
+                    </div>
+                </div>
+                
+                <!-- Recent Queries -->
+                <div class="queries-section">
+                    <h3 class="queries-title">Последние 10 запросов с сайта в режиме реального времени</h3>
+                    <div id="queries-container" class="queries-container">
+                        {% for query in recent_queries %}
+                        <div class="query-item">{{ query }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Telegram Bot Section (styled like about page) -->
+                <div class="card border-0 shadow-sm mb-5">
+                    <div class="card-body p-3">
+                        <h2 class="mb-4 section-title">
+                            <i class="fas fa-rocket me-2"></i>Воспользуйтесь нашими сервисами
+                        </h2>
                         
-                        {% if section.title == 'Проверка автомобиля по различным базам' %}
-                        <!-- Telegram Bot Recommendation -->
-                        <div class="mt-4 text-center">
-                            <div class="alert alert-info">
-                                <p><strong>Для проверки автомобиля</strong> по базам Автотека, Carfax, Autocheck, Vinhistory и аукционы, воспользуйтесь нашим телеграм-ботом:</p>
-                                <a href="https://t.me/{{ telegram_bot }}" target="_blank" class="btn btn-primary mt-2">
-                                    <i class="fab fa-telegram-plane me-1"></i> @{{ telegram_bot }}
+                        <!-- Telegram Bot Box -->
+                        <div class="bot-box">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bot-icon-container">
+                                    <i class="fas fa-robot bot-icon"></i>
+                                </div>
+                                <div>
+                                    <h4 class="bot-title">Воспользуйтесь Telegram ботом 🤖</h4>
+                                    <p class="bot-subtitle">Автоматический сервис проверки 24/7</p>
+                                </div>
+                            </div>
+                            <div class="text-center my-3">
+                                <a href="https://t.me/{{ telegram_bot }}" class="btn btn-primary btn-lg px-4 py-3" target="_blank" style="font-weight: 600; border-radius: 8px;">
+                                    👉 @{{ telegram_bot }} 👈
                                 </a>
                             </div>
                         </div>
-                        {% endif %}
                     </div>
-                </div>
-                {% endfor %}
-                
-                <!-- Telegram Bot CTA -->
-                <div class="telegram-cta">
-                    <h2 class="mb-3 telegram-cta-heading">Воспользуйтесь нашим телеграм-ботом</h2>
-                    <p class="mb-4">Получите полную информацию о любом автомобиле прямо сейчас</p>
-                    <a href="https://t.me/{{ telegram_bot }}" target="_blank" class="telegram-cta-btn">
-                        <i class="fab fa-telegram-plane"></i>
-                        @{{ telegram_bot }}
-                    </a>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
 {% endblock %} 

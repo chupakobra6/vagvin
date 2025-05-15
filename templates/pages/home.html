@@ -1,32 +1,312 @@
 {% extends 'base.html' %}
-
 {% load static %}
 
-{% block title %}Главная - Vagvin{% endblock %}
+{% block title %}Проверка автомобилей по VIN-номеру - Vagvin{% endblock %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/pages.css' %}">
+<link href="{% static 'css/home.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm border-0 home-card">
-                    <div class="card-body text-center py-5">
-                        <h1 class="mb-4">Главная страница</h1>
-                        <p class="lead mb-4">
-                            Здесь скоро появится содержимое главной страницы.<br>
-                            Следите за обновлениями!
-                        </p>
-                        <div class="mb-3">
-                            <i class="fas fa-home fa-3x text-primary"></i>
+<!-- Hero section -->
+<section class="hero-section mb-5">
+    <div class="row">
+        <div class="col-lg-12 text-center">
+            <h1 class="display-5 fw-bold mb-4">Проверка автомобилей по VIN-номеру</h1>
+            <div class="lead mb-4">
+                <p class="fs-5">Наш уникальный сервис предлагает всестороннюю проверку автомобилей по VIN-номеру. 
+                   Убедитесь в прозрачности и надежности вашего транспортного средства, получив доступ к следующим данным:</p>
+            </div>
+            
+            <div class="row services-overview mb-5">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Америка CARFAX</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Report_history</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Дата производства по VIN</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Номер ДВС по VIN</li>
+                            </ul>
                         </div>
-                        <a href="{% url 'pages:about' %}" class="btn btn-outline-primary">О проекте</a>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>CarVertical Европа</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Корея страховые по VIN</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Полная комплектация по VIN</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>История обслуживания по VIN</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Автотека 99₽!</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Mercedes EVA</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>Mercedes DSR</li>
+                                <li><i class="fas fa-check-circle text-success me-2"></i>И многое другое</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</section>
+
+<!-- Brands scroll -->
+<div class="brands-scroll mb-5">
+    <div class="brands-container">
+        <div class="brands-content">
+            <span class="brand-item">Porsche</span>
+            <span class="brand-item">Audi</span>
+            <span class="brand-item">VW</span>
+            <span class="brand-item">Skoda</span>
+            <span class="brand-item">Seat</span>
+            <span class="brand-item">Bentley</span>
+            <span class="brand-item">Mercedes</span>
+            <span class="brand-item">Land Rover</span>
+            <span class="brand-item">Ford</span>
+            <span class="brand-item">Renault</span>
+            <span class="brand-item">BMW</span>
+            <span class="brand-item">Mazda</span>
+            <span class="brand-item">Opel</span>
+            <span class="brand-item">Dacia</span>
+            <span class="brand-item">Fiat</span>
+            <span class="brand-item">BMW MOTO</span>
+            <span class="brand-item">Jeep</span>
+            <span class="brand-item">DS</span>
+            <span class="brand-item">Suzuki</span>
+            <span class="brand-item">Nissan</span>
+            <span class="brand-item">SEAT</span>
+            <span class="brand-item">SKODA</span>
+            <span class="brand-item">Mini</span>
+            <span class="brand-item">Scania</span>
+            <span class="brand-item">GMC</span>
+            <span class="brand-item">Lamborghini</span>
+        </div>
+    </div>
+</div>
+
+<!-- About service section -->
+<section class="about-service mb-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h3 mb-4">О нашем сервисе</h2>
+                    <p>Мы собираем все нужные проверки для авто в одном месте и делаем минимальную цену на эти услуги для вас.</p>
+                    <p>Доступны проверки для Porsche, Audi, VW, Skoda, Seat, Bentley, Mercedes, Land Rover, Ford, Renault, BMW, Mazda, Opel и многих других марок.</p>
+                    <p>Вы можете получить дилерскую историю обслуживания, комплектацию, номер ДВС, дату производства, CarVertical, Autocheck, CARFAX, AIR, Eva, ElsaPro, Etka, аукционы, Корея страховые и многое другое.</p>
+                    <div class="alert alert-warning">
+                        <p><strong>Затраты на покупку отчета не сопоставимы с теми проблемами которые они помогают избежать!</strong></p>
+                        <p>Смотанные пробеги, незаявленные кузовные ремонты после ДТП, восстановленные авто после наводнений (утопленники) или аварий (тоталы), поданные в угон или базы залогов, авто из-под каршеринга такси или лизинга - все это можно узнать из представленных отчетов.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Check vehicle section -->
+<section class="check-vehicle mb-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light py-3">
+                    <h3 class="card-title mb-0"><i class="fas fa-search me-2 text-primary"></i>Проверить автомобиль</h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="lead">Сервис агрегатор а/м отчетов. Полная комплектация, дилерская история, данные для таможни, все популярные авто отчеты РФ, Европы, Кореи.</p>
+                    <form action="{% url 'accounts:dashboard' %}" method="get" class="mt-4">
+                        <div class="row g-3">
+                            <div class="col-md-9">
+                                <label for="vehicle-input" class="form-label">Введите VIN (17 символов), гос. номер РФ, ссылку на Авито для проверки автомобиля или серийный № магнитолы VAG (14 символов):</label>
+                                <input type="text" class="form-control form-control-lg" id="vehicle-input" name="query" placeholder="VIN, Гос. номер, ссылка Авито, серийный № магнитолы VAG" required>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">Проверить Авто</button>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-end">
+                            <button type="reset" class="btn btn-outline-secondary">Очистить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Service cards -->
+<section class="service-cards mb-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h2 class="h3 text-center">Наши услуги</h2>
+        </div>
+
+        <!-- Card 1 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Полная история от дилера</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">все факты эксплуатации и обслуживания любая страна мира всего 499₽!</h6>
+                    <p class="card-text">Не зависимо от страны где продавался и обслуживался а/м - узнай как, когда и на каком пробеге всё, что происходило с а/м!</p>
+                    <p class="card-text">Porsche, Audi, VW, Skoda, Seat, Bentley, Mercedes, Land Rover, Ford, Renault, BMW, Mazda, Opel и многих других марок.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 499р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Полная комплектация и PR-коды</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">точные характеристики и конфигурации всего 299₽!</h6>
+                    <p class="card-text">Porsche, Audi, VW, Skoda, Seat, Bentley, Mercedes, Land Rover, Ford, Renault, BMW, Mazda, Opel всего около 40 марок.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 299р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">АВТОТЕКА от Авито</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">комплексный отчет по РФ всего за 99₽!</h6>
+                    <p class="card-text">Полная проверка автомобиля по базам ГИБДД, страховых компаний, лизинговых организаций и других источников.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 99р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">CARFAX USA Канада</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">от 199₽!</h6>
+                    <p class="card-text">🦊 Отдельный карфакс бот выдает данные мгновенно. На выбор 10 языков интерфейса!</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 199р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Аutocheck USA Канада</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">от 199₽!</h6>
+                    <p class="card-text">🦊 Отдельный Autocheck бот выдает данные мгновенно. На выбор 10 языков интерфейса!</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 199р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Vinhistory USA/ Канада</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">всего за 499₽!</h6>
+                    <p class="card-text">Агрегатор фото данных по странам Usа и Канада. Вы можете получить пакет всех фото фиксаций автомобиля по vin. При ремонтах, ДТП, регистрациях. Более 100 источников.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 499р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 7 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">CarVertical все страны Европы</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">всего за 1299₽!</h6>
+                    <p class="card-text">Европейский аналог Автотеки, он собирает информацию об авто из международных баз, записи об угоне, розыске, одометр, история пробега по Европе, повреждения, ДТП, стоимость ремонта.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 1299р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 8 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">autoDNA все страны Европы</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">всего за 1499₽!</h6>
+                    <p class="card-text">Европейский аналог Автотеки, он собирает информацию об авто из международных баз, записи об угоне, розыске, одометр, история пробега по Европе, повреждения, ДТП, стоимость ремонта, фото.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 1499р</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 9 -->
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">Carhistory Korea</h4>
+                    <h6 class="card-subtitle mb-3 text-muted">Korea's First Vehicle History Service 799₽</h6>
+                    <p class="card-text">Запрос по страховым базам Кореи - на страховые ремонты, смену владельцев, ДТП, лизинг и др.</p>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary w-100">🛒 Купить в боте 799р</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Telegram bot section -->
+<section class="telegram-bot-section mb-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <h3 class="mb-4"><i class="fab fa-telegram text-primary me-2"></i>Воспользоваться телеграмм ботом</h3>
+                    <a href="https://t.me/Data_ViN_PR_bot" class="btn btn-primary btn-lg mb-3">👉 Data_ViN_PR_bot 👈</a>
+                    <p class="text-muted">Для быстрой связи и удобного оформления запросов используйте наш телеграм бот</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent inquiries section -->
+<section class="recent-inquiries mb-5">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-light py-3">
+                    <h3 class="card-title mb-0"><i class="fas fa-history me-2 text-primary"></i>История запросов в реальном времени</h3>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted mb-4">⌚️ Ниже последние 10 запросов в режиме реального времени Moscow (MSK)</p>
+                    <div id="queries-container" class="queries-container">
+                        <!-- Recent queries will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/reports.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Horizontal scrolling brands
+    const brandsContent = document.querySelector('.brands-content');
+    if (brandsContent) {
+        // Duplicate content for continuous scrolling
+        brandsContent.innerHTML += brandsContent.innerHTML;
+    }
+});
+</script>
+{% endblock %} 

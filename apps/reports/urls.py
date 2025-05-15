@@ -14,8 +14,7 @@ urlpatterns = [
     path('api/check/carfax-autocheck/', views.CarfaxCheckView.as_view(), name='api_check_carfax_autocheck'),
     path('api/check/vinhistory/', views.VinhistoryCheckView.as_view(), name='api_check_vinhistory'),
     path('api/check/auction/', views.AuctionCheckView.as_view(), name='api_check_auction'),
-
-    # User report history
-    path('api/user/queries/', views.user_queries, name='user_queries'),
-    path('api/user/query/create/', views.create_query, name='create_query'),
+    
+    # Recent website queries endpoint
+    path('api/recent-queries/', views.RecentQueriesView.as_view(), name='recent_queries'),
 ]

@@ -8,10 +8,7 @@ class Query(BaseModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='queries',
                              verbose_name="Пользователь")
     vin = models.CharField(max_length=17, verbose_name="VIN-номер")
-    marka = models.CharField(max_length=100, blank=True, verbose_name="Марка/модель")
-    tip = models.CharField(max_length=50, verbose_name="Тип отчёта")
-    lang = models.CharField(max_length=10, default="ru", verbose_name="Язык отчёта")
-    cost = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name="Стоимость")
+    query_type = models.CharField(max_length=50, verbose_name="Тип отчёта")
 
     class Meta:
         verbose_name = "Запрос"

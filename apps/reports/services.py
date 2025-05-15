@@ -613,15 +613,16 @@ class AuctionService:
 
 
 class ExamplesService:
-    """Service for managing example data and resources."""
+    """Service for providing example data for the examples page."""
     
     @staticmethod
     def get_service_history_section() -> Dict[str, Any]:
-        """Get the service history section data for examples page."""
+        """Get service history example section data."""
         return {
             'title': 'История обслуживания у официального дилера',
-            'subtitle': 'Доступны отчеты по более чем 20 маркам автомобилей из Европы, Америки, Азии, СНГ и РФ.',
             'icon': 'fas fa-history',
+            'subtitle': 'История обслуживания по VIN для Европы, Америки, Азии, СНГ, РФ',
+            'description': 'На данный момент доступны более 20 марок.',
             'items': [
                 {'name': 'Peugeot', 'url': 'img/examples/Peugeot.pdf'},
                 {'name': 'Renault', 'url': 'img/examples/Renault.pdf'},
@@ -648,7 +649,7 @@ class ExamplesService:
     
     @staticmethod
     def get_car_equipment_section() -> Dict[str, Any]:
-        """Get the car equipment section data for examples page."""
+        """Get car equipment example section data."""
         return {
             'title': 'Комплектация автомобиля',
             'subtitle': 'Подробная информация о заводской комплектации автомобиля.',
@@ -670,7 +671,7 @@ class ExamplesService:
     
     @staticmethod
     def get_carvertical_section() -> Dict[str, Any]:
-        """Get the Carvertical section data for examples page."""
+        """Get Carvertical example section data."""
         return {
             'title': 'Отчеты Carvertical',
             'subtitle': 'Подробные отчеты о истории автомобиля от сервиса Carvertical.',
@@ -681,25 +682,14 @@ class ExamplesService:
                 {'name': 'Carvertical Mercedes', 'url': 'img/examples/mercedes_carvertical.pdf'},
             ]
         }
-    
-    @staticmethod
-    def get_engine_number_section() -> Dict[str, Any]:
-        """Get the engine number section data for examples page."""
-        return {
-            'title': 'Узнать номер двигателя по VIN',
-            'subtitle': 'Уникальная возможность узнать заводской порядковый номер двигателя по VIN-коду.',
-            'description': 'Результат приходит в виде фото или скриншота с дилерского ПК. Доступны марки: AUDI, VW, SKODA, SEAT, RENAULT, MERCEDES, VOLVO, OPEL, PEUGEOT, CITROEN, NISSAN, DODGE, JEEP, FIAT, KIA, HYUNDAI.',
-            'icon': 'fas fa-cogs',
-            'items': []
-        }
+
     
     @staticmethod
     def get_unlock_codes_section() -> Dict[str, Any]:
-        """Get the unlock codes section data for examples page."""
+        """Get unlock codes section data."""
         return {
             'title': 'Запрос кодов разблокировки по VIN',
-            'subtitle': 'Получение кодов магнитол и другой электроники автомобиля.',
-            'icon': 'fas fa-key',
+            'icon': 'fas fa-unlock',
             'items': [
                 {'name': 'Запрос кода магнитолы для VAG по серийному номеру', 'url': 'img/examples/magnitola_vag.jpg'},
                 {'name': 'Запрос кода SFD для VAG', 'url': 'img/examples/sfd_vag.pdf'},
@@ -708,42 +698,64 @@ class ExamplesService:
             ]
         }
     
-    @staticmethod
-    def get_service_campaigns_section() -> Dict[str, Any]:
-        """Get the service campaigns section data for examples page."""
-        return {
-            'title': 'Проверка сервисных акций завода-изготовителя',
-            'subtitle': 'Информация о сервисных акциях и отзывных кампаниях от производителя.',
-            'description': 'Доступно для марок AUDI, VW, SEAT, SKODA, MERCEDES. Акции бывают разные: от обновления ПО до замены дорогостоящих узлов автомобиля. Выполняются бесплатно для владельца независимо от срока гарантии и количества владельцев.',
-            'icon': 'fas fa-tools',
-            'items': []
-        }
+
     
     @staticmethod
     def get_vehicle_checks_section() -> Dict[str, Any]:
-        """Get the vehicle checks section data for examples page."""
+        """Get vehicle checks section data."""
         return {
             'title': 'Проверка автомобиля по различным базам',
             'subtitle': 'Доступны проверки по следующим базам данных:',
             'icon': 'fas fa-search',
-            'items': [],
-            'description': 'Для проверки VIN номера автомобиля по различным базам данных, пожалуйста, воспользуйтесь нашим телеграм-ботом @Data_ViN_PR_bot. В нем доступны проверки по следующим базам: Автотека, Carfax, Autocheck, Vinhistory, аукционы.'
+            'description': 'Доступны проверки по базам Автотека, Carfax/Autocheck, Vinhistory и аукционы.'
         }
     
+    @staticmethod
+    def get_recent_queries(limit: int = 10) -> List[str]:
+        """Get recent queries from the website only."""
+        try:
+            from datetime import datetime
+            from .models import Query
+            
+            # Fetch recent website queries
+            recent_queries = Query.objects.order_by('-created_at')[:limit]
+            
+            # Format the queries similar to how they were previously displayed
+            formatted_queries = []
+            for query in recent_queries:
+                timestamp = query.created_at.strftime('%d-%m-%y %H:%M:%S')
+                
+                # Map query types to more descriptive names
+                query_type_display = {
+                    'autoteka': 'Автотека (VIN)',
+                    'autoteka_reg': 'Автотека (Госномер)',
+                    'autoteka_avito': 'Автотека (Avito)',
+                    'carfax': 'Carfax / Autocheck',
+                    'vinhistory': 'Vinhistory',
+                    'auction': 'Аукционы',
+                    'basic': 'Базовый отчет',
+                    'full': 'Полный отчет',
+                    'unified': 'Комплексная проверка'
+                }.get(query.query_type, query.query_type)
+                
+                formatted_query = (
+                    f"{timestamp} Пользователь сайта запросил проверку " 
+                    f"{query_type_display} по VIN {query.vin}"
+                )
+                formatted_queries.append(formatted_query)
+            
+            return formatted_queries
+        except Exception:
+            logger.exception("Failed to fetch recent website queries")
+            return []
+
     @classmethod
     def get_all_sections(cls) -> List[Dict[str, Any]]:
-        """Get all sections for the examples page."""
+        """Get all example sections in order."""
         return [
             cls.get_service_history_section(),
             cls.get_car_equipment_section(),
             cls.get_carvertical_section(),
-            cls.get_engine_number_section(),
             cls.get_unlock_codes_section(),
-            cls.get_service_campaigns_section(),
-            cls.get_vehicle_checks_section()
-        ] 
-
-# Legacy function aliases for backward compatibility - to be removed after all references are updated
-generate_cache_key = CacheService.generate_key
-log_check_request = LoggingService.log_check_request
-extract_avito_id = AvitoService.extract_id 
+            cls.get_vehicle_checks_section(),
+        ]
