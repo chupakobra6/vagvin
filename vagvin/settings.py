@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-default-key-for-dev')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 # Enable test mode for payments when in debug mode
-PAYMENT_TEST_MODE = True
+PAYMENT_TEST_MODE = DEBUG
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
