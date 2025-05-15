@@ -6,11 +6,358 @@
 
 {% block extra_css %}
     <link rel="stylesheet" href="{% static 'css/accounts.css' %}">
+    <link rel="stylesheet" href="{% static 'css/reports.css' %}">
+    <style>
+        .loader {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0072ff;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Payment history table styling */
+        .payment-history-table th {
+            font-weight: 600;
+            color: #495057;
+            background-color: #f8f9fa;
+            border-bottom-width: 1px;
+        }
+        
+        .payment-status-badge {
+            display: inline-block;
+            padding: 0.35em 0.65em;
+            font-size: 0.85em;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            border-radius: 0.25rem;
+        }
+        
+        .badge-success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .badge-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-failed {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+        
+        .section-heading {
+            font-size: 1.5rem;
+            color: #1e293b;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+        }
+        
+        .empty-state {
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+        }
+        
+        .empty-state-title {
+            font-size: 1.25rem;
+            color: #6c757d;
+        }
+        
+        .empty-state-description {
+            color: #adb5bd;
+        }
+
+        /* Styles for Unified Check Results (adapted from reports.css) */
+        #unified-check-result .alert {
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+        #unified-check-result .alert-danger {
+            border-left-color: #e11d48;
+            background-color: #fff1f2;
+            color: #be123c;
+        }
+
+        /* Individual service result box */
+        #unified-check-result > div {
+            background-color: #f8fafc; /* Slightly off-white background */
+            border: 1px solid #e2e8f0; /* Light border */
+        }
+
+        /* Result messages within service box */
+        #unified-check-result .text-danger {
+            color: #dc3545 !important; /* Bootstrap danger color */
+        }
+        #unified-check-result .text-warning {
+            color: #ffc107 !important; /* Bootstrap warning color */
+        }
+        #unified-check-result .text-success {
+            color: #198754 !important; /* Bootstrap success color */
+        }
+        #unified-check-result .text-muted {
+            color: #6c757d !important; /* Bootstrap muted color */
+        }
+        #unified-check-result .fst-italic {
+             font-style: italic !important;
+        }
+
+        /* Table styling within service box */
+        #unified-check-result .table {
+            margin-bottom: 0; /* Remove default bottom margin */
+            background-color: #fff; /* White background for table */
+        }
+        #unified-check-result .table th,
+        #unified-check-result .table td {
+            padding: 0.5rem 0.75rem; /* Adjust padding */
+            vertical-align: middle;
+        }
+        #unified-check-result .table-bordered {
+            border: 1px solid #dee2e6;
+        }
+        #unified-check-result .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(0, 0, 0, 0.03); /* Lighter stripe */
+        }
+        #unified-check-result .table .fw-bold {
+            color: #495057; /* Darker text for labels */
+        }
+        
+        /* Badge styles for boolean values */
+        #unified-check-result .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+            font-size: 0.9em;
+        }
+        #unified-check-result .badge.bg-success {
+            background-color: #198754 !important;
+        }
+         #unified-check-result .badge.bg-danger {
+            background-color: #dc3545 !important;
+        }
+    </style>
 {% endblock %}
 
 {% block extra_js %}
     <script src="{% static 'js/accounts.js' %}"></script>
-{% endblock %}
+    <script src="{% static 'js/reports.js' %}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkButton = document.getElementById('unified-check-button');
+            const vinInput = document.getElementById('unified-vin-input');
+            const loader = document.getElementById('unified-check-loader');
+            const resultContainer = document.getElementById('unified-check-result');
+            
+            checkButton.addEventListener('click', function() {
+                const vin = vinInput.value.trim().toUpperCase();
+                
+                if (!vin) {
+                    alert('Пожалуйста, введите VIN номер.');
+                    return;
+                }
+                
+                if (!/^[A-HJ-NPR-Z0-9]{17}$/i.test(vin)) {
+                    alert('Пожалуйста, введите корректный VIN (17 символов).');
+                    return;
+                }
+                
+                // Disable form, show loader, hide previous results
+                vinInput.disabled = true;
+                checkButton.disabled = true;
+                loader.style.display = 'block';
+                resultContainer.style.display = 'none';
+                resultContainer.innerHTML = ''; // Clear previous results
+                
+                // Get CSRF token
+                const csrfTokenInput = document.querySelector('[name=csrfmiddlewaretoken]');
+                if (!csrfTokenInput) {
+                    console.error('CSRF token not found!');
+                    alert('Произошла ошибка безопасности. Пожалуйста, перезагрузите страницу.');
+                    vinInput.disabled = false;
+                    checkButton.disabled = false;
+                    loader.style.display = 'none';
+                    return;
+                }
+                const csrfToken = csrfTokenInput.value;
+
+                console.log(`Sending unified check request for VIN: ${vin}`);
+                
+                fetch('{% url "accounts:unified_check" %}', { // URL for the new unified check view
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken
+                    },
+                    body: JSON.stringify({ vin: vin })
+                })
+                .then(response => {
+                     if (!response.ok) {
+                         // Try to parse error message from JSON body if possible
+                         return response.json().then(errData => {
+                             throw new Error(errData.error || `Ошибка сервера: ${response.status}`);
+                         }).catch(() => {
+                             throw new Error(`Ошибка сервера: ${response.status}`); // Fallback if body isn't JSON
+                         });
+                     }
+                     return response.json();
+                })
+                .then(data => {
+                    console.log('Unified check response:', data);
+                    displayUnifiedResults(data); // Function to display results
+                })
+                .catch(error => {
+                    console.error('Unified check error:', error);
+                    resultContainer.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>Ошибка при выполнении запроса: ${error.message}</div>`;
+                    resultContainer.style.display = 'block';
+                })
+                .finally(() => {
+                    // Re-enable form, hide loader
+                    vinInput.disabled = false;
+                    checkButton.disabled = false;
+                    loader.style.display = 'none';
+                });
+            });
+            
+            function displayUnifiedResults(data) {
+                resultContainer.innerHTML = ''; // Clear previous results
+                resultContainer.style.display = 'block';
+                
+                if (data.error) {
+                    resultContainer.innerHTML = `<div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>${data.error}</div>`;
+                    return;
+                }
+                
+                // Display results for each service
+                displayServiceResult('Автотека', data.autoteka);
+                displayServiceResult('Carfax/Autocheck', data.carfax);
+                displayServiceResult('Vinhistory', data.vinhistory);
+                displayServiceResult('Аукционы', data.auction);
+            }
+            
+            function displayServiceResult(serviceName, resultData) {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'mb-4 p-3 border rounded bg-light shadow-sm';
+                
+                let html = `<h6 class="mb-3 border-bottom pb-2 fw-bold">${serviceName}</h6>`;
+                
+                if (resultData === undefined || resultData === null) {
+                    html += `<p class="text-muted fst-italic">Нет данных от сервиса.</p>`;
+                } else if (resultData.error) {
+                    html += `<p class="text-danger"><i class="fas fa-times-circle me-2"></i>${resultData.error}</p>`;
+                } else if (resultData.success === false) {
+                    html += `<p class="text-warning"><i class="fas fa-exclamation-circle me-2"></i>${resultData.message || 'Данные не найдены'}</p>`;
+                } else if (resultData.success === true) {
+                    html += `<p class="text-success mb-2"><i class="fas fa-check-circle me-2"></i>${resultData.message || 'Данные найдены!'}</p>`;
+                    
+                    const resultTable = document.createElement('table');
+                    resultTable.className = 'table table-sm table-bordered table-striped mb-0';
+                    const tbody = document.createElement('tbody');
+
+                    // Specific formatting like in reports.js displayResult
+                    if (serviceName === 'Автотека' && resultData.data) {
+                        for (const [key, value] of Object.entries(resultData.data)) {
+                            addResultRow(tbody, formatFieldName(key), formatValue(value));
+                        }
+                    } else if (serviceName === 'Carfax/Autocheck' && resultData.vehicle_info) {
+                        addResultRow(tbody, 'Автомобиль', resultData.vehicle_info);
+                        addResultRow(tbody, 'Записи Carfax', resultData.carfax !== undefined ? resultData.carfax : '-');
+                        addResultRow(tbody, 'Записи Autocheck', resultData.autocheck !== undefined ? resultData.autocheck : '-');
+                    } else if (serviceName === 'Vinhistory' && resultData.vehicle) {
+                        addResultRow(tbody, 'Автомобиль', resultData.vehicle);
+                        addResultRow(tbody, 'Кол-во фото', resultData.images_count !== undefined ? resultData.images_count : '-');
+                    } else if (serviceName === 'Аукционы' && resultData.auction_count !== undefined) {
+                        addResultRow(tbody, 'Кол-во записей', resultData.auction_count);
+                    } else {
+                        // Generic fallback for other data structures (if any)
+                        for (const [key, value] of Object.entries(resultData)) {
+                            if (key !== 'success' && key !== 'message' && key !== 'error') {
+                                 addResultRow(tbody, formatFieldName(key), formatValue(value));
+                            }
+                        }
+                    }
+                    
+                    if(tbody.rows.length > 0) {
+                        resultTable.appendChild(tbody);
+                        html += resultTable.outerHTML;
+                    } else if (resultData.message && resultData.message !== 'Данные найдены!') {
+                         // If only success and a specific message (not generic success)
+                         // Don't show empty table, message already displayed
+                    } else {
+                         // Only success=true and generic message, but no data fields found
+                        html += `<p class="text-muted fst-italic">Дополнительные данные отсутствуют.</p>`;
+                    }
+
+                } else {
+                     html += `<p class="text-muted fst-italic">Неизвестный формат ответа.</p>`; // Fallback for unexpected structure
+                }
+                
+                sectionDiv.innerHTML = html;
+                resultContainer.appendChild(sectionDiv);
+            }
+            
+            function addResultRow(tbody, label, value) {
+                const row = tbody.insertRow();
+                const labelCell = row.insertCell();
+                labelCell.className = 'fw-bold';
+                labelCell.style.width = '40%';
+                labelCell.textContent = label + ':';
+                const valueCell = row.insertCell();
+                if (typeof value === 'string' && value.startsWith('<span')) {
+                     valueCell.innerHTML = value; // Allow HTML for badges etc.
+                } else {
+                    valueCell.textContent = value;
+                }
+            }
+            
+            // Helper functions copied/adapted from reports.js
+            function formatFieldName(fieldName) {
+                // Handle potential null/undefined fieldName
+                if (typeof fieldName !== 'string') return 'Неизвестное поле'; 
+                return fieldName
+                    .replace(/([A-Z])/g, ' $1')
+                    .replace(/^./, str => str.toUpperCase())
+                    .replace(/_/g, ' ')
+                    .replace(/\bvin\b/i, 'VIN')
+                    .replace(/\bгн\b/i, 'ГН')
+                    .replace(/\bid\b/i, 'ID')
+                    .replace(/V I N/i, 'VIN')
+                    .replace(/Г Н/i, 'ГН')
+                    .replace(/I D/i, 'ID')
+                    .replace(/VIN\/ГН\/ID/i, 'VIN / ГН / ID')
+                    .replace(/VIN\/ГН\/ ID/i, 'VIN / ГН / ID')
+                    .trim();
+            }
+
+            function formatValue(value) {
+                if (Array.isArray(value)) {
+                    return value.length > 0 ? value.join(', ') : '—';
+                } else if (typeof value === 'boolean') {
+                    return value ? 
+                        '<span class="badge bg-success">Да</span>' : 
+                        '<span class="badge bg-danger">Нет</span>';
+                } else if (value === null || value === undefined || value === '') {
+                    return '—';
+                } else {
+                    // Attempt to convert to string, handle potential errors
+                    try {
+                        return value.toString();
+                    } catch (e) {
+                        console.error("Error converting value to string:", value, e);
+                        return '[ошибка отображения]';
+                    }
+                }
+            }
+        });
+    </script>
+{% endblock extra_js %}
 
 {% block content %}
     <!-- Dashboard Hero Section -->
@@ -355,49 +702,18 @@
                 </div>
             </div>
 
-            <!-- History Sections -->
-            <div class="row mt-5">
-                <!-- Vehicle Reports History -->
-                <div class="col-lg-10 mx-auto mb-5">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h2 class="section-heading mb-4">История запросов</h2>
-                            <div class="table-responsive">
-                                <table class="table payment-history-table">
-                                    <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>VIN</th>
-                                        <th>Марка</th>
-                                        <th>Тип запроса</th>
-                                        <th>Стоимость</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody id="queries-table" data-url="{% url 'reports:user_queries' %}">
-                                    <tr>
-                                        <td colspan="5" class="text-center">
-                                            <div class="spinner-border spinner-border-sm text-primary" role="status">
-                                                <span class="visually-hidden">Загрузка...</span>
-                                            </div>
-                                            <span class="ms-2">Загрузка истории запросов...</span>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
+            <!-- START History Sections -->
+            <div class="row mt-4">
                 <!-- Payment History -->
-                <div class="col-lg-10 mx-auto">
+                <div class="col-12">
                     <div class="card shadow-sm">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2 text-primary"></i>История пополнений</h5>
+                        </div>
                         <div class="card-body">
-                            <h2 class="section-heading mb-4">История пополнений</h2>
-                            
                             {% if payments %}
                                 <div class="table-responsive">
-                                    <table class="table payment-history-table">
+                                    <table class="table table-hover table-striped">
                                         <thead>
                                             <tr>
                                                 <th>Дата</th>
@@ -428,18 +744,69 @@
                                     </table>
                                 </div>
                             {% else %}
-                                <div class="empty-state p-4 text-center">
-                                    <div class="empty-state-icon mb-3">
+                                <div class="p-4 text-center">
+                                    <div class="mb-3">
                                         <i class="fas fa-receipt fa-3x text-muted"></i>
                                     </div>
-                                    <h3 class="empty-state-title">Нет истории платежей</h3>
-                                    <p class="empty-state-description">Пополните баланс, чтобы увидеть историю платежей</p>
+                                    <h3 class="fs-5 text-muted">Нет истории платежей</h3>
+                                    <p class="text-muted">Пополните баланс, чтобы увидеть историю платежей</p>
                                 </div>
                             {% endif %}
                         </div>
                     </div>
                 </div>
             </div>
+            <!-- END History Sections -->
+            
+            <!-- START Unified Check Section -->
+            <div class="row mt-4">
+                <div class="col-12 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0"><i class="fas fa-search me-2 text-primary"></i>Комплексная проверка по VIN</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">Введите VIN номер для одновременной проверки по базам Автотека, Carfax/Autocheck, Vinhistory и Аукционы.</p>
+                            {% csrf_token %}
+                            <div id="unified-check-form" class="mb-3">
+                                <div class="input-group">
+                                    <input type="text" id="unified-vin-input" class="form-control form-control-lg" placeholder="Введите VIN (17 символов)" aria-label="VIN номер">
+                                    <button id="unified-check-button" class="btn btn-primary px-4" type="button">
+                                        <i class="fas fa-search me-1"></i> Проверить
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="unified-check-loader" class="loader" style="display: none; margin: 1rem auto;"></div>
+                            
+                            <div id="unified-check-result" style="display: none; margin-top: 1.5rem;">
+                                <!-- Results will be dynamically inserted here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Unified Check Section -->
+
+            <!-- START Recent Site Queries Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0"><i class="fas fa-history me-2 text-primary"></i>История запросов сайта</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text text-muted">Последние 10 запросов на проверку, выполненные через сайт.</p>
+                            <div class="table-responsive">
+                                <div id="queries-container" class="queries-container"> 
+                                    <!-- Recent queries table will be loaded here by reports.js -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Recent Site Queries Section -->
         </div>
     </section>
 {% endblock %} 

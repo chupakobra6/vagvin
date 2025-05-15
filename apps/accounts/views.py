@@ -1,16 +1,28 @@
 import logging
 from typing import Dict, Any
+import json
+import re
 
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views.generic import FormView, View, TemplateView
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from apps.payments.models import Payment
 from apps.payments.services import PaymentService
+from apps.reports.models import Query
+from apps.reports.services import (
+    AutotekaService,
+    CarfaxService,
+    VinhistoryService,
+    AuctionService,
+    AvitoService
+)
 from .forms import RegistrationForm, ForgotPasswordForm, LoginForm
 from .services import UserService
 
@@ -96,10 +108,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
         context = super().get_context_data(**kwargs)
         
-        user_data = UserService.get_user_data(self.request.user)
+        user = self.request.user
+        
+        user_data = UserService.get_user_data(user)
         context['user_data'] = user_data
         
-        payment_stats = PaymentService.get_user_payments_stats(self.request.user)
+        payment_stats = PaymentService.get_user_payments_stats(user)
         
         context['payments_count'] = payment_stats.get('successful_count', 0)
         
@@ -110,7 +124,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['total_amount'] = total_amount
         
         payments = Payment.objects.filter(
-            user=self.request.user
+            user=user
         ).order_by('-created_at')
         
         last_payment = payments.filter(status='success').first()
@@ -118,4 +132,64 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         
         context['payments'] = payments[:10]
         
+        user_queries = Query.objects.filter(user=user).order_by('-created_at')[:20]
+        context['user_queries'] = user_queries
+        
         return context
+
+
+# View for handling the unified check request from the dashboard
+# @method_decorator(csrf_exempt, name='dispatch') # CSRF should be handled by middleware for authenticated POST requests
+class UnifiedCheckView(LoginRequiredMixin, View):
+    """API endpoint for performing a unified check across multiple services."""
+    
+    def post(self, request: HttpRequest, *args: Any, **kwargs: Any) -> JsonResponse:
+        """Handle POST requests with VIN."""
+        try:
+            data = json.loads(request.body)
+            vin = data.get('vin')
+            if not vin:
+                return JsonResponse({"error": "VIN не предоставлен"}, status=400)
+            
+            # Basic VIN validation (length, pattern can be stricter)
+            vin = vin.strip().upper()
+            if len(vin) != 17 or not re.match(r'^[A-HJ-NPR-Z0-9]{17}$', vin):
+                 return JsonResponse({"error": "Некорректный формат VIN"}, status=400)
+
+            logger.info(f"User {request.user.username} requested unified check for VIN: {vin}")
+
+            # Perform checks using services from reports app
+            # We run these sequentially for simplicity, could be parallelized later if needed
+            autoteka_result = AutotekaService.check(vin, 'vin') # Assume VIN check for Autoteka here
+            carfax_result = CarfaxService.check(vin)
+            vinhistory_result = VinhistoryService.check(vin)
+            auction_result = AuctionService.check(vin)
+            
+            # Save the query for the user's history
+            try:
+                Query.objects.create(
+                    user=request.user,
+                    vin=vin,
+                    query_type='unified' # Use a specific type for unified checks
+                )
+                logger.info(f"Saved unified query for user {request.user.username}, VIN {vin}")
+            except Exception:
+                # Log failure but don't block returning results to user
+                logger.exception(f"Failed to save unified query history for user {request.user.username}, VIN {vin}")
+
+            # Aggregate results
+            results = {
+                "autoteka": autoteka_result,
+                "carfax": carfax_result,
+                "vinhistory": vinhistory_result,
+                "auction": auction_result
+            }
+            
+            return JsonResponse(results)
+
+        except json.JSONDecodeError:
+            logger.warning("Invalid JSON received for unified check")
+            return JsonResponse({"error": "Некорректный формат запроса"}, status=400)
+        except Exception:
+            logger.exception(f"Unexpected error during unified check for user {request.user.username}")
+            return JsonResponse({"error": "Внутренняя ошибка сервера при проверке"}, status=500)

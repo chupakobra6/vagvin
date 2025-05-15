@@ -15,6 +15,7 @@ web_urlpatterns = [
 
     # Dashboard
     path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
+    path('dashboard/unified-check/', views.UnifiedCheckView.as_view(), name='unified_check'),
 ]
 
 # API endpoints
