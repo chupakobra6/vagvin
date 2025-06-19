@@ -1,5 +1,6 @@
 import logging.config
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -75,12 +76,20 @@ TEMPLATES = [
 WSGI_APPLICATION = 'vagvin.wsgi.application'
 
 # Database configuration
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'),
-        conn_max_age=600
-    )
-}
+if 'test' in sys.argv or 'pytest' in sys.argv[0]:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.environ.get('DATABASE_URL', 'sqlite:///db.sqlite3'),
+            conn_max_age=600
+        )
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
