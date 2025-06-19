@@ -20,7 +20,7 @@ CACHE_TIME_LONG = 86400  # 24 hours
 
 class CacheService:
     """Service for handling cache operations"""
-    
+
     @classmethod
     def generate_key(cls, prefix: str, *args: Any) -> str:
         """Generate a unique cache key."""
@@ -30,7 +30,7 @@ class CacheService:
 
 class LoggingService:
     """Service for handling specialized logging operations"""
-    
+
     @classmethod
     def log_check_request(cls, check_type: str, identifier: str) -> str:
         """Log vehicle check requests for analytics"""
@@ -41,7 +41,7 @@ class LoggingService:
 
 class AvitoService:
     """Service for handling Avito-related operations"""
-    
+
     @classmethod
     def extract_id(cls, url: str) -> str:
         """Extract item ID from Avito URL"""
@@ -49,16 +49,16 @@ class AvitoService:
             parsed = urlparse(url)
             if "avito.ru" not in parsed.netloc:
                 return ""
-            
+
             # For URLs like https://www.avito.ru/.../_123456789
             if "_" in parsed.path:
                 return parsed.path.split("_")[-1]
-            
+
             # Try to extract from query parameters
             query_params = parse_qs(parsed.query)
             if "id" in query_params:
                 return query_params["id"][0]
-            
+
             return ""
         except Exception:
             logger.exception(f"Error extracting Avito ID from URL")
@@ -67,12 +67,12 @@ class AvitoService:
 
 class AvitoAuthService:
     """Service for handling Avito API authentication."""
-    
+
     @staticmethod
     def get_token() -> Optional[str]:
         """
         Get authentication token for Avito/Autoteka API with Django caching.
-        
+
         Returns:
             Optional[str]: The authentication token, or None if retrieval failed.
         """
@@ -83,35 +83,44 @@ class AvitoAuthService:
             return token
 
         # Check if credentials are set properly
-        if not settings.AVITO_CLIENT_ID or settings.AVITO_CLIENT_ID == "your_client_id_here" or not settings.AVITO_CLIENT_SECRET or settings.AVITO_CLIENT_SECRET == "your_client_secret_here":
-            logger.error("Avito credentials not configured properly. Check AVITO_CLIENT_ID and AVITO_CLIENT_SECRET in settings.")
+        if (
+            not settings.AVITO_CLIENT_ID
+            or settings.AVITO_CLIENT_ID == "your_client_id_here"
+            or not settings.AVITO_CLIENT_SECRET
+            or settings.AVITO_CLIENT_SECRET == "your_client_secret_here"
+        ):
+            logger.error(
+                "Avito credentials not configured properly. Check AVITO_CLIENT_ID and AVITO_CLIENT_SECRET in settings."
+            )
             return None
 
         logger.info("Fetching new Avito token.")
         try:
-            headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers = {"Content-Type": "application/x-www-form-urlencoded"}
             response = requests.post(
                 settings.AVITO_TOKEN_URL,
                 headers=headers,
                 data={
                     "grant_type": "client_credentials",
                     "client_id": settings.AVITO_CLIENT_ID,
-                    "client_secret": settings.AVITO_CLIENT_SECRET
+                    "client_secret": settings.AVITO_CLIENT_SECRET,
                 },
-                timeout=10  # Standard timeout
+                timeout=10,  # Standard timeout
             )
             response.raise_for_status()
 
             token_data = response.json()
-            token = token_data.get('access_token')
+            token = token_data.get("access_token")
             if not token:
                 logger.error("No access_token found in Avito response.")
                 return None
 
             # Cache token with expiration time - 60 second buffer
-            expires_in = token_data.get('expires_in', 3600) - 60
+            expires_in = token_data.get("expires_in", 3600) - 60
             cache.set(cache_key, token, timeout=max(60, expires_in))
-            logger.info(f"Successfully fetched and cached new Avito token. Expires in {expires_in}s.")
+            logger.info(
+                f"Successfully fetched and cached new Avito token. Expires in {expires_in}s."
+            )
             return token
 
         except requests.exceptions.RequestException:
@@ -124,24 +133,24 @@ class AvitoAuthService:
 
 class AutotekaService:
     """Service for interacting with the Autoteka API."""
-    
+
     # API endpoints
     AUTOTEKA_URLS = {
         "vin": "https://pro.autoteka.ru/autoteka/v1/previews",
         "regNumber": "https://pro.autoteka.ru/autoteka/v1/request-preview-by-regnumber",
         "itemId": "https://pro.autoteka.ru/autoteka/v1/request-preview-by-item-id",
-        "preview_url": "https://pro.autoteka.ru/autoteka/v1/previews"
+        "preview_url": "https://pro.autoteka.ru/autoteka/v1/previews",
     }
-    
+
     @staticmethod
     def check(input_value: str, input_type: str) -> Dict[str, Any]:
         """
         Check vehicle information in Autoteka database.
-        
+
         Args:
             input_value: VIN, license plate, or Avito item ID.
             input_type: Type of input ('vin', 'regNumber', 'itemId').
-            
+
         Returns:
             Dict with results of the check or an error message.
         """
@@ -150,14 +159,16 @@ class AutotekaService:
             logger.error("Empty input_value provided to check_autoteka")
             return {"error": "Необходимо указать значение для проверки"}
 
-        if input_type not in ('vin', 'regNumber', 'itemId'):
+        if input_type not in ("vin", "regNumber", "itemId"):
             logger.error(f"Invalid input_type provided to check_autoteka: {input_type}")
-            return {"error": f"Неверный тип запроса: {input_type}. Допустимы: vin, regNumber, itemId"}
+            return {
+                "error": f"Неверный тип запроса: {input_type}. Допустимы: vin, regNumber, itemId"
+            }
 
         # Normalize input based on type
-        if input_type in ('vin', 'regNumber'):
+        if input_type in ("vin", "regNumber"):
             cache_key_val = input_value.upper()  # Normalize VIN/RegNumber
-        elif input_type == 'itemId':
+        elif input_type == "itemId":
             try:
                 # Ensure itemId is numeric
                 cache_key_val = str(int(input_value))
@@ -170,7 +181,9 @@ class AutotekaService:
         cache_key = CacheService.generate_key("autoteka", input_type, cache_key_val)
         cached_result = cache.get(cache_key)
         if cached_result:
-            logger.info(f"Retrieved Autoteka data from cache for {input_type}:{cache_key_val}")
+            logger.info(
+                f"Retrieved Autoteka data from cache for {input_type}:{cache_key_val}"
+            )
             return cached_result
 
         LoggingService.log_check_request("Autoteka", f"{input_type} {cache_key_val}")
@@ -179,24 +192,26 @@ class AutotekaService:
         access_token = AvitoAuthService.get_token()
         if not access_token:
             logger.error("Failed to get Avito token for Autoteka check")
-            return {"error": "Ошибка авторизации в Автотеке. Пожалуйста, обратитесь к администратору."}
+            return {
+                "error": "Ошибка авторизации в Автотеке. Пожалуйста, обратитесь к администратору."
+            }
 
         # Define headers for API requests
         preview_request_headers = {
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json'
+            "Authorization": f"Bearer {access_token}",
+            "Content-Type": "application/json",
         }
-        status_polling_headers = {'Authorization': f'Bearer {access_token}'}
+        status_polling_headers = {"Authorization": f"Bearer {access_token}"}
 
         try:
             # Determine API endpoint and payload based on input type
-            if input_type == 'vin':
+            if input_type == "vin":
                 preview_url = AutotekaService.AUTOTEKA_URLS["vin"]
                 payload = {"vin": cache_key_val}
-            elif input_type == 'regNumber':
+            elif input_type == "regNumber":
                 preview_url = AutotekaService.AUTOTEKA_URLS["regNumber"]
                 payload = {"regNumber": cache_key_val}
-            elif input_type == 'itemId':
+            elif input_type == "itemId":
                 preview_url = AutotekaService.AUTOTEKA_URLS["itemId"]
                 try:
                     item_id = int(cache_key_val)
@@ -209,61 +224,87 @@ class AutotekaService:
                 return {"error": "Некорректный тип запроса для Автотеки"}
 
             # 1. Request preview ID
-            logger.info(f"Requesting Autoteka preview for {input_type}: {cache_key_val} at URL: {preview_url}")
+            logger.info(
+                f"Requesting Autoteka preview for {input_type}: {cache_key_val} at URL: {preview_url}"
+            )
             logger.debug(f"Autoteka Request Headers: {preview_request_headers}")
             logger.debug(f"Autoteka Request Payload: {json.dumps(payload)}")
-            
+
             try:
-                response = requests.post(preview_url, headers=preview_request_headers, json=payload, timeout=(5, 15))
+                response = requests.post(
+                    preview_url,
+                    headers=preview_request_headers,
+                    json=payload,
+                    timeout=(5, 15),
+                )
                 logger.debug(f"Autoteka Response Status Code: {response.status_code}")
                 logger.debug(f"Autoteka Response Text: {response.text}")
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
                 status_code = e.response.status_code
                 error_text = e.response.text
-                logger.exception(f"HTTP error during Autoteka preview POST: {status_code}, {error_text}")
+                logger.exception(
+                    f"HTTP error during Autoteka preview POST: {status_code}, {error_text}"
+                )
 
                 if status_code == 401 or status_code == 403:
                     # Invalidate token cache on auth errors
                     cache.delete("avito_token")
                     logger.warning("Avito token seems invalid, cache cleared.")
-                    return {"error": "Ошибка авторизации в Автотеке. Проверьте учетные данные или обновите токен."}
+                    return {
+                        "error": "Ошибка авторизации в Автотеке. Проверьте учетные данные или обновите токен."
+                    }
                 elif status_code == 404:
                     # 404 on POST likely means bad endpoint/parameters, not necessarily 'VIN not found'
-                    return {"error": f"Ошибка API Автотеки (404 - Not Found). Возможно, неверный URL или параметры запроса."}
+                    return {
+                        "error": "Ошибка API Автотеки (404 - Not Found). Возможно, неверный URL или параметры запроса."
+                    }
                 else:
-                    return {"error": f"Ошибка сервера Автотеки ({status_code}) при запросе previewId. Попробуйте позже."}
+                    return {
+                        "error": f"Ошибка сервера Автотеки ({status_code}) при запросе previewId. Попробуйте позже."
+                    }
             except requests.exceptions.RequestException as e:
                 logger.exception(f"Request error during Autoteka check: {e}")
-                return {"error": "Ошибка соединения с сервером Автотеки. Проверьте подключение к интернету."}
-            
+                return {
+                    "error": "Ошибка соединения с сервером Автотеки. Проверьте подключение к интернету."
+                }
+
             # Parse the response for preview ID
             try:
                 preview_data = response.json()
             except json.JSONDecodeError:
                 logger.exception(f"Invalid JSON in Autoteka response: {response.text}")
-                return {"error": "Некорректный ответ от сервера Автотеки. Попробуйте позже."}
+                return {
+                    "error": "Некорректный ответ от сервера Автотеки. Попробуйте позже."
+                }
 
             # Extract preview ID
-            preview_id = preview_data.get('result', {}).get('preview', {}).get('previewId')
+            preview_id = (
+                preview_data.get("result", {}).get("preview", {}).get("previewId")
+            )
             if not preview_id:
                 logger.error(f"No previewId in Autoteka response: {preview_data}")
-                
+
                 # Check if the API returned a specific status like "notFound" directly
-                status = preview_data.get('result', {}).get('preview', {}).get('status')
-                if status == 'notFound':
+                status = preview_data.get("result", {}).get("preview", {}).get("status")
+                if status == "notFound":
                     # Use success: False structure consistent with polling results
-                    result = {"success": False, "message": f'❌ {cache_key_val} отсутствует в Автотеке'}
+                    result = {
+                        "success": False,
+                        "message": f"❌ {cache_key_val} отсутствует в Автотеке",
+                    }
                     cache.set(cache_key, result, CACHE_TIME_SHORT)
                     return result
-                
-                return {"error": "Не удалось получить данные от Автотеки. Попробуйте позже."}
+
+                return {
+                    "error": "Не удалось получить данные от Автотеки. Попробуйте позже."
+                }
 
             # 2. Poll for status
             # Use the v1 preview URL base for status polling
             status_url = f"{AutotekaService.AUTOTEKA_URLS['preview_url']}/{preview_id}"
             max_wait_time = 120  # seconds
-            poll_interval = 3    # seconds
+            poll_interval = 3  # seconds
             elapsed_time = 0
 
             logger.info(f"Polling Autoteka status for previewId: {preview_id}")
@@ -273,21 +314,33 @@ class AutotekaService:
 
                 try:
                     logger.debug(f"Polling Autoteka status URL: {status_url}")
-                    logger.debug(f"Polling Autoteka status Headers: {status_polling_headers}")
-                    status_response = requests.get(status_url, headers=status_polling_headers, timeout=(5, 15))
-                    logger.debug(f"Polling Autoteka status Response Code: {status_response.status_code}")
-                    logger.debug(f"Polling Autoteka status Response Text: {status_response.text}")
+                    logger.debug(
+                        f"Polling Autoteka status Headers: {status_polling_headers}"
+                    )
+                    status_response = requests.get(
+                        status_url, headers=status_polling_headers, timeout=(5, 15)
+                    )
+                    logger.debug(
+                        f"Polling Autoteka status Response Code: {status_response.status_code}"
+                    )
+                    logger.debug(
+                        f"Polling Autoteka status Response Text: {status_response.text}"
+                    )
                     status_response.raise_for_status()
                     status_data = status_response.json()
 
-                    status = status_data.get('result', {}).get('preview', {}).get('status')
+                    status = (
+                        status_data.get("result", {}).get("preview", {}).get("status")
+                    )
                     logger.debug(f"Autoteka status check for {preview_id}: {status}")
 
-                    if status == 'success':
-                        preview_content = status_data.get('result', {}).get('preview', {})
-                        brand = preview_content.get('data', {}).get('brand')
-                        model = preview_content.get('data', {}).get('model')
-                        year = preview_content.get('data', {}).get('year')
+                    if status == "success":
+                        preview_content = status_data.get("result", {}).get(
+                            "preview", {}
+                        )
+                        brand = preview_content.get("data", {}).get("brand")
+                        model = preview_content.get("data", {}).get("model")
+                        year = preview_content.get("data", {}).get("year")
 
                         # Construct a more informative success message
                         result = {
@@ -297,79 +350,125 @@ class AutotekaService:
                                 "VIN/ГН/Id": cache_key_val,
                                 "Марка": brand,
                                 "Модель": model,
-                                "Год": year
-                            }
+                                "Год": year,
+                            },
                         }
-                        logger.info(f"Autoteka check successful for {input_type}:{cache_key_val}")
+                        logger.info(
+                            f"Autoteka check successful for {input_type}:{cache_key_val}"
+                        )
                         cache.set(cache_key, result, CACHE_TIME_LONG)
                         return result
 
-                    elif status == 'processing':
-                        logger.debug(f"Autoteka report for {preview_id} still processing...")
+                    elif status == "processing":
+                        logger.debug(
+                            f"Autoteka report for {preview_id} still processing..."
+                        )
                         continue  # Keep polling
 
-                    elif status == 'notFound':
-                        logger.info(f"Autoteka check result: {cache_key_val} not found.")
-                        result = {"success": False, "message": f'❌ {cache_key_val} отсутствует в Автотеке'}
-                        cache.set(cache_key, result, CACHE_TIME_SHORT)  # Cache not found results shorter
+                    elif status == "notFound":
+                        logger.info(
+                            f"Autoteka check result: {cache_key_val} not found."
+                        )
+                        result = {
+                            "success": False,
+                            "message": f"❌ {cache_key_val} отсутствует в Автотеке",
+                        }
+                        cache.set(
+                            cache_key, result, CACHE_TIME_SHORT
+                        )  # Cache not found results shorter
                         return result
 
-                    elif status == 'error':
-                        error_details = status_data.get('result', {}).get('preview', {}).get('error', {})
-                        logger.error(f"Autoteka processing error for {preview_id}: {error_details}")
+                    elif status == "error":
+                        error_details = (
+                            status_data.get("result", {})
+                            .get("preview", {})
+                            .get("error", {})
+                        )
+                        logger.error(
+                            f"Autoteka processing error for {preview_id}: {error_details}"
+                        )
                         result = {"error": "Ошибка обработки данных в Автотеке."}
                         cache.set(cache_key, result, CACHE_TIME_SHORT)
                         return result
-                    
-                    elif status == 'reportNotFound':  # Handle specific 'reportNotFound' status if it exists
-                        logger.info(f"Autoteka report not found for {preview_id}. VIN: {cache_key_val}")
-                        result = {"success": False, "message": f'❌ Отчет Автотеки для {cache_key_val} не найден'}
+
+                    elif (
+                        status == "reportNotFound"
+                    ):  # Handle specific 'reportNotFound' status if it exists
+                        logger.info(
+                            f"Autoteka report not found for {preview_id}. VIN: {cache_key_val}"
+                        )
+                        result = {
+                            "success": False,
+                            "message": f"❌ Отчет Автотеки для {cache_key_val} не найден",
+                        }
                         cache.set(cache_key, result, CACHE_TIME_SHORT)
                         return result
 
                     else:
-                        logger.warning(f"Unknown Autoteka status for {preview_id}: {status}. Data: {status_data}")
+                        logger.warning(
+                            f"Unknown Autoteka status for {preview_id}: {status}. Data: {status_data}"
+                        )
                         # Continue polling unless it's clearly a final state
 
                 except requests.exceptions.HTTPError as e:
                     status_code = e.response.status_code
                     error_text = e.response.text
-                    logger.exception(f"HTTP error polling Autoteka status for {preview_id}: {status_code}, {error_text}")
+                    logger.exception(
+                        f"HTTP error polling Autoteka status for {preview_id}: {status_code}, {error_text}"
+                    )
                     # Don't cache intermittent polling errors, but stop polling if it's auth related
                     if status_code == 401 or status_code == 403:
                         cache.delete("avito_token")
-                        logger.warning("Avito token seems invalid during polling, cache cleared.")
-                        return {"error": "Ошибка авторизации в Автотеке во время проверки статуса."}
+                        logger.warning(
+                            "Avito token seems invalid during polling, cache cleared."
+                        )
+                        return {
+                            "error": "Ошибка авторизации в Автотеке во время проверки статуса."
+                        }
                     # Retry on other server errors? For now, stop polling and return error.
-                    return {"error": f"Ошибка сервера Автотеки ({status_code}) при проверке статуса."}
+                    return {
+                        "error": f"Ошибка сервера Автотеки ({status_code}) при проверке статуса."
+                    }
                 except requests.exceptions.RequestException as e:
-                    logger.exception(f"Request error polling Autoteka status for {preview_id}: {e}")
+                    logger.exception(
+                        f"Request error polling Autoteka status for {preview_id}: {e}"
+                    )
                     # Stop polling on connection errors
-                    return {"error": "Ошибка соединения с сервером Автотеки при проверке статуса."}
+                    return {
+                        "error": "Ошибка соединения с сервером Автотеки при проверке статуса."
+                    }
                 except json.JSONDecodeError:
-                    logger.exception(f"Invalid JSON in Autoteka status response: {status_response.text}")
-                    return {"error": "Некорректный ответ от сервера Автотеки при проверке статуса."}
+                    logger.exception(
+                        f"Invalid JSON in Autoteka status response: {status_response.text}"
+                    )
+                    return {
+                        "error": "Некорректный ответ от сервера Автотеки при проверке статуса."
+                    }
 
             # If loop finishes without a result
-            logger.warning(f"Autoteka check timed out for {preview_id} ({input_type}:{cache_key_val})")
+            logger.warning(
+                f"Autoteka check timed out for {preview_id} ({input_type}:{cache_key_val})"
+            )
             return {"error": "Превышено время ожидания ответа от Автотеки"}
 
         except Exception:
-            logger.exception(f"Unexpected error during Autoteka check for {input_type}:{cache_key_val}")
+            logger.exception(
+                f"Unexpected error during Autoteka check for {input_type}:{cache_key_val}"
+            )
             return {"error": "Непредвиденная ошибка при проверке Автотеки"}
 
 
 class CarfaxService:
     """Service for interacting with Carfax/Autocheck APIs."""
-    
+
     @staticmethod
     def check(vin: str) -> Dict[str, Any]:
         """
         Check vehicle information in Carfax/Autocheck databases via Carstat API.
-        
+
         Args:
             vin: Vehicle identification number.
-            
+
         Returns:
             Dict with results of the check or an error message.
         """
@@ -379,8 +478,12 @@ class CarfaxService:
 
         # Check if API key is set properly
         if not settings.CARSTAT_API_KEY or len(settings.CARSTAT_API_KEY) < 10:
-            logger.error("Carstat API key not configured properly. Check CARSTAT_API_KEY in settings.")
-            return {"error": "Ошибка настройки API ключа Carstat. Пожалуйста, обратитесь к администратору."}
+            logger.error(
+                "Carstat API key not configured properly. Check CARSTAT_API_KEY in settings."
+            )
+            return {
+                "error": "Ошибка настройки API ключа Carstat. Пожалуйста, обратитесь к администратору."
+            }
 
         cache_key = CacheService.generate_key("carfax_autocheck", vin_upper)
         cached_result = cache.get(cache_key)
@@ -389,8 +492,8 @@ class CarfaxService:
             return cached_result
 
         LoggingService.log_check_request("Carfax/Autocheck", vin_upper)
-        url = f'https://carstat.dev/api/reports/check-records/{vin_upper}'
-        headers = {'accept': '*/*', 'x-api-key': settings.CARSTAT_API_KEY}
+        url = f"https://carstat.dev/api/reports/check-records/{vin_upper}"
+        headers = {"accept": "*/*", "x-api-key": settings.CARSTAT_API_KEY}
 
         try:
             logger.info(f"Checking Carfax/Autocheck (Carstat) for {vin_upper}")
@@ -398,14 +501,18 @@ class CarfaxService:
             response.raise_for_status()
             data = response.json()
 
-            vehicle_info = data.get('vehicle')
-            carfax_records = data.get('carfax')
-            autocheck_records = data.get('autocheck')
+            vehicle_info = data.get("vehicle")
+            carfax_records = data.get("carfax")
+            autocheck_records = data.get("autocheck")
 
             # Check if data is meaningful
-            has_records = (carfax_records is not None and carfax_records > 0) or \
-                        (autocheck_records is not None and autocheck_records > 0)
-            is_valid_vehicle = vehicle_info and vehicle_info.lower() not in ('null null', 'null null 0')
+            has_records = (carfax_records is not None and carfax_records > 0) or (
+                autocheck_records is not None and autocheck_records > 0
+            )
+            is_valid_vehicle = vehicle_info and vehicle_info.lower() not in (
+                "null null",
+                "null null 0",
+            )
 
             if has_records and is_valid_vehicle:
                 result = {
@@ -413,43 +520,61 @@ class CarfaxService:
                     "vehicle_info": vehicle_info,
                     "carfax": carfax_records,
                     "autocheck": autocheck_records,
-                    "message": f"✅ Найдены записи для {vehicle_info}"
+                    "message": f"✅ Найдены записи для {vehicle_info}",
                 }
                 logger.info(f"Carfax/Autocheck check successful for {vin_upper}")
             else:
                 logger.info(f"No Carfax/Autocheck records found for {vin_upper}")
-                result = {"success": False, "message": f"❌ VIN {vin_upper} отсутствует в базах Carfax/Autocheck"}
+                result = {
+                    "success": False,
+                    "message": f"❌ VIN {vin_upper} отсутствует в базах Carfax/Autocheck",
+                }
 
             cache.set(cache_key, result, CACHE_TIME_LONG)
             return result
 
         except requests.exceptions.HTTPError as e:
-            logger.exception(f"HTTP error during Carfax/Autocheck check for {vin_upper}. Status: {e.response.status_code}, Response: {e.response.text}")
+            logger.exception(
+                f"HTTP error during Carfax/Autocheck check for {vin_upper}. Status: {e.response.status_code}, Response: {e.response.text}"
+            )
             # Handle specific Carstat errors if known, e.g., 404 for not found
             if e.response.status_code == 404:
-                result = {"success": False, "message": f"❌ VIN {vin_upper} не найден в Carstat"}
+                result = {
+                    "success": False,
+                    "message": f"❌ VIN {vin_upper} не найден в Carstat",
+                }
                 cache.set(cache_key, result, CACHE_TIME_SHORT)
                 return result
-            return {"error": f"Ошибка сети при запросе к Carstat ({e.response.status_code})"}
+            return {
+                "error": f"Ошибка сети при запросе к Carstat ({e.response.status_code})"
+            }
         except requests.exceptions.RequestException:
-            logger.exception(f"Request error during Carfax/Autocheck check for {vin_upper}")
-            return {"error": "Ошибка сети при запросе к Carstat. Проверьте подключение к интернету."}
+            logger.exception(
+                f"Request error during Carfax/Autocheck check for {vin_upper}"
+            )
+            return {
+                "error": "Ошибка сети при запросе к Carstat. Проверьте подключение к интернету."
+            }
         except Exception:
-            logger.exception(f"Unexpected error during Carfax/Autocheck check for {vin_upper}")
-            return {"error": "Внутренняя ошибка при проверке Carfax/Autocheck. Пожалуйста, попробуйте позже."}
+            logger.exception(
+                f"Unexpected error during Carfax/Autocheck check for {vin_upper}"
+            )
+            return {
+                "error": "Внутренняя ошибка при проверке Carfax/Autocheck. Пожалуйста, попробуйте позже."
+            }
 
 
 class VinhistoryService:
     """Service for interacting with Vinhistory API."""
-    
+
     @staticmethod
     def check(vin: str) -> Dict[str, Any]:
         """
         Check vehicle information in Vinhistory database.
-        
+
         Args:
             vin: Vehicle identification number.
-            
+
         Returns:
             Dict with results of the check or an error message.
         """
@@ -474,22 +599,28 @@ class VinhistoryService:
             logger.error("VINHistory credentials not configured properly.")
             return {"error": "Ошибка конфигурации сервиса Vinhistory."}
 
-        params = {"login": settings.VINHISTORY_LOGIN, "password": settings.VINHISTORY_PASS, "vin": vin_upper}
+        params = {
+            "login": settings.VINHISTORY_LOGIN,
+            "password": settings.VINHISTORY_PASS,
+            "vin": vin_upper,
+        }
 
         try:
             logger.info(f"Checking Vinhistory for {vin_upper}")
-            response = requests.get("https://vinhistory.ru/api/search", params=params, timeout=15)
+            response = requests.get(
+                "https://vinhistory.ru/api/search", params=params, timeout=15
+            )
             response.raise_for_status()  # Raise HTTPError for bad responses
 
             data = response.json()
 
             # Extract relevant data
-            vehicle_data = data.get('vehicle', {})
-            images_count = data.get('images', 0)
-            
-            vehicle_make = vehicle_data.get('make')
-            vehicle_model = vehicle_data.get('model')
-            vehicle_year = vehicle_data.get('year')
+            vehicle_data = data.get("vehicle", {})
+            images_count = data.get("images", 0)
+
+            vehicle_make = vehicle_data.get("make")
+            vehicle_model = vehicle_data.get("model")
+            vehicle_year = vehicle_data.get("year")
 
             # Check if actual data exists and there are images
             if images_count > 0 and vehicle_make and vehicle_model and vehicle_year:
@@ -498,38 +629,51 @@ class VinhistoryService:
                     "success": True,
                     "message": "Данные найдены в Vinhistory.",
                     "vehicle": f"{vehicle_make} {vehicle_model} {vehicle_year}",
-                    "images_count": images_count
+                    "images_count": images_count,
                 }
                 ttl = CACHE_TIME_LONG
             # Handle case where VIN might be found but has no images (or incomplete data)
             elif vehicle_make and vehicle_model and vehicle_year:
-                logger.info(f"Vinhistory found vehicle data but no images for {vin_upper}")
+                logger.info(
+                    f"Vinhistory found vehicle data but no images for {vin_upper}"
+                )
                 # Return a slightly different message indicating data exists but no images
                 result = {
                     "success": True,  # Still technically a success, but with nuance
                     "message": "Данные об автомобиле найдены, но фото отсутствуют.",
                     "vehicle": f"{vehicle_make} {vehicle_model} {vehicle_year}",
-                    "images_count": 0
+                    "images_count": 0,
                 }
                 ttl = CACHE_TIME_SHORT
             else:
                 # VIN not found or incomplete data returned
                 logger.info(f"No complete Vinhistory data found for {vin_upper}")
-                result = {"success": False, "message": f"❌ В базе данных Vinhistory отсутствует VIN {vin_upper}"}
+                result = {
+                    "success": False,
+                    "message": f"❌ В базе данных Vinhistory отсутствует VIN {vin_upper}",
+                }
                 ttl = CACHE_TIME_SHORT  # Cache not found results shorter
 
             cache.set(cache_key, result, ttl)
-            logger.info(f"Stored Vinhistory result for VIN: {vin_upper} with TTL: {ttl}s")
+            logger.info(
+                f"Stored Vinhistory result for VIN: {vin_upper} with TTL: {ttl}s"
+            )
             return result
 
         except requests.exceptions.HTTPError as e:
             status_code = e.response.status_code
             error_text = e.response.text
-            logger.exception(f"HTTP error during Vinhistory check for {vin_upper}: {status_code}, {error_text}")
+            logger.exception(
+                f"HTTP error during Vinhistory check for {vin_upper}: {status_code}, {error_text}"
+            )
             # Check for specific errors if needed, e.g., bad credentials
             if status_code == 401 or status_code == 403:
-                return {"error": "Ошибка авторизации в Vinhistory. Проверьте учетные данные."}
-            return {"error": f"Ошибка сервера Vinhistory ({status_code}). Попробуйте позже."}
+                return {
+                    "error": "Ошибка авторизации в Vinhistory. Проверьте учетные данные."
+                }
+            return {
+                "error": f"Ошибка сервера Vinhistory ({status_code}). Попробуйте позже."
+            }
         except requests.exceptions.RequestException:
             logger.exception(f"Request error during Vinhistory check for {vin_upper}")
             return {"error": "Ошибка соединения с сервером Vinhistory."}
@@ -537,21 +681,23 @@ class VinhistoryService:
             logger.exception(f"Invalid JSON in Vinhistory response")
             return {"error": "Некорректный ответ от сервера Vinhistory."}
         except Exception:
-            logger.exception(f"Unexpected error during Vinhistory check for {vin_upper}")
+            logger.exception(
+                f"Unexpected error during Vinhistory check for {vin_upper}"
+            )
             return {"error": "Непредвиденная ошибка при проверке Vinhistory"}
 
 
 class AuctionService:
     """Service for checking auction data."""
-    
+
     @staticmethod
     def check(vin: str) -> Dict[str, Any]:
         """
         Check vehicle auction history using Carstat API.
-        
+
         Args:
             vin: Vehicle identification number.
-            
+
         Returns:
             Dict with results of the check or an error message.
         """
@@ -561,8 +707,12 @@ class AuctionService:
 
         # Check if API key is set properly
         if not settings.CARSTAT_API_KEY or len(settings.CARSTAT_API_KEY) < 10:
-            logger.error("Carstat API key not configured properly. Check CARSTAT_API_KEY in settings.")
-            return {"error": "Ошибка настройки API ключа Carstat. Пожалуйста, обратитесь к администратору."}
+            logger.error(
+                "Carstat API key not configured properly. Check CARSTAT_API_KEY in settings."
+            )
+            return {
+                "error": "Ошибка настройки API ключа Carstat. Пожалуйста, обратитесь к администратору."
+            }
 
         cache_key = CacheService.generate_key("auction", vin_upper)
         cached_result = cache.get(cache_key)
@@ -571,8 +721,8 @@ class AuctionService:
             return cached_result
 
         LoggingService.log_check_request("Auction (Carstat)", vin_upper)
-        url = f'https://carstat.dev/api/local-exists/{vin_upper}'
-        headers = {'accept': '*/*', 'x-api-key': settings.CARSTAT_API_KEY}
+        url = f"https://carstat.dev/api/local-exists/{vin_upper}"
+        headers = {"accept": "*/*", "x-api-key": settings.CARSTAT_API_KEY}
 
         try:
             logger.info(f"Checking auction history (Carstat) for {vin_upper}")
@@ -580,170 +730,202 @@ class AuctionService:
             response.raise_for_status()
             data = response.json()
 
-            if data.get('exists'):
+            if data.get("exists"):
                 # The 'domains' list seems to indicate individual auction records/sources
-                auction_count = len(data.get('domains', []))
+                auction_count = len(data.get("domains", []))
                 result = {
                     "success": True,
                     "auction_count": auction_count,
-                    "message": f"✅ Найдены записи об аукционах ({auction_count} шт.) для VIN {vin_upper}"
+                    "message": f"✅ Найдены записи об аукционах ({auction_count} шт.) для VIN {vin_upper}",
                 }
                 logger.info(f"Auction check (Carstat) successful for {vin_upper}")
             else:
                 logger.info(f"No auction records (Carstat) found for {vin_upper}")
-                result = {"success": False, "message": f"❌ VIN {vin_upper} отсутствует в базе аукционов Carstat"}
+                result = {
+                    "success": False,
+                    "message": f"❌ VIN {vin_upper} отсутствует в базе аукционов Carstat",
+                }
 
             cache.set(cache_key, result, CACHE_TIME_LONG)
             return result
 
         except requests.exceptions.HTTPError as e:
-            logger.exception(f"HTTP error during auction check (Carstat) for {vin_upper}. Status: {e.response.status_code}, Response: {e.response.text}")
+            logger.exception(
+                f"HTTP error during auction check (Carstat) for {vin_upper}. Status: {e.response.status_code}, Response: {e.response.text}"
+            )
             # Handle specific Carstat errors if known, e.g., 404
             if e.response.status_code == 404:
-                result = {"success": False, "message": f"❌ VIN {vin_upper} не найден в базе аукционов Carstat"}
+                result = {
+                    "success": False,
+                    "message": f"❌ VIN {vin_upper} не найден в базе аукционов Carstat",
+                }
                 cache.set(cache_key, result, CACHE_TIME_SHORT)
                 return result
-            return {"error": f"Ошибка сети при запросе к Carstat (аукционы) ({e.response.status_code})"}
+            return {
+                "error": f"Ошибка сети при запросе к Carstat (аукционы) ({e.response.status_code})"
+            }
         except requests.exceptions.RequestException:
-            logger.exception(f"Request error during auction check (Carstat) for {vin_upper}")
-            return {"error": "Ошибка сети при запросе к Carstat (аукционы). Проверьте подключение к интернету."}
+            logger.exception(
+                f"Request error during auction check (Carstat) for {vin_upper}"
+            )
+            return {
+                "error": "Ошибка сети при запросе к Carstat (аукционы). Проверьте подключение к интернету."
+            }
         except Exception:
-            logger.exception(f"Unexpected error during auction check (Carstat) for {vin_upper}")
-            return {"error": "Внутренняя ошибка при проверке истории аукционов. Пожалуйста, попробуйте позже."}
+            logger.exception(
+                f"Unexpected error during auction check (Carstat) for {vin_upper}"
+            )
+            return {
+                "error": "Внутренняя ошибка при проверке истории аукционов. Пожалуйста, попробуйте позже."
+            }
 
 
 class ExamplesService:
     """Service for providing example data for the examples page."""
-    
+
     @staticmethod
     def get_service_history_section() -> Dict[str, Any]:
         """Get service history example section data."""
         return {
-            'title': 'История обслуживания у официального дилера',
-            'icon': 'fas fa-history',
-            'subtitle': 'История обслуживания по VIN для Европы, Америки, Азии, СНГ, РФ',
-            'description': 'На данный момент доступны более 20 марок.',
-            'items': [
-                {'name': 'Peugeot', 'url': 'img/examples/Peugeot.pdf'},
-                {'name': 'Renault', 'url': 'img/examples/Renault.pdf'},
-                {'name': 'Chrysler', 'url': 'img/examples/Chrysler.pdf'},
-                {'name': 'Fiat', 'url': 'img/examples/Fiat.pdf'},
-                {'name': 'Jaguar', 'url': 'img/examples/Jaguar.pdf'},
-                {'name': 'Jeep', 'url': 'img/examples/Jeep.pdf'},
-                {'name': 'Land Rover', 'url': 'img/examples/LandRover.pdf'},
-                {'name': 'Lexus', 'url': 'img/examples/Lexus.pdf'},
-                {'name': 'Mercedes-Benz', 'url': 'img/examples/Mercedes.pdf'},
-                {'name': 'Nissan', 'url': 'img/examples/Nissan.pdf'},
-                {'name': 'Opel', 'url': 'img/examples/Opel.pdf'},
-                {'name': 'Toyota', 'url': 'img/examples/Toyota.pdf'},
-                {'name': 'Mazda', 'url': 'img/examples/Mazda.pdf'},
-                {'name': 'Ford', 'url': 'img/examples/Ford.pdf'},
-                {'name': 'BMW', 'url': 'img/examples/BMW.pdf'},
-                {'name': 'Audi', 'url': 'img/examples/AudiSeatSkodaVW.pdf'},
-                {'name': 'Seat', 'url': 'img/examples/AudiSeatSkodaVW.pdf'},
-                {'name': 'Skoda', 'url': 'img/examples/AudiSeatSkodaVW.pdf'},
-                {'name': 'Volkswagen', 'url': 'img/examples/AudiSeatSkodaVW.pdf'},
-                {'name': 'Porsche', 'url': 'img/examples/Porsche.pdf'},
-            ]
+            "title": "История обслуживания у официального дилера",
+            "icon": "fas fa-history",
+            "subtitle": "История обслуживания по VIN для Европы, Америки, Азии, СНГ, РФ",
+            "description": "На данный момент доступны более 20 марок.",
+            "items": [
+                {"name": "Peugeot", "url": "img/examples/Peugeot.pdf"},
+                {"name": "Renault", "url": "img/examples/Renault.pdf"},
+                {"name": "Chrysler", "url": "img/examples/Chrysler.pdf"},
+                {"name": "Fiat", "url": "img/examples/Fiat.pdf"},
+                {"name": "Jaguar", "url": "img/examples/Jaguar.pdf"},
+                {"name": "Jeep", "url": "img/examples/Jeep.pdf"},
+                {"name": "Land Rover", "url": "img/examples/LandRover.pdf"},
+                {"name": "Lexus", "url": "img/examples/Lexus.pdf"},
+                {"name": "Mercedes-Benz", "url": "img/examples/Mercedes.pdf"},
+                {"name": "Nissan", "url": "img/examples/Nissan.pdf"},
+                {"name": "Opel", "url": "img/examples/Opel.pdf"},
+                {"name": "Toyota", "url": "img/examples/Toyota.pdf"},
+                {"name": "Mazda", "url": "img/examples/Mazda.pdf"},
+                {"name": "Ford", "url": "img/examples/Ford.pdf"},
+                {"name": "BMW", "url": "img/examples/BMW.pdf"},
+                {"name": "Audi", "url": "img/examples/AudiSeatSkodaVW.pdf"},
+                {"name": "Seat", "url": "img/examples/AudiSeatSkodaVW.pdf"},
+                {"name": "Skoda", "url": "img/examples/AudiSeatSkodaVW.pdf"},
+                {"name": "Volkswagen", "url": "img/examples/AudiSeatSkodaVW.pdf"},
+                {"name": "Porsche", "url": "img/examples/Porsche.pdf"},
+            ],
         }
-    
+
     @staticmethod
     def get_car_equipment_section() -> Dict[str, Any]:
         """Get car equipment example section data."""
         return {
-            'title': 'Комплектация автомобиля',
-            'subtitle': 'Подробная информация о заводской комплектации автомобиля.',
-            'icon': 'fas fa-car',
-            'items': [
-                {'name': 'Audi', 'url': 'img/examples/audi_equipment.pdf'},
-                {'name': 'BMW', 'url': 'img/examples/bmw_equipment.pdf'},
-                {'name': 'Seat', 'url': 'img/examples/seat_skoda_vw_equipment.pdf'},
-                {'name': 'Skoda', 'url': 'img/examples/seat_skoda_vw_equipment.pdf'},
-                {'name': 'Volkswagen', 'url': 'img/examples/seat_skoda_vw_equipment.pdf'},
-                {'name': 'Jaguar', 'url': 'img/examples/jaguar_equipment.pdf'},
-                {'name': 'Landrover', 'url': 'img/examples/lendrover_equipment.pdf'},
-                {'name': 'Mercedes-Benz', 'url': 'img/examples/mercedes_equipment.pdf'},
-                {'name': 'Ford', 'url': 'img/examples/ford_equipment.pdf'},
-                {'name': 'Porsche', 'url': 'img/examples/porshe_equipment.pdf'},
-                {'name': 'Bentley', 'url': 'img/examples/bentley_equipment.pdf'},
-            ]
+            "title": "Комплектация автомобиля",
+            "subtitle": "Подробная информация о заводской комплектации автомобиля.",
+            "icon": "fas fa-car",
+            "items": [
+                {"name": "Audi", "url": "img/examples/audi_equipment.pdf"},
+                {"name": "BMW", "url": "img/examples/bmw_equipment.pdf"},
+                {"name": "Seat", "url": "img/examples/seat_skoda_vw_equipment.pdf"},
+                {"name": "Skoda", "url": "img/examples/seat_skoda_vw_equipment.pdf"},
+                {
+                    "name": "Volkswagen",
+                    "url": "img/examples/seat_skoda_vw_equipment.pdf",
+                },
+                {"name": "Jaguar", "url": "img/examples/jaguar_equipment.pdf"},
+                {"name": "Landrover", "url": "img/examples/lendrover_equipment.pdf"},
+                {"name": "Mercedes-Benz", "url": "img/examples/mercedes_equipment.pdf"},
+                {"name": "Ford", "url": "img/examples/ford_equipment.pdf"},
+                {"name": "Porsche", "url": "img/examples/porshe_equipment.pdf"},
+                {"name": "Bentley", "url": "img/examples/bentley_equipment.pdf"},
+            ],
         }
-    
+
     @staticmethod
     def get_carvertical_section() -> Dict[str, Any]:
         """Get Carvertical example section data."""
         return {
-            'title': 'Отчеты Carvertical',
-            'subtitle': 'Подробные отчеты о истории автомобиля от сервиса Carvertical.',
-            'icon': 'fas fa-file-alt',
-            'items': [
-                {'name': 'Carvertical Audi', 'url': 'img/examples/audi_carvertical.pdf'},
-                {'name': 'Carvertical BMW', 'url': 'img/examples/bmw_carvertical.pdf'},
-                {'name': 'Carvertical Mercedes', 'url': 'img/examples/mercedes_carvertical.pdf'},
-            ]
+            "title": "Отчеты Carvertical",
+            "subtitle": "Подробные отчеты о истории автомобиля от сервиса Carvertical.",
+            "icon": "fas fa-file-alt",
+            "items": [
+                {
+                    "name": "Carvertical Audi",
+                    "url": "img/examples/audi_carvertical.pdf",
+                },
+                {"name": "Carvertical BMW", "url": "img/examples/bmw_carvertical.pdf"},
+                {
+                    "name": "Carvertical Mercedes",
+                    "url": "img/examples/mercedes_carvertical.pdf",
+                },
+            ],
         }
 
-    
     @staticmethod
     def get_unlock_codes_section() -> Dict[str, Any]:
         """Get unlock codes section data."""
         return {
-            'title': 'Запрос кодов разблокировки по VIN',
-            'icon': 'fas fa-unlock',
-            'items': [
-                {'name': 'Запрос кода магнитолы для VAG по серийному номеру', 'url': 'img/examples/magnitola_vag.jpg'},
-                {'name': 'Запрос кода SFD для VAG', 'url': 'img/examples/sfd_vag.pdf'},
-                {'name': 'Запрос FSC (Freischaltcode) для BMW', 'url': 'img/examples/bmw_fsc.pdf'},
-                {'name': 'Запрос кода магнитолы для Mercedes-Benz по серийному номеру', 'url': 'img/examples/magnitola_vag.jpg'},
-            ]
+            "title": "Запрос кодов разблокировки по VIN",
+            "icon": "fas fa-unlock",
+            "items": [
+                {
+                    "name": "Запрос кода магнитолы для VAG по серийному номеру",
+                    "url": "img/examples/magnitola_vag.jpg",
+                },
+                {"name": "Запрос кода SFD для VAG", "url": "img/examples/sfd_vag.pdf"},
+                {
+                    "name": "Запрос FSC (Freischaltcode) для BMW",
+                    "url": "img/examples/bmw_fsc.pdf",
+                },
+                {
+                    "name": "Запрос кода магнитолы для Mercedes-Benz по серийному номеру",
+                    "url": "img/examples/magnitola_vag.jpg",
+                },
+            ],
         }
-    
 
-    
     @staticmethod
     def get_vehicle_checks_section() -> Dict[str, Any]:
         """Get vehicle checks section data."""
         return {
-            'title': 'Проверка автомобиля по различным базам',
-            'subtitle': 'Доступны проверки по следующим базам данных:',
-            'icon': 'fas fa-search',
-            'description': 'Доступны проверки по базам Автотека, Carfax/Autocheck, Vinhistory и аукционы.'
+            "title": "Проверка автомобиля по различным базам",
+            "subtitle": "Доступны проверки по следующим базам данных:",
+            "icon": "fas fa-search",
+            "description": "Доступны проверки по базам Автотека, Carfax/Autocheck, Vinhistory и аукционы.",
         }
-    
+
     @staticmethod
     def get_recent_queries(limit: int = 10) -> List[str]:
         """Get recent queries from the website only."""
         try:
-            from datetime import datetime
             from .models import Query
-            
+
             # Fetch recent website queries
-            recent_queries = Query.objects.order_by('-created_at')[:limit]
-            
+            recent_queries = Query.objects.order_by("-created_at")[:limit]
+
             # Format the queries similar to how they were previously displayed
             formatted_queries = []
             for query in recent_queries:
-                timestamp = query.created_at.strftime('%d-%m-%y %H:%M:%S')
-                
+                timestamp = query.created_at.strftime("%d-%m-%y %H:%M:%S")
+
                 # Map query types to more descriptive names
                 query_type_display = {
-                    'autoteka': 'Автотека (VIN)',
-                    'autoteka_reg': 'Автотека (Госномер)',
-                    'autoteka_avito': 'Автотека (Avito)',
-                    'carfax': 'Carfax / Autocheck',
-                    'vinhistory': 'Vinhistory',
-                    'auction': 'Аукционы',
-                    'basic': 'Базовый отчет',
-                    'full': 'Полный отчет',
-                    'unified': 'Комплексная проверка'
+                    "autoteka": "Автотека (VIN)",
+                    "autoteka_reg": "Автотека (Госномер)",
+                    "autoteka_avito": "Автотека (Avito)",
+                    "carfax": "Carfax / Autocheck",
+                    "vinhistory": "Vinhistory",
+                    "auction": "Аукционы",
+                    "basic": "Базовый отчет",
+                    "full": "Полный отчет",
+                    "unified": "Комплексная проверка",
                 }.get(query.query_type, query.query_type)
-                
+
                 formatted_query = (
-                    f"{timestamp} Пользователь сайта запросил проверку " 
+                    f"{timestamp} Пользователь сайта запросил проверку "
                     f"{query_type_display} по VIN {query.vin}"
                 )
                 formatted_queries.append(formatted_query)
-            
+
             return formatted_queries
         except Exception:
             logger.exception("Failed to fetch recent website queries")

@@ -1,6 +1,7 @@
 import pytest
 from .models import Review
 
+
 @pytest.mark.django_db
 class TestReviewModel:
     """Tests for the Review model."""
@@ -11,8 +12,8 @@ class TestReviewModel:
             name="John Doe",
             email="john@example.com",
             rating=4,
-            text="This is a test review."
+            text="This is a test review.",
         )
         assert review.name == "John Doe"
         assert review.rating == 4
-        assert str(review) == "John Doe - 4★" 
+        assert str(review) == "John Doe - 4★"

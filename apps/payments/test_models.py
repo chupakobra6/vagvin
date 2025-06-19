@@ -24,7 +24,7 @@ class TestPaymentModel:
             amount=Decimal("100.00"),
             total_amount=Decimal("110.00"),
             invoice_id="test_invoice_123",
-            status="pending"
+            status="pending",
         )
         assert payment.user == user
         assert str(payment) == f"{user} → robokassa 100.00 руб. (Ожидает оплаты)"
@@ -38,7 +38,7 @@ class TestPaymentModel:
             amount=Decimal("200.00"),
             total_amount=Decimal("0.00"),  # To test apply_commission
             invoice_id="test_invoice_456",
-            status="pending"
+            status="pending",
         )
 
         PaymentService.apply_commission(payment, rate=0.10)
@@ -51,10 +51,10 @@ class TestPaymentModel:
         assert PaymentService.is_successful(payment)
 
         # Reset status to test another state change
-        payment.status = 'pending'
+        payment.status = "pending"
         payment.save()
-        
+
         PaymentService.mark_as_failed(payment)
         assert PaymentService.is_failed(payment)
 
-        assert PaymentService.get_payment_method_display(payment) == "YooKassa" 
+        assert PaymentService.get_payment_method_display(payment) == "YooKassa"

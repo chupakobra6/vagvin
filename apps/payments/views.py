@@ -16,9 +16,12 @@ from django.views.generic import TemplateView
 from .models import Payment
 from .services import (
     get_payment_processor,
-    create_robokassa_payment, verify_robokassa_callback,
-    create_yookassa_payment, verify_yookassa_callback,
-    create_heleket_payment, verify_heleket_callback
+    create_robokassa_payment,
+    verify_robokassa_callback,
+    create_yookassa_payment,
+    verify_yookassa_callback,
+    create_heleket_payment,
+    verify_heleket_callback,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,31 +29,36 @@ logger = logging.getLogger(__name__)
 
 class BasePaymentView(View):
     """Base view for initiating payments with any payment processor."""
+
     provider = None
 
     @method_decorator(login_required)
     def post(self, request):
         try:
             data = self._parse_request_data(request)
-            amount = float(data.get('amount', 0))
-            total_amount = float(data.get('total_amount', 0)) if data.get('total_amount') else None
+            amount = float(data.get("amount", 0))
+            total_amount = (
+                float(data.get("total_amount", 0)) if data.get("total_amount") else None
+            )
 
             if amount <= 0:
-                return JsonResponse({'error': 'Сумма должна быть положительной'}, status=400)
+                return JsonResponse(
+                    {"error": "Сумма должна быть положительной"}, status=400
+                )
 
-            payment, payment_url = self._create_payment(request.user, amount, total_amount)
+            payment, payment_url = self._create_payment(
+                request.user, amount, total_amount
+            )
 
-            return JsonResponse({
-                'success': True,
-                'payment_url': payment_url,
-                'payment_id': payment.id
-            })
+            return JsonResponse(
+                {"success": True, "payment_url": payment_url, "payment_id": payment.id}
+            )
         except Exception:
             logger.exception("Error creating payment")
-            return JsonResponse({
-                'success': False,
-                'error': 'Произошла ошибка при создании платежа'
-            }, status=500)
+            return JsonResponse(
+                {"success": False, "error": "Произошла ошибка при создании платежа"},
+                status=500,
+            )
 
     def _parse_request_data(self, request) -> Dict[str, Any]:
         """Parse request data from either JSON or POST."""
@@ -64,6 +72,7 @@ class BasePaymentView(View):
 
 class BaseCallbackView(View):
     """Base view for payment callbacks from payment providers."""
+
     provider = None
     ip_whitelist_setting = None
 
@@ -78,12 +87,12 @@ class BaseCallbackView(View):
 
         whitelist = None
         match self.ip_whitelist_setting:
-            case 'ALLOWED_ROBOKASSA_IPS':
+            case "ALLOWED_ROBOKASSA_IPS":
                 try:
                     whitelist = settings.ALLOWED_ROBOKASSA_IPS
                 except AttributeError:
                     return True
-            case 'ALLOWED_HELEKET_IPS':
+            case "ALLOWED_HELEKET_IPS":
                 try:
                     whitelist = settings.ALLOWED_HELEKET_IPS
                 except AttributeError:
@@ -94,7 +103,7 @@ class BaseCallbackView(View):
         if not whitelist:
             return True
 
-        return request.META.get('REMOTE_ADDR') in whitelist
+        return request.META.get("REMOTE_ADDR") in whitelist
 
     def get(self, request):
         try:
@@ -131,7 +140,8 @@ class BaseCallbackView(View):
 
 class InitiateRobokassaPaymentView(BasePaymentView):
     """View for initiating payments through Robokassa."""
-    provider = 'robokassa'
+
+    provider = "robokassa"
 
     def _create_payment(self, user, amount, total_amount):
         return create_robokassa_payment(user, amount, total_amount)
@@ -139,8 +149,9 @@ class InitiateRobokassaPaymentView(BasePaymentView):
 
 class RobokassaCallbackView(BaseCallbackView):
     """View for handling callbacks from Robokassa."""
-    provider = 'robokassa'
-    ip_whitelist_setting = 'ALLOWED_ROBOKASSA_IPS'
+
+    provider = "robokassa"
+    ip_whitelist_setting = "ALLOWED_ROBOKASSA_IPS"
 
     def _verify_callback(self, params):
         return verify_robokassa_callback(params)
@@ -148,7 +159,8 @@ class RobokassaCallbackView(BaseCallbackView):
 
 class InitiateYooKassaPaymentView(BasePaymentView):
     """View for initiating payments through YooKassa."""
-    provider = 'yookassa'
+
+    provider = "yookassa"
 
     def _create_payment(self, user, amount, total_amount):
         return create_yookassa_payment(user, amount, total_amount)
@@ -156,7 +168,8 @@ class InitiateYooKassaPaymentView(BasePaymentView):
 
 class YooKassaCallbackView(BaseCallbackView):
     """View for handling callbacks from YooKassa."""
-    provider = 'yookassa'
+
+    provider = "yookassa"
 
     def post(self, request):
         try:
@@ -174,13 +187,14 @@ class YooKassaCallbackView(BaseCallbackView):
             else:
                 return HttpResponse("Invalid payment status", status=400)
         except Exception:
-            logger.exception('Error processing YooKassa callback')
+            logger.exception("Error processing YooKassa callback")
             return HttpResponse("Error", status=500)
 
 
 class InitiateHeleketPaymentView(BasePaymentView):
     """View for initiating payments through Heleket."""
-    provider = 'heleket'
+
+    provider = "heleket"
 
     def _create_payment(self, user, amount, total_amount):
         return create_heleket_payment(user, amount, total_amount)
@@ -188,8 +202,9 @@ class InitiateHeleketPaymentView(BasePaymentView):
 
 class HeleketCallbackView(BaseCallbackView):
     """View for handling callbacks from Heleket."""
-    provider = 'heleket'
-    ip_whitelist_setting = 'ALLOWED_HELEKET_IPS'
+
+    provider = "heleket"
+    ip_whitelist_setting = "ALLOWED_HELEKET_IPS"
 
     def _verify_callback(self, params):
         return verify_heleket_callback(params)
@@ -197,7 +212,7 @@ class HeleketCallbackView(BaseCallbackView):
 
 class PaymentStatusView(View):
     """View for checking payment status."""
-    
+
     @method_decorator(login_required)
     def get(self, request, payment_id):
         try:
@@ -207,32 +222,36 @@ class PaymentStatusView(View):
             total_amount = payment.total_amount
 
             try:
-                amount = amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                amount = amount.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
             except AttributeError:
                 pass
 
             try:
-                total_amount = total_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+                total_amount = total_amount.quantize(
+                    Decimal("0.01"), rounding=ROUND_HALF_UP
+                )
             except AttributeError:
                 pass
 
-            return JsonResponse({
-                'success': True,
-                'status': payment.status,
-                'amount': float(amount),
-                'total_amount': float(total_amount),
-                'created_at': payment.created_at.isoformat()
-            })
+            return JsonResponse(
+                {
+                    "success": True,
+                    "status": payment.status,
+                    "amount": float(amount),
+                    "total_amount": float(total_amount),
+                    "created_at": payment.created_at.isoformat(),
+                }
+            )
         except Payment.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'error': 'Платеж не найден'
-            }, status=404)
+            return JsonResponse(
+                {"success": False, "error": "Платеж не найден"}, status=404
+            )
 
 
 class PaymentRequisitesView(TemplateView):
     """View for payment requisites page."""
-    template_name = 'payments/requisites.html'
+
+    template_name = "payments/requisites.html"
 
 
 class TestSuccessView(View):
@@ -240,15 +259,18 @@ class TestSuccessView(View):
 
     @method_decorator(login_required)
     def get(self, request):
-        payment_id = request.GET.get('payment_id')
+        payment_id = request.GET.get("payment_id")
         if not payment_id:
-            return JsonResponse({'error': 'Отсутствует ID платежа'}, status=400)
+            return JsonResponse({"error": "Отсутствует ID платежа"}, status=400)
 
         try:
             payment = Payment.objects.get(id=payment_id, user=request.user)
 
-            messages.success(request, f"Тестовый платеж на сумму {payment.amount} руб. успешно выполнен!")
-            return redirect('accounts:dashboard')
+            messages.success(
+                request,
+                f"Тестовый платеж на сумму {payment.amount} руб. успешно выполнен!",
+            )
+            return redirect("accounts:dashboard")
 
         except Payment.DoesNotExist:
-            return JsonResponse({'error': 'Некорректный платеж'}, status=400)
+            return JsonResponse({"error": "Некорректный платеж"}, status=400)

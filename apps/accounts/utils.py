@@ -1,7 +1,7 @@
 import logging
 import secrets
 import string
-from typing import Optional, List, Any
+from typing import Optional, List
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -15,25 +15,25 @@ logger = logging.getLogger(__name__)
 
 class PasswordService:
     """Service for password generation and handling"""
-    
+
     @classmethod
     def generate_password(cls, length: int = 14) -> str:
         """Generate a secure random password"""
         characters = string.ascii_letters + string.digits
-        return ''.join(secrets.choice(characters) for _ in range(length))
+        return "".join(secrets.choice(characters) for _ in range(length))
 
 
 class EmailService:
     """Service for email operations"""
-    
+
     @classmethod
     def send_email(
         cls,
-        subject: str, 
-        to_email: str, 
-        html_content: str, 
-        additional_recipients: Optional[List[str]] = None, 
-        copy_admin: bool = True
+        subject: str,
+        to_email: str,
+        html_content: str,
+        additional_recipients: Optional[List[str]] = None,
+        copy_admin: bool = True,
     ) -> bool:
         """Send an email with both HTML and plain text content"""
         from_email = settings.DEFAULT_FROM_EMAIL
@@ -54,13 +54,13 @@ class EmailService:
                 from_email,
                 recipients,
                 html_message=html_content,
-                fail_silently=False
+                fail_silently=False,
             )
 
             if result:
                 logger.info(f"Email '{subject}' successfully sent to {recipients}")
                 return True
-            
+
             logger.error(f"Failed to send email '{subject}' to {recipients}")
             return False
         except Exception:
@@ -77,18 +77,22 @@ class EmailService:
         try:
             referral_link = f"http://vagvin.ru{user.referral_link}"
             context = {
-                'username': user.username,
-                'password': password,
-                'email': user.email,
-                'referral_link': referral_link
+                "username": user.username,
+                "password": password,
+                "email": user.email,
+                "referral_link": referral_link,
             }
-            return render_to_string('emails/registration.html', context)
+            return render_to_string("emails/registration.html", context)
         except Exception:
-            logger.exception(f"Error generating registration email content for user {user.email}")
+            logger.exception(
+                f"Error generating registration email content for user {user.email}"
+            )
             return None
 
     @classmethod
-    def get_password_reset_email_content(cls, user: User, new_password: str) -> Optional[str]:
+    def get_password_reset_email_content(
+        cls, user: User, new_password: str
+    ) -> Optional[str]:
         """Generate the HTML content for a password reset email"""
         if not user or not new_password:
             logger.error("Missing user or new password for reset email content")
@@ -96,36 +100,38 @@ class EmailService:
 
         try:
             context = {
-                'username': user.username,
-                'password': new_password,
+                "username": user.username,
+                "password": new_password,
             }
-            return render_to_string('emails/password_reset.html', context)
+            return render_to_string("emails/password_reset.html", context)
         except Exception:
-            logger.exception(f"Error generating password reset email content for user {user.email}")
+            logger.exception(
+                f"Error generating password reset email content for user {user.email}"
+            )
             return None
 
     @classmethod
     def send_registration_email(cls, user: User, password: str) -> bool:
         """Send a registration email to a new user"""
-        subject = 'Добро пожаловать на сайт vagvin.ru!'
+        subject = "Добро пожаловать на сайт vagvin.ru!"
         html_content = cls.get_registration_email_content(user, password)
         if not html_content:
             return False
-            
+
         if settings.DEBUG:
             logger.debug(f"Generated password for {user.email}: {password}")
-            
+
         return cls.send_email(subject, user.email, html_content)
 
     @classmethod
     def send_password_reset_email(cls, user: User, new_password: str) -> bool:
         """Send a password reset email to a user"""
-        subject = 'Восстановление пароля на сайте vagvin.ru'
+        subject = "Восстановление пароля на сайте vagvin.ru"
         html_content = cls.get_password_reset_email_content(user, new_password)
         if not html_content:
             return False
-            
+
         if settings.DEBUG:
             logger.debug(f"Reset password for {user.email}: {new_password}")
-            
+
         return cls.send_email(subject, user.email, html_content, copy_admin=False)

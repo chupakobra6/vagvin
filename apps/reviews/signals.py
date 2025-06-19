@@ -19,18 +19,15 @@ def notify_admin_new_review(instance: Review, created: bool, **kwargs) -> None:
 
     try:
         admin_url = f"{settings.SITE_URL}/admin/reviews/review/{instance.id}/change/"
-        context = {
-            'review': instance,
-            'admin_url': admin_url
-        }
-        html_content = render_to_string('emails/review_notification.html', context)
+        context = {"review": instance, "admin_url": admin_url}
+        html_content = render_to_string("emails/review_notification.html", context)
         subject = "Новый отзыв на сайте Vagvin"
 
         EmailService.send_email(
             subject=subject,
             to_email=settings.ADMIN_EMAIL,
             html_content=html_content,
-            copy_admin=True
+            copy_admin=True,
         )
 
         logger.info(f"Review notification email sent for review id {instance.id}")

@@ -8,18 +8,21 @@ from django.http import HttpRequest
 
 from .forms import ReviewForm
 from .models import Review
+from vagvin.monitoring import record_review
 
 logger = logging.getLogger(__name__)
 
 
 def get_approved_reviews_queryset() -> QuerySet:
     """Get the queryset of approved reviews ordered by creation date."""
-    return Review.objects.filter(approved=True).order_by('-created_at')
+    return Review.objects.filter(approved=True).order_by("-created_at")
 
 
 def get_approved_reviews(*, page: int = 1, per_page: int = 10) -> Tuple[Page, int]:
     """Get paginated approved reviews."""
-    logger.info(f"Getting approved reviews for page {page} with {per_page} items per page")
+    logger.info(
+        f"Getting approved reviews for page {page} with {per_page} items per page"
+    )
     reviews = get_approved_reviews_queryset()
 
     paginator = Paginator(reviews, per_page)
@@ -32,12 +35,9 @@ def create_review(*, name: str, email: str, rating: int, text: str) -> Review:
     """Create a new review."""
     try:
         review = Review.objects.create(
-            name=name,
-            email=email,
-            rating=rating,
-            text=text,
-            approved=False
+            name=name, email=email, rating=rating, text=text, approved=False
         )
+        record_review(rating)  # Record review metric
         logger.info(f"Created new review from {name} with ID {review.id}")
         return review
     except Exception:
@@ -49,22 +49,17 @@ def get_review_statistics() -> Dict[str, Any]:
     """Get review statistics."""
     try:
         stats = Review.objects.filter(approved=True).aggregate(
-            count=Count('id'),
-            avg_rating=Avg('rating')
+            count=Count("id"), avg_rating=Avg("rating")
         )
 
         return {
-            'total_reviews': stats['count'] or 0,
-            'average_rating': round(stats['avg_rating'] or 0, 1),
-            'rating_percentages': get_rating_distribution()
+            "total_reviews": stats["count"] or 0,
+            "average_rating": round(stats["avg_rating"] or 0, 1),
+            "rating_percentages": get_rating_distribution(),
         }
     except Exception:
         logger.exception("Failed to get review statistics")
-        return {
-            'total_reviews': 0,
-            'average_rating': 0,
-            'rating_percentages': {}
-        }
+        return {"total_reviews": 0, "average_rating": 0, "rating_percentages": {}}
 
 
 def get_rating_distribution() -> Dict[int, float]:
@@ -89,17 +84,17 @@ def get_pagination_context(page_obj: Page) -> Dict[str, Any]:
     """Generate pagination context for templates."""
     page_range = []
     for i in range(
-            max(1, page_obj.number - 2),
-            min(page_obj.paginator.num_pages + 1, page_obj.number + 3)
+        max(1, page_obj.number - 2),
+        min(page_obj.paginator.num_pages + 1, page_obj.number + 3),
     ):
         page_range.append(i)
 
     return {
-        'current_page': page_obj.number,
-        'total_pages': page_obj.paginator.num_pages,
-        'has_previous': page_obj.has_previous(),
-        'has_next': page_obj.has_next(),
-        'page_range': page_range,
+        "current_page": page_obj.number,
+        "total_pages": page_obj.paginator.num_pages,
+        "has_previous": page_obj.has_previous(),
+        "has_next": page_obj.has_next(),
+        "page_range": page_range,
     }
 
 
@@ -110,17 +105,25 @@ def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[Revie
     if form.is_valid():
         try:
             create_review(
-                name=form.cleaned_data['name'],
-                email=form.cleaned_data['email'],
-                rating=form.cleaned_data['rating'],
-                text=form.cleaned_data['text']
+                name=form.cleaned_data["name"],
+                email=form.cleaned_data["email"],
+                rating=form.cleaned_data["rating"],
+                text=form.cleaned_data["text"],
             )
-            messages.success(request, "Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.")
-            logger.info(f"Successfully submitted review from {form.cleaned_data['name']}")
+            messages.success(
+                request,
+                "Спасибо! Ваш отзыв отправлен и будет опубликован после модерации.",
+            )
+            logger.info(
+                f"Successfully submitted review from {form.cleaned_data['name']}"
+            )
             return True, None
         except Exception:
             logger.exception("Failed to save review")
-            messages.error(request, "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.")
+            messages.error(
+                request,
+                "Произошла ошибка при сохранении отзыва. Пожалуйста, попробуйте еще раз.",
+            )
             return False, form
     else:
         logger.warning(f"Review form validation failed: {form.errors}")
@@ -135,7 +138,7 @@ def handle_review_submission(request: HttpRequest) -> Tuple[bool, Optional[Revie
 def get_recent_reviews(limit: int = 5) -> List[Review]:
     """Get most recent approved reviews."""
     try:
-        return Review.objects.filter(approved=True).order_by('-created_at')[:limit]
+        return Review.objects.filter(approved=True).order_by("-created_at")[:limit]
     except Exception:
         logger.exception("Failed to get recent reviews")
         return []

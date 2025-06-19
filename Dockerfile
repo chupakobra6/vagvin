@@ -25,10 +25,4 @@ COPY . .
 RUN chmod +x /app/docker-entrypoint.sh
 
 # Expose port
-EXPOSE 8000
-
-# Set the entrypoint
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-
-# Command to run the application
-CMD ["gunicorn", "vagvin.wsgi:application", "--bind", "0.0.0.0:8000"] 
+EXPOSE 8000 

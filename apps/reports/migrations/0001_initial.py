@@ -15,19 +15,46 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Query',
+            name="Query",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
-                ('vin', models.CharField(max_length=17, verbose_name='VIN-номер')),
-                ('query_type', models.CharField(max_length=50, verbose_name='Тип отчёта')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='queries', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Дата обновления"),
+                ),
+                ("vin", models.CharField(max_length=17, verbose_name="VIN-номер")),
+                (
+                    "query_type",
+                    models.CharField(max_length=50, verbose_name="Тип отчёта"),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="queries",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Запрос',
-                'verbose_name_plural': 'Запросы',
-                'ordering': ['-created_at'],
+                "verbose_name": "Запрос",
+                "verbose_name_plural": "Запросы",
+                "ordering": ["-created_at"],
             },
         ),
     ]

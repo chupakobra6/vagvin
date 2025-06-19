@@ -15,8 +15,11 @@ def client():
 def approved_review():
     """Pytest fixture for a single approved review."""
     return Review.objects.create(
-        name="Test User", email="test@example.com", rating=5,
-        text="A great service!", approved=True
+        name="Test User",
+        email="test@example.com",
+        rating=5,
+        text="A great service!",
+        approved=True,
     )
 
 
@@ -26,38 +29,40 @@ class TestReviewViews:
 
     def test_review_list_view_get(self, client, approved_review):
         """Test the GET request for the review list view."""
-        response = client.get(reverse('reviews:list'))
+        response = client.get(reverse("reviews:list"))
         assert response.status_code == 200
-        assert 'reviews/list.html' in (t.name for t in response.templates)
-        assert approved_review in response.context['reviews']
+        assert "reviews/list.html" in (t.name for t in response.templates)
+        assert approved_review in response.context["reviews"]
 
     def test_review_list_view_post_valid(self, client):
         """Test a valid POST request to submit a review."""
         form_data = {
-            'name': 'Jane Doe', 'email': 'jane@example.com',
-            'rating': 5, 'text': 'This is an excellent review.'
+            "name": "Jane Doe",
+            "email": "jane@example.com",
+            "rating": 5,
+            "text": "This is an excellent review.",
         }
-        response = client.post(reverse('reviews:list'), form_data, follow=True)
+        response = client.post(reverse("reviews:list"), form_data, follow=True)
         assert response.status_code == 200
-        assert 'messages' in response.context
-        messages = list(response.context['messages'])
+        assert "messages" in response.context
+        messages = list(response.context["messages"])
         assert len(messages) == 1
         assert "Спасибо! Ваш отзыв отправлен" in str(messages[0])
-        assert Review.objects.filter(email='jane@example.com').exists()
+        assert Review.objects.filter(email="jane@example.com").exists()
 
     def test_review_list_view_post_invalid(self, client):
         """Test an invalid POST request to submit a review."""
-        form_data = {'name': 'J'}  # Invalid name
-        response = client.post(reverse('reviews:list'), form_data)
+        form_data = {"name": "J"}  # Invalid name
+        response = client.post(reverse("reviews:list"), form_data)
         assert response.status_code == 200
-        assert 'form' in response.context
-        assert response.context['form'].errors
+        assert "form" in response.context
+        assert response.context["form"].errors
         assert not Review.objects.exists()
 
     def test_review_widget_view(self, client, approved_review):
         """Test the review widget view."""
-        response = client.get(reverse('reviews:widget'))
+        response = client.get(reverse("reviews:widget"))
         assert response.status_code == 200
-        assert 'reviews/list.html' in (t.name for t in response.templates)
-        assert response.context['is_widget'] is True
-        assert approved_review in response.context['recent_reviews'] 
+        assert "reviews/list.html" in (t.name for t in response.templates)
+        assert response.context["is_widget"] is True
+        assert approved_review in response.context["recent_reviews"]

@@ -15,23 +15,95 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Payment',
+            name="Payment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')),
-                ('updated_at', models.DateTimeField(auto_now=True, verbose_name='Дата обновления')),
-                ('provider', models.CharField(choices=[('robokassa', 'Robokassa'), ('yookassa', 'YooKassa'), ('heleket', 'Heleket'), ('internal', 'Internal')], max_length=20, verbose_name='Платежная система')),
-                ('amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Сумма')),
-                ('total_amount', models.DecimalField(decimal_places=2, max_digits=10, verbose_name='Сумма с комиссией')),
-                ('invoice_id', models.CharField(max_length=100, unique=True, verbose_name='Идентификатор платежа')),
-                ('status', models.CharField(choices=[('pending', 'Ожидает оплаты'), ('success', 'Успешно'), ('failed', 'Ошибка')], default='pending', max_length=10, verbose_name='Статус')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='payments', to=settings.AUTH_USER_MODEL, verbose_name='Пользователь')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        auto_now_add=True, verbose_name="Дата создания"
+                    ),
+                ),
+                (
+                    "updated_at",
+                    models.DateTimeField(auto_now=True, verbose_name="Дата обновления"),
+                ),
+                (
+                    "provider",
+                    models.CharField(
+                        choices=[
+                            ("robokassa", "Robokassa"),
+                            ("yookassa", "YooKassa"),
+                            ("heleket", "Heleket"),
+                            ("internal", "Internal"),
+                        ],
+                        max_length=20,
+                        verbose_name="Платежная система",
+                    ),
+                ),
+                (
+                    "amount",
+                    models.DecimalField(
+                        decimal_places=2, max_digits=10, verbose_name="Сумма"
+                    ),
+                ),
+                (
+                    "total_amount",
+                    models.DecimalField(
+                        decimal_places=2,
+                        max_digits=10,
+                        verbose_name="Сумма с комиссией",
+                    ),
+                ),
+                (
+                    "invoice_id",
+                    models.CharField(
+                        max_length=100,
+                        unique=True,
+                        verbose_name="Идентификатор платежа",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("pending", "Ожидает оплаты"),
+                            ("success", "Успешно"),
+                            ("failed", "Ошибка"),
+                        ],
+                        default="pending",
+                        max_length=10,
+                        verbose_name="Статус",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="payments",
+                        to=settings.AUTH_USER_MODEL,
+                        verbose_name="Пользователь",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Платеж',
-                'verbose_name_plural': 'Платежи',
-                'ordering': ['-created_at'],
-                'indexes': [models.Index(fields=['invoice_id'], name='payment_invoice_id_idx'), models.Index(fields=['user', 'status'], name='payment_user_status_idx')],
+                "verbose_name": "Платеж",
+                "verbose_name_plural": "Платежи",
+                "ordering": ["-created_at"],
+                "indexes": [
+                    models.Index(fields=["invoice_id"], name="payment_invoice_id_idx"),
+                    models.Index(
+                        fields=["user", "status"], name="payment_user_status_idx"
+                    ),
+                ],
             },
         ),
     ]

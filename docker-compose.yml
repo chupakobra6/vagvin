@@ -1,6 +1,8 @@
 services:
   web:
     build: .
+    command: >
+      bash -c "chmod +x /app/docker-entrypoint.sh && /app/docker-entrypoint.sh gunicorn vagvin.wsgi:application --bind 0.0.0.0:8000"
     restart: always
     volumes:
       - .:/app
@@ -12,7 +14,9 @@ services:
       - "9999:8000"
     depends_on:
       - db
-  
+    networks:
+      - vagvin_net
+
   db:
     image: postgres:15
     restart: always
@@ -24,6 +28,39 @@ services:
       - POSTGRES_DB=vagvin
     ports:
       - "5432:5432"
+    networks:
+      - vagvin_net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./prometheus:/etc/prometheus
+    ports:
+      - "9090:9090"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - vagvin_net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    networks:
+      - vagvin_net
 
 volumes:
-  postgres_data: 
+  postgres_data:
+
+networks:
+  vagvin_net:
+    driver: bridge
