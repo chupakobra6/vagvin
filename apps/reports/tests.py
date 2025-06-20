@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 from django.urls import reverse
-from django.test import Client
+from django.test import Client, override_settings
 from apps.accounts.factories import UserFactory
 from django.core.cache import cache
 from unittest.mock import MagicMock
@@ -91,6 +91,11 @@ class TestReportServices:
         """Clear cache before each test."""
         cache.clear()
 
+    @override_settings(
+        AVITO_CLIENT_ID="test_id",
+        AVITO_CLIENT_SECRET="test_secret",
+        AVITO_TOKEN_URL="http://test.com/token",
+    )
     @patch("apps.reports.services.requests.post")
     def test_avito_auth_service_get_token(self, mock_post):
         """Test Avito token retrieval and caching."""
@@ -131,6 +136,10 @@ class TestReportServices:
         assert result["success"] is False
         assert "отсутствует в Автотеке" in result["message"]
 
+    @override_settings(
+        CARSTAT_API_KEY="a-super-long-and-valid-test-api-key",
+        CARSTAT_API_URL="http://test-carstat.com/api",
+    )
     @patch("apps.reports.services.requests.get")
     def test_carfax_service_check_error(self, mock_get):
         """Test CarfaxService handling of API errors."""
@@ -140,6 +149,10 @@ class TestReportServices:
         assert "error" in result
         assert "Ошибка сети при запросе к Carstat" in result["error"]
 
+    @override_settings(
+        VINHISTORY_API_KEY="test_key",
+        VINHISTORY_API_URL="http://test-vinhistory.com/api",
+    )
     @patch("apps.reports.services.requests.get")
     def test_vinhistory_service_check_no_images(self, mock_get):
         """Test VinhistoryService when data is found but no images."""
@@ -155,6 +168,9 @@ class TestReportServices:
         assert result["success"] is True
         assert "фото отсутствуют" in result["message"]
 
+    @override_settings(
+        AUCTION_API_KEY="test_key", AUCTION_API_URL="http://test-auction.com/api"
+    )
     @patch("apps.reports.services.requests.get")
     def test_auction_service_check_exists(self, mock_get):
         """Test AuctionService when auction data exists."""
