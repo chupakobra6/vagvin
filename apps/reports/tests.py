@@ -150,8 +150,8 @@ class TestReportServices:
         assert "Ошибка сети при запросе к Carstat" in result["error"]
 
     @override_settings(
-        VINHISTORY_API_KEY="test_key",
-        VINHISTORY_API_URL="http://test-vinhistory.com/api",
+        VINHISTORY_LOGIN="test_login",
+        VINHISTORY_PASS="test_pass",
     )
     @patch("apps.reports.services.requests.get")
     def test_vinhistory_service_check_no_images(self, mock_get):
@@ -168,9 +168,7 @@ class TestReportServices:
         assert result["success"] is True
         assert "фото отсутствуют" in result["message"]
 
-    @override_settings(
-        AUCTION_API_KEY="test_key", AUCTION_API_URL="http://test-auction.com/api"
-    )
+    @override_settings(CARSTAT_API_KEY="a-super-long-and-valid-test-api-key")
     @patch("apps.reports.services.requests.get")
     def test_auction_service_check_exists(self, mock_get):
         """Test AuctionService when auction data exists."""
