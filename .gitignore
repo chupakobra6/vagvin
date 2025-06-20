@@ -124,6 +124,7 @@ vagvin_*_dump.txt
 
 # Test results
 /reports/
+/allure-results/
 
 # Static files
 /staticfiles/
